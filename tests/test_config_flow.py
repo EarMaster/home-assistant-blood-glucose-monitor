@@ -578,3 +578,70 @@ async def test_data_loss_and_pause_options(
     await hass.async_block_till_done()
     assert config_entry.options["data_loss"] == data_loss
     assert config_entry.options["pause"] == {"duration": 30}
+
+
+RAPID_INPUT = {
+    "detection": "rate",
+    "trend_level": "quickly",
+    "delay": 0,
+    "repeat": 0,
+    "snooze": 30,
+    "only_when_home": False,
+}
+
+
+@pytest.mark.parametrize(
+    ("user_input", "rate_state", "errors"),
+    [
+        (RAPID_INPUT, None, {"rate_limit": "rate_limit_required"}),
+        (
+            {**RAPID_INPUT, "rate_entity": "input_number.rate"},
+            ("x", {"unit_of_measurement": "mg/dL/min"}),
+            {"rate_entity": "not_numeric"},
+        ),
+        (
+            {**RAPID_INPUT, "rate_entity": "input_number.rate"},
+            ("3", {"unit_of_measurement": "mg/dL"}),
+            {"rate_entity": "rate_unit_required"},
+        ),
+        (
+            {**RAPID_INPUT, "rate_entity": "input_number.rate"},
+            ("3", {"unit_of_measurement": "mg/dL/min"}),
+            {},
+        ),
+        ({**RAPID_INPUT, "rate_limit": 3}, None, {}),
+        ({**RAPID_INPUT, "detection": "trend"}, None, {}),
+    ],
+)
+@pytest.mark.usefixtures("glucose_state")
+async def test_rapid_options(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    user_input: dict[str, Any],
+    rate_state: tuple[str, dict[str, Any]] | None,
+    errors: dict[str, str],
+) -> None:
+    """The rate limit of a rapid change alarm is checked."""
+    if rate_state is not None:
+        hass.states.async_set("input_number.rate", *rate_state)
+    result = await open_options_step(hass, config_entry, "rapid_fall")
+    assert suggested_values(result)["rate_limit"] == 3
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
+    )
+    if errors:
+        assert result["errors"] == errors
+    else:
+        assert result["type"] is FlowResultType.CREATE_ENTRY
+        await hass.async_block_till_done()
+        assert config_entry.options["rapid_fall"] == user_input
+
+
+@pytest.mark.parametrize("step", ["high", "urgent_high", "rapid_rise"])
+@pytest.mark.usefixtures("glucose_state")
+async def test_new_alarm_steps_open(
+    hass: HomeAssistant, config_entry: MockConfigEntry, step: str
+) -> None:
+    """The phase 3 alarm steps show their defaults."""
+    result = await open_options_step(hass, config_entry, step)
+    assert suggested_values(result)["snooze"] in (30, 60, 120)

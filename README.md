@@ -40,12 +40,13 @@ Work in progress. The current version (0.1) contains:
   sensor (as provided by Nightscout)
 - Any glucose source: every sensor can be selected, its current value is
   checked during setup
-- Alarms for urgent low, low and data loss with acknowledge, snooze,
-  re-check and pause; notifications as automations with device triggers
+- Alarms for urgent low, low, high, urgent high, rapid fall, rapid rise and
+  data loss with acknowledge, snooze, re-check and pause; notifications as
+  automations with device triggers
+- Status sensor per person
 - Diagnostics download showing how the glucose data and alarms are read
 
-Planned next: high alarms, rapid change, night report and phone charging
-reminder.
+Planned next: night report and phone charging reminder.
 
 ## Requirements
 
@@ -104,21 +105,31 @@ when the current value of a selected sensor cannot be read.
 
 ## Alarms
 
-Under **Configure** each entry has a menu: glucose data, the urgent low, low
-and data loss alarms, and the pause. The urgent low and low alarms are
-active once they have a threshold (leave it empty to switch them off); the
-data loss alarm is always active. Without an automation on their triggers,
-alarms only change their state sensors.
+Under **Configure** each entry has a menu: glucose data, one item per alarm
+and the pause. The threshold alarms are active once they have a threshold
+(leave it empty to switch them off), the rapid change alarms once a detection
+is selected; the data loss alarm is always active. Without an automation on
+their triggers, alarms only change their state sensors.
 
 | Alarm | Starts | Ends |
 | --- | --- | --- |
 | Urgent low | glucose below its threshold for the delay | glucose at threshold plus clear offset |
 | Low | glucose below its threshold for the delay | glucose at threshold plus clear offset |
+| High | glucose above its threshold for the delay | glucose at threshold minus clear offset |
+| Urgent high | glucose above its threshold for the delay | glucose at threshold minus clear offset |
+| Rapid fall | fast fall for the delay (see below) | no longer a fast fall |
+| Rapid rise | fast rise for the delay (see below) | no longer a fast rise |
 | Data loss | no new reading within the maximum data age | a new reading |
 
 - **Thresholds** are entities: for example the threshold sensors of the
   glucose integration (suggested automatically when available) or an
   `input_number`. Each alarm has its own threshold.
+- **Rapid change** is detected either by the **trend** of the glucose data
+  (from "quickly" or only "very quickly") or by the **own rate of change**
+  between the last two readings (at most 15 minutes apart) with a limit per
+  minute. The limit is a number in the unit of the glucose data per minute,
+  or an entity with the unit `mg/dL/min` or `mmol/L/min`, which takes
+  precedence.
 - **Repeat:** an active alarm fires its trigger again in this interval
   (0 = once).
 - **Acknowledge** silences an alarm for its snooze time. Afterwards the alarm
@@ -127,7 +138,7 @@ alarms only change their state sensors.
   `blood_glucose_monitor.acknowledge` action, or a mobile app notification
   action with the id from `ack_action`. Each alarm of each entry is
   acknowledged on its own.
-- **Pause:** the *Pause alarms* switch silences the low and data loss alarms
+- **Pause:** the *Pause alarms* switch silences all alarms except urgent low
   for the configured duration and turns off by itself. Urgent low is never
   paused.
 - **Only when the person is at home:** new alarms only start while the
@@ -153,9 +164,10 @@ The automation gets the alarm data as `trigger.event.data`:
 | Field | Content |
 | --- | --- |
 | `title`, `message` | ready-made texts in the language of Home Assistant |
-| `alarm` | `urgent_low`, `low` or `data_loss` |
+| `alarm` | `urgent_low`, `low`, `high`, `urgent_high`, `rapid_fall`, `rapid_rise` or `data_loss` |
 | `phase` | `triggered`, `repeat`, `acknowledged` or `resolved` |
 | `glucose`, `unit`, `delta` | latest value and change in the unit of the glucose sensor |
+| `rate` | own rate of change per minute in that unit |
 | `trend`, `trend_arrow` | trend key and arrow |
 | `data_age_min` | age of the latest reading in minutes |
 | `person_name`, `entry_id` | the entry |
@@ -195,9 +207,10 @@ actions:
 ```
 
 Every entry has a *Status* sensor with the most important current state:
-`no_data` (data loss or no reading time), `urgent_low`, `low`, `paused` or
-`ok`. Its attributes hold the latest glucose value with unit and trend arrow,
-the reading time and the active and snoozed alarms.
+`no_data` (data loss or no reading time), `urgent_low`, `low`,
+`rapid_fall`, `urgent_high`, `high`, `rapid_rise`, `paused` or `ok`. Its
+attributes hold the latest glucose value with unit, trend arrow and rate of
+change, the reading time and the active and snoozed alarms.
 
 Per entry there are also a state sensor per alarm (`idle`, `pending`,
 `active`, `snoozed`) and an *Alarm* event entity that records every alarm

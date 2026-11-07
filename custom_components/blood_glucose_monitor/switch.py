@@ -24,7 +24,7 @@ async def async_setup_entry(
 
 
 class PauseSwitch(BloodGlucoseMonitorEntity, SwitchEntity):
-    """Pause the low and data loss alarms; turns off by itself."""
+    """Pause all alarms except urgent low; turns off by itself."""
 
     _attr_translation_key = "pause"
 

@@ -44,11 +44,28 @@ SOURCE_TRANSLATION_KEY_READING_TIME: Final = "glucose_reading_time"
 # options, and its own acknowledge/snooze state.
 ALARM_URGENT_LOW: Final = "urgent_low"
 ALARM_LOW: Final = "low"
+ALARM_HIGH: Final = "high"
+ALARM_URGENT_HIGH: Final = "urgent_high"
+ALARM_RAPID_FALL: Final = "rapid_fall"
+ALARM_RAPID_RISE: Final = "rapid_rise"
 ALARM_DATA_LOSS: Final = "data_loss"
-ALARMS: Final = (ALARM_URGENT_LOW, ALARM_LOW, ALARM_DATA_LOSS)
-THRESHOLD_ALARMS: Final = (ALARM_URGENT_LOW, ALARM_LOW)
+ALARMS: Final = (
+    ALARM_URGENT_LOW,
+    ALARM_LOW,
+    ALARM_HIGH,
+    ALARM_URGENT_HIGH,
+    ALARM_RAPID_FALL,
+    ALARM_RAPID_RISE,
+    ALARM_DATA_LOSS,
+)
+# Alarm below / above a threshold entity.
+LOW_ALARMS: Final = (ALARM_URGENT_LOW, ALARM_LOW)
+HIGH_ALARMS: Final = (ALARM_HIGH, ALARM_URGENT_HIGH)
+THRESHOLD_ALARMS: Final = (*LOW_ALARMS, *HIGH_ALARMS)
+# Alarm on a fast change, from the trend of the source or an own rate.
+RATE_ALARMS: Final = (ALARM_RAPID_FALL, ALARM_RAPID_RISE)
 # Urgent low is never paused.
-PAUSABLE_ALARMS: Final = (ALARM_LOW, ALARM_DATA_LOSS)
+PAUSABLE_ALARMS: Final = tuple(alarm for alarm in ALARMS if alarm != ALARM_URGENT_LOW)
 
 CONF_THRESHOLD_ENTITY: Final = "threshold_entity"
 CONF_CLEAR_OFFSET: Final = "clear_offset"
@@ -58,24 +75,62 @@ CONF_SNOOZE: Final = "snooze"
 CONF_MAX_AGE: Final = "max_age"
 CONF_ONLY_WHEN_HOME: Final = "only_when_home"
 
+# Rapid change alarms: how a fast change is detected.
+CONF_DETECTION: Final = "detection"
+DETECTION_OFF: Final = "off"
+DETECTION_TREND: Final = "trend"
+DETECTION_RATE: Final = "rate"
+DETECTIONS: Final = (DETECTION_OFF, DETECTION_TREND, DETECTION_RATE)
+CONF_TREND_LEVEL: Final = "trend_level"
+TREND_LEVEL_QUICKLY: Final = "quickly"
+TREND_LEVEL_VERY_QUICKLY: Final = "very_quickly"
+TREND_LEVELS: Final = (TREND_LEVEL_QUICKLY, TREND_LEVEL_VERY_QUICKLY)
+# Rate limit per minute, as number (unit of the glucose data) or entity.
+CONF_RATE_LIMIT: Final = "rate_limit"
+CONF_RATE_ENTITY: Final = "rate_entity"
+# Units of a rate limit entity and the glucose unit they stand for.
+RATE_UNITS: Final = {"mg/dL/min": "mg/dL", "mmol/L/min": "mmol/L"}
+# A rate needs two readings at most this many minutes apart.
+MAX_RATE_GAP_MINUTES: Final = 15
+
 # Pause of the pausable alarms, options dict under this key.
 CONF_PAUSE: Final = "pause"
 CONF_DURATION: Final = "duration"
 
 # Defaults in minutes. Only suggestions, every value can be changed.
-ALARM_DEFAULTS: Final[dict[str, dict[str, int]]] = {
+ALARM_DEFAULTS: Final[dict[str, dict[str, int | str]]] = {
     ALARM_URGENT_LOW: {CONF_DELAY: 0, CONF_REPEAT: 5, CONF_SNOOZE: 10},
     ALARM_LOW: {CONF_DELAY: 5, CONF_REPEAT: 5, CONF_SNOOZE: 15},
+    ALARM_HIGH: {CONF_DELAY: 30, CONF_REPEAT: 30, CONF_SNOOZE: 120},
+    ALARM_URGENT_HIGH: {CONF_DELAY: 15, CONF_REPEAT: 15, CONF_SNOOZE: 60},
+    ALARM_RAPID_FALL: {
+        CONF_DETECTION: DETECTION_OFF,
+        CONF_TREND_LEVEL: TREND_LEVEL_QUICKLY,
+        CONF_DELAY: 0,
+        CONF_REPEAT: 0,
+        CONF_SNOOZE: 30,
+    },
+    ALARM_RAPID_RISE: {
+        CONF_DETECTION: DETECTION_OFF,
+        CONF_TREND_LEVEL: TREND_LEVEL_QUICKLY,
+        CONF_DELAY: 0,
+        CONF_REPEAT: 0,
+        CONF_SNOOZE: 30,
+    },
     ALARM_DATA_LOSS: {CONF_MAX_AGE: 20, CONF_REPEAT: 15, CONF_SNOOZE: 30},
 }
 DEFAULT_PAUSE_DURATION: Final = 60
 # Clear offset suggested per glucose unit.
 DEFAULT_CLEAR_OFFSET: Final = {"mg/dL": 10, "mmol/L": 0.5}
+# Rate limit suggested per glucose unit (per minute).
+DEFAULT_RATE_LIMIT: Final = {"mg/dL": 3, "mmol/L": 0.17}
 
 # Translation keys of threshold sensors (Nightscout) suggested per alarm.
 THRESHOLD_TRANSLATION_KEYS: Final = {
     ALARM_URGENT_LOW: "urgent_low_threshold",
     ALARM_LOW: "target_range_bottom",
+    ALARM_HIGH: "target_range_top",
+    ALARM_URGENT_HIGH: "urgent_high_threshold",
 }
 
 EVENT_MOBILE_APP_NOTIFICATION_ACTION: Final = "mobile_app_notification_action"

@@ -13,4 +13,8 @@ acknowledge:
           options:
             - urgent_low
             - low
+            - high
+            - urgent_high
+            - rapid_fall
+            - rapid_rise
             - data_loss

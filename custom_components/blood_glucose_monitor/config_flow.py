@@ -31,12 +31,17 @@ import probatio as vol
 from .const import (
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
+    ALARM_HIGH,
     ALARM_LOW,
+    ALARM_RAPID_FALL,
+    ALARM_RAPID_RISE,
+    ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
     CONF_CHANGE_ENTITY,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
+    CONF_DETECTION,
     CONF_DISCLAIMER_ACCEPTED,
     CONF_DURATION,
     CONF_GLUCOSE_ENTITY,
@@ -46,16 +51,25 @@ from .const import (
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
     CONF_PERSON_ENTITY,
+    CONF_RATE_ENTITY,
+    CONF_RATE_LIMIT,
     CONF_READING_TIME_ENTITY,
     CONF_REPEAT,
     CONF_SNOOZE,
     CONF_THRESHOLD_ENTITY,
     CONF_TREND_ENTITY,
+    CONF_TREND_LEVEL,
     DEFAULT_CLEAR_OFFSET,
     DEFAULT_PAUSE_DURATION,
+    DEFAULT_RATE_LIMIT,
+    DETECTION_RATE,
+    DETECTIONS,
     DOMAIN,
+    RATE_ALARMS,
+    RATE_UNITS,
     THRESHOLD_ALARMS,
     THRESHOLD_TRANSLATION_KEYS,
+    TREND_LEVELS,
 )
 from .glucose import parse_number, parse_timestamp, parse_trend
 from .source import (
@@ -148,9 +162,37 @@ DATA_LOSS_SCHEMA = vol.Schema(
     }
 )
 PAUSE_SCHEMA = vol.Schema({vol.Required(CONF_DURATION): _minutes(1)})
+RATE_ALARM_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_DETECTION): SelectSelector(
+            SelectSelectorConfig(
+                options=list(DETECTIONS),
+                translation_key=CONF_DETECTION,
+                mode=SelectSelectorMode.LIST,
+            )
+        ),
+        vol.Required(CONF_TREND_LEVEL): SelectSelector(
+            SelectSelectorConfig(
+                options=list(TREND_LEVELS),
+                translation_key=CONF_TREND_LEVEL,
+                mode=SelectSelectorMode.DROPDOWN,
+            )
+        ),
+        vol.Optional(CONF_RATE_LIMIT): CLEAR_OFFSET_SELECTOR,
+        vol.Optional(CONF_RATE_ENTITY): THRESHOLD_SELECTOR,
+        vol.Required(CONF_DELAY): _minutes(),
+        vol.Required(CONF_REPEAT): _minutes(),
+        vol.Required(CONF_SNOOZE): _minutes(1),
+        vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
+    }
+)
 ALARM_SCHEMAS = {
     ALARM_URGENT_LOW: THRESHOLD_ALARM_SCHEMA,
     ALARM_LOW: THRESHOLD_ALARM_SCHEMA,
+    ALARM_HIGH: THRESHOLD_ALARM_SCHEMA,
+    ALARM_URGENT_HIGH: THRESHOLD_ALARM_SCHEMA,
+    ALARM_RAPID_FALL: RATE_ALARM_SCHEMA,
+    ALARM_RAPID_RISE: RATE_ALARM_SCHEMA,
     ALARM_DATA_LOSS: DATA_LOSS_SCHEMA,
 }
 
@@ -346,6 +388,20 @@ def _validate_threshold(
     return {}
 
 
+def _validate_rate(hass: HomeAssistant, values: Mapping[str, Any]) -> dict[str, str]:
+    """Return form errors for the rate limit of a rapid change alarm."""
+    if entity_id := values.get(CONF_RATE_ENTITY):
+        if _unparsable(hass, entity_id, parse_number):
+            return {CONF_RATE_ENTITY: "not_numeric"}
+        # Nothing is guessed: the entity has to report a rate unit.
+        if sensor_unit(hass, entity_id) not in RATE_UNITS:
+            return {CONF_RATE_ENTITY: "rate_unit_required"}
+        return {}
+    if not values.get(CONF_RATE_LIMIT):
+        return {CONF_RATE_LIMIT: "rate_limit_required"}
+    return {}
+
+
 class OptionsFlowHandler(OptionsFlowWithReload):
     """Change the glucose data, the alarms and the pause of a person."""
 
@@ -419,6 +475,30 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Configure the low alarm."""
         return await self._async_alarm_step(ALARM_LOW, user_input)
 
+    async def async_step_high(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the high alarm."""
+        return await self._async_alarm_step(ALARM_HIGH, user_input)
+
+    async def async_step_urgent_high(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the urgent high alarm."""
+        return await self._async_alarm_step(ALARM_URGENT_HIGH, user_input)
+
+    async def async_step_rapid_fall(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the rapid fall alarm."""
+        return await self._async_alarm_step(ALARM_RAPID_FALL, user_input)
+
+    async def async_step_rapid_rise(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the rapid rise alarm."""
+        return await self._async_alarm_step(ALARM_RAPID_RISE, user_input)
+
     async def async_step_data_loss(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -428,7 +508,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
     async def async_step_pause(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Configure the pause of the low and data loss alarms."""
+        """Configure the pause (all alarms except urgent low)."""
         if user_input is not None:
             return self._async_save(CONF_PAUSE, user_input)
         current = {
@@ -458,6 +538,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                 errors |= _validate_threshold(
                     self.hass, entity_id, options.get(CONF_GLUCOSE_UNIT)
                 )
+            if values.get(CONF_DETECTION) == DETECTION_RATE:
+                errors |= _validate_rate(self.hass, values)
             if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):
                 errors[CONF_ONLY_WHEN_HOME] = "person_required"
             if not errors:
@@ -467,6 +549,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
             current = {**ALARM_DEFAULTS[alarm], **options.get(alarm, {})}
             if alarm in THRESHOLD_ALARMS:
                 current.setdefault(CONF_CLEAR_OFFSET, DEFAULT_CLEAR_OFFSET[unit])
+            if alarm in RATE_ALARMS:
+                current.setdefault(CONF_RATE_LIMIT, DEFAULT_RATE_LIMIT[unit])
             # Suggest a threshold only before the alarm was ever saved: an
             # empty threshold switches the alarm off.
             if alarm in THRESHOLD_ALARMS and alarm not in options:

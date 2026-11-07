@@ -26,6 +26,7 @@ EVENT_ATTRIBUTES = (
     "unit",
     "trend",
     "delta",
+    "rate",
     "data_age_min",
 )
 
