@@ -21,6 +21,9 @@
       },
       "acknowledge_rapid_rise": {
         "default": "mdi:bell-check"
+      },
+      "acknowledge_charging": {
+        "default": "mdi:bell-check"
       }
     },
     "event": {
@@ -90,6 +93,16 @@
           "idle": "mdi:trending-neutral",
           "snoozed": "mdi:bell-sleep"
         }
+      },
+      "charging_alarm": {
+        "default": "mdi:battery-alert",
+        "state": {
+          "idle": "mdi:battery-check",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "last_report": {
+        "default": "mdi:clipboard-text-clock"
       }
     },
     "switch": {

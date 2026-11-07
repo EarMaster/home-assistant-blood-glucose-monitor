@@ -1,6 +1,7 @@
 {
   "domain": "blood_glucose_monitor",
   "name": "Blood Glucose Monitor",
+  "after_dependencies": ["recorder"],
   "categories": ["health_wellbeing"],
   "codeowners": ["@EarMaster"],
   "config_flow": true,
