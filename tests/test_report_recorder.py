@@ -52,8 +52,8 @@ async def test_report_statistics(
     await async_wait_recording_done(hass)
     hass.states.async_set(REPORT_ENTITY, "off")
     await hass.async_block_till_done()
-    await async_wait_recording_done(hass)
-    await hass.async_block_till_done()
+    # The report is a background task reading the history in the executor.
+    await hass.async_block_till_done(wait_background_tasks=True)
 
     report = next(e.data for e in events if e.data["type"] == "report")
     assert report["glucose_min"] == 100

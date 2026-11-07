@@ -165,7 +165,7 @@ async def test_report_period(scenario: Scenario) -> None:
     await scenario.wait(5, 65)  # low alarm
     await scenario.wait(25, 110)
     hass.states.async_set(REPORT_ENTITY, "off")
-    await hass.async_block_till_done()
+    await hass.async_block_till_done(wait_background_tasks=True)
 
     reports = report_events(scenario)
     assert len(reports) == 1
@@ -191,5 +191,5 @@ async def test_report_across_restart(scenario: Scenario) -> None:
     await scenario.wait(30)
     hass.states.async_set(REPORT_ENTITY, "off")
     assert await hass.config_entries.async_setup(scenario.entry.entry_id)
-    await hass.async_block_till_done()
+    await hass.async_block_till_done(wait_background_tasks=True)
     assert len(report_events(scenario)) == 1
