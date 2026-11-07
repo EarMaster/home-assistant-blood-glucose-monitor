@@ -38,34 +38,49 @@ from .alarm import AlarmEngine, AlarmSettings, AlarmState, AlarmStatus, Conditio
 from .const import (
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
+    ALARM_HIGH,
     ALARM_LOW,
+    ALARM_RAPID_FALL,
+    ALARM_RAPID_RISE,
+    ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
+    CONF_DETECTION,
     CONF_DURATION,
     CONF_MAX_AGE,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
     CONF_PERSON_ENTITY,
+    CONF_RATE_ENTITY,
+    CONF_RATE_LIMIT,
     CONF_REPEAT,
     CONF_SNOOZE,
     CONF_THRESHOLD_ENTITY,
+    CONF_TREND_LEVEL,
     DEFAULT_PAUSE_DURATION,
+    DETECTION_OFF,
+    DETECTION_TREND,
     DOMAIN,
     EVENT_ALARM,
     EVENT_MOBILE_APP_NOTIFICATION_ACTION,
+    HIGH_ALARMS,
+    MAX_RATE_GAP_MINUTES,
     PAUSABLE_ALARMS,
-    THRESHOLD_ALARMS,
+    RATE_ALARMS,
+    RATE_UNITS,
+    TREND_LEVEL_VERY_QUICKLY,
     TRIGGER_ALERT,
     TRIGGER_ENDED,
 )
-from .glucose import GlucoseReading
+from .glucose import GlucoseReading, Trend, parse_number
 from .source import (
     MG_DL,
     GlucoseSource,
     from_mg_dl,
     sensor_unit,
+    state_value,
     to_mg_dl,
     value_mg_dl,
 )
@@ -83,7 +98,25 @@ STATUS_OK = "ok"
 STATUS_PAUSED = "paused"
 STATUS_NO_DATA = "no_data"
 # Overall status, most important first: the first that applies wins.
-STATUSES = (STATUS_NO_DATA, ALARM_URGENT_LOW, ALARM_LOW, STATUS_PAUSED, STATUS_OK)
+STATUS_ALARMS = (
+    ALARM_URGENT_LOW,
+    ALARM_LOW,
+    ALARM_RAPID_FALL,
+    ALARM_URGENT_HIGH,
+    ALARM_HIGH,
+    ALARM_RAPID_RISE,
+)
+STATUSES = (STATUS_NO_DATA, *STATUS_ALARMS, STATUS_PAUSED, STATUS_OK)
+
+# Trends that count as a fast change, per alarm and trend level.
+FAST_TRENDS = {
+    ALARM_RAPID_FALL: (Trend.FALLING_VERY_QUICKLY, Trend.FALLING_QUICKLY),
+    ALARM_RAPID_RISE: (Trend.RISING_VERY_QUICKLY, Trend.RISING_QUICKLY),
+}
+# A value arriving this long after its reading time still belongs to it.
+RATE_VALUE_WINDOW = timedelta(seconds=30)
+# Trends that tell nothing about the change.
+UNKNOWN_TRENDS = (Trend.NOT_COMPUTABLE, Trend.RATE_OUT_OF_RANGE)
 # Alarm states that count for the overall status.
 RUNNING_STATES = (AlarmState.ACTIVE, AlarmState.SNOOZED)
 
@@ -101,13 +134,16 @@ def alarm_options(options: Mapping[str, Any], alarm: str) -> dict[str, Any]:
 def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
     """Return the active alarms.
 
-    A threshold alarm is active once it has a threshold entity; the data loss
-    alarm is always active. Notifications are the user's automations.
+    A threshold alarm is active once it has a threshold entity, a rapid
+    change alarm once a detection is selected; the data loss alarm is always
+    active. Notifications are the user's automations.
     """
     return [
         alarm
         for alarm in ALARMS
-        if alarm == ALARM_DATA_LOSS or options.get(alarm, {}).get(CONF_THRESHOLD_ENTITY)
+        if alarm == ALARM_DATA_LOSS
+        or options.get(alarm, {}).get(CONF_THRESHOLD_ENTITY)
+        or options.get(alarm, {}).get(CONF_DETECTION, DETECTION_OFF) != DETECTION_OFF
     ]
 
 
@@ -159,6 +195,10 @@ class AlarmMonitor:
         )
         self.pause_until: datetime | None = None
         self.last_reading_time: datetime | None = None
+        # Latest and previous (time, mg/dL) for the own rate of change.
+        self._latest: tuple[datetime, float] | None = None
+        self._previous: tuple[datetime, float] | None = None
+        self._latest_at = dt_util.utcnow()
         self._store = Store[dict[str, Any]](
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
@@ -196,7 +236,7 @@ class AlarmMonitor:
             or self._running(ALARM_DATA_LOSS)
         ):
             return STATUS_NO_DATA
-        for alarm in (ALARM_URGENT_LOW, ALARM_LOW):
+        for alarm in STATUS_ALARMS:
             if self._running(alarm):
                 return alarm
         return STATUS_PAUSED if self.paused else STATUS_OK
@@ -210,6 +250,7 @@ class AlarmMonitor:
             "glucose": self._display(reading.value, unit),
             "unit": unit,
             "trend_arrow": reading.trend_arrow,
+            "rate": self._display_rate(unit),
             "reading_time": _iso(self.last_reading_time),
             "active_alarms": [
                 alarm
@@ -226,6 +267,13 @@ class AlarmMonitor:
     def _running(self, alarm: str) -> bool:
         engine = self.engines.get(alarm)
         return engine is not None and engine.state in RUNNING_STATES
+
+    def _display_rate(self, unit: str) -> float | None:
+        """Return the own rate of change per minute in ``unit``, rounded."""
+        converted = from_mg_dl(self.rate, unit)
+        if converted is None:
+            return None
+        return round(converted, 1 if unit == MG_DL else 2)
 
     @staticmethod
     def _display(value: float | None, unit: str) -> float | None:
@@ -247,8 +295,8 @@ class AlarmMonitor:
         tracked = [
             entity_id
             for alarm in self.alarms
-            if alarm in THRESHOLD_ALARMS
-            and (entity_id := self._options[alarm].get(CONF_THRESHOLD_ENTITY))
+            for key in (CONF_THRESHOLD_ENTITY, CONF_RATE_ENTITY)
+            if (entity_id := self._options[alarm].get(key))
         ]
         if person := entry.options.get(CONF_PERSON_ENTITY):
             tracked.append(person)
@@ -348,6 +396,7 @@ class AlarmMonitor:
             or reading.reading_time > self.last_reading_time
         ):
             self.last_reading_time = reading.reading_time
+        self._track_rate(reading, now)
         if self.pause_until is not None and now >= self.pause_until:
             self.pause_until = None
         self._async_update_issue(reading)
@@ -378,6 +427,10 @@ class AlarmMonitor:
                 return Condition.UNKNOWN
             return Condition.ALARM
         options = self._options[alarm]
+        if alarm in RATE_ALARMS:
+            if reading.value is None or too_old:
+                return Condition.UNKNOWN
+            return self._rate_condition(alarm, reading, options)
         if (
             reading.value is None
             or too_old
@@ -390,12 +443,77 @@ class AlarmMonitor:
             is None
         ):
             return Condition.UNKNOWN
+        offset = to_mg_dl(float(options.get(CONF_CLEAR_OFFSET) or 0), self._unit()) or 0
+        if alarm in HIGH_ALARMS:
+            if reading.value > threshold:
+                return Condition.ALARM
+            if reading.value <= threshold - offset:
+                return Condition.CLEAR
+            return Condition.BETWEEN
         if reading.value < threshold:
             return Condition.ALARM
-        offset = to_mg_dl(float(options.get(CONF_CLEAR_OFFSET) or 0), self._unit()) or 0
         if reading.value >= threshold + offset:
             return Condition.CLEAR
         return Condition.BETWEEN
+
+    def _rate_condition(
+        self, alarm: str, reading: GlucoseReading, options: Mapping[str, Any]
+    ) -> Condition:
+        """Return the condition of a rapid change alarm."""
+        if options.get(CONF_DETECTION) == DETECTION_TREND:
+            if reading.trend is None or reading.trend in UNKNOWN_TRENDS:
+                return Condition.UNKNOWN
+            fast = FAST_TRENDS[alarm]
+            if options.get(CONF_TREND_LEVEL) == TREND_LEVEL_VERY_QUICKLY:
+                fast = fast[:1]
+            return Condition.ALARM if reading.trend in fast else Condition.CLEAR
+        if (rate := self.rate) is None or (limit := self._rate_limit(options)) is None:
+            return Condition.UNKNOWN
+        if alarm == ALARM_RAPID_FALL:
+            return Condition.ALARM if rate <= -limit else Condition.CLEAR
+        return Condition.ALARM if rate >= limit else Condition.CLEAR
+
+    def _rate_limit(self, options: Mapping[str, Any]) -> float | None:
+        """Return the rate limit of a rapid change alarm in mg/dL per minute."""
+        if entity_id := options.get(CONF_RATE_ENTITY):
+            # Without a known rate unit nothing is guessed.
+            unit = RATE_UNITS.get(sensor_unit(self.hass, entity_id) or "")
+            value = parse_number(state_value(self.hass.states.get(entity_id)))
+            return None if value is None else to_mg_dl(abs(value), unit)
+        if (limit := options.get(CONF_RATE_LIMIT)) is None:
+            return None
+        return to_mg_dl(abs(float(limit)), self._unit())
+
+    @property
+    def rate(self) -> float | None:
+        """Return the own rate of change in mg/dL per minute."""
+        if self._latest is None or self._previous is None:
+            return None
+        (time, value), (previous_time, previous_value) = self._latest, self._previous
+        minutes = (time - previous_time).total_seconds() / 60
+        if not 0 < minutes <= MAX_RATE_GAP_MINUTES:
+            return None
+        return (value - previous_value) / minutes
+
+    def _track_rate(self, reading: GlucoseReading, now: datetime) -> None:
+        """Remember the latest two readings for the own rate of change.
+
+        Value and reading time may arrive in separate updates, in any order. A
+        value that changes shortly after a new reading time belongs to it; a
+        value that changes later belongs to the next reading and waits for its
+        reading time.
+        """
+        if reading.reading_time is None or reading.value is None:
+            return
+        if self._latest is None or reading.reading_time > self._latest[0]:
+            self._previous = self._latest
+            self._latest = (reading.reading_time, reading.value)
+            self._latest_at = now
+        elif (
+            reading.reading_time == self._latest[0]
+            and now - self._latest_at <= RATE_VALUE_WINDOW
+        ):
+            self._latest = (reading.reading_time, reading.value)
 
     def _may_start(self, alarm: str) -> bool:
         """Return True if a new alarm may start now."""
@@ -525,6 +643,7 @@ class AlarmMonitor:
             "trend": None if reading.trend is None else reading.trend.value,
             "trend_arrow": reading.trend_arrow,
             "delta": change,
+            "rate": self._display_rate(unit),
             "data_age_min": age,
             "title": self._text(alarm, name=name),
             "message": message,

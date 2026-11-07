@@ -9,6 +9,18 @@
       },
       "acknowledge_data_loss": {
         "default": "mdi:bell-check"
+      },
+      "acknowledge_high": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_urgent_high": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_rapid_fall": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_rapid_rise": {
+        "default": "mdi:bell-check"
       }
     },
     "event": {
@@ -23,7 +35,11 @@
           "no_data": "mdi:cloud-alert",
           "urgent_low": "mdi:arrow-down-bold-circle",
           "low": "mdi:arrow-down-circle",
-          "paused": "mdi:bell-pause"
+          "paused": "mdi:bell-pause",
+          "high": "mdi:arrow-up-circle",
+          "urgent_high": "mdi:arrow-up-bold-circle",
+          "rapid_fall": "mdi:trending-down",
+          "rapid_rise": "mdi:trending-up"
         }
       },
       "urgent_low_alarm": {
@@ -44,6 +60,34 @@
         "default": "mdi:cloud-alert",
         "state": {
           "idle": "mdi:cloud-check-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "high_alarm": {
+        "default": "mdi:arrow-up-circle",
+        "state": {
+          "idle": "mdi:arrow-up-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "urgent_high_alarm": {
+        "default": "mdi:arrow-up-bold-circle",
+        "state": {
+          "idle": "mdi:arrow-up-bold-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "rapid_fall_alarm": {
+        "default": "mdi:trending-down",
+        "state": {
+          "idle": "mdi:trending-neutral",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "rapid_rise_alarm": {
+        "default": "mdi:trending-up",
+        "state": {
+          "idle": "mdi:trending-neutral",
           "snoozed": "mdi:bell-sleep"
         }
       }

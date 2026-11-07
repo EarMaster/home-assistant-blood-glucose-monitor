@@ -62,6 +62,10 @@
           "sources": "Glucose data",
           "urgent_low": "Urgent low alarm",
           "low": "Low alarm",
+          "high": "High alarm",
+          "urgent_high": "Urgent high alarm",
+          "rapid_fall": "Rapid fall alarm",
+          "rapid_rise": "Rapid rise alarm",
           "data_loss": "Data loss alarm",
           "pause": "Pause"
         }
@@ -130,6 +134,94 @@
           "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
         }
       },
+      "high": {
+        "title": "High alarm",
+        "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "threshold_entity": "Threshold",
+          "clear_offset": "Clear offset",
+          "delay": "Delay",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
+          "clear_offset": "The alarm ends at the threshold minus this value.",
+          "delay": "How long the glucose has to stay above the threshold.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
+        }
+      },
+      "urgent_high": {
+        "title": "Urgent high alarm",
+        "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "threshold_entity": "Threshold",
+          "clear_offset": "Clear offset",
+          "delay": "Delay",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
+          "clear_offset": "The alarm ends at the threshold minus this value.",
+          "delay": "How long the glucose has to stay above the threshold.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
+        }
+      },
+      "rapid_fall": {
+        "title": "Rapid fall alarm",
+        "description": "Alarm when the glucose falls fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "detection": "Detection",
+          "trend_level": "Trend from",
+          "rate_limit": "Rate limit",
+          "rate_entity": "Rate limit entity",
+          "delay": "Delay",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "detection": "Off, the trend of the glucose data or the own rate of change.",
+          "trend_level": "Used with detection by trend.",
+          "rate_limit": "Change per minute, used with detection by rate.",
+          "rate_entity": "Optional. Entity with the rate limit; takes precedence over the number.",
+          "delay": "How long the fast change has to last.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
+        }
+      },
+      "rapid_rise": {
+        "title": "Rapid rise alarm",
+        "description": "Alarm when the glucose rises fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "detection": "Detection",
+          "trend_level": "Trend from",
+          "rate_limit": "Rate limit",
+          "rate_entity": "Rate limit entity",
+          "delay": "Delay",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "detection": "Off, the trend of the glucose data or the own rate of change.",
+          "trend_level": "Used with detection by trend.",
+          "rate_limit": "Change per minute, used with detection by rate.",
+          "rate_entity": "Optional. Entity with the rate limit; takes precedence over the number.",
+          "delay": "How long the fast change has to last.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
+        }
+      },
       "data_loss": {
         "title": "Data loss alarm",
         "description": "This alarm is always active. Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
@@ -148,7 +240,7 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "The pause switch silences the low and data loss alarms for this duration. The urgent low alarm is never paused. When the pause ends, the alarms are checked again at once.",
+        "description": "The pause switch silences all alarms except urgent low for this duration. The urgent low alarm is never paused. When the pause ends, the alarms are checked again at once.",
         "data": {
           "duration": "Pause duration"
         }
@@ -161,7 +253,9 @@
       "invalid_reading_time": "The current value of this sensor is not a time.",
       "unit_required": "The glucose or change sensor does not report a unit. Please select the unit.",
       "threshold_unit_required": "This entity does not report a unit. Set the unit under Glucose data.",
-      "person_required": "Select a person under Glucose data first."
+      "person_required": "Select a person under Glucose data first.",
+      "rate_unit_required": "This entity has to report the unit mg/dL/min or mmol/L/min.",
+      "rate_limit_required": "Enter a rate limit or select an entity."
     }
   },
   "entity": {
@@ -174,6 +268,18 @@
       },
       "acknowledge_data_loss": {
         "name": "Acknowledge data loss alarm"
+      },
+      "acknowledge_high": {
+        "name": "Acknowledge high alarm"
+      },
+      "acknowledge_urgent_high": {
+        "name": "Acknowledge urgent high alarm"
+      },
+      "acknowledge_rapid_fall": {
+        "name": "Acknowledge rapid fall alarm"
+      },
+      "acknowledge_rapid_rise": {
+        "name": "Acknowledge rapid rise alarm"
       }
     },
     "event": {
@@ -193,7 +299,23 @@
               "data_loss_triggered": "Data loss: alarm",
               "data_loss_repeat": "Data loss: repeat",
               "data_loss_acknowledged": "Data loss: acknowledged",
-              "data_loss_resolved": "Data loss: over"
+              "data_loss_resolved": "Data loss: over",
+              "high_triggered": "High: alarm",
+              "high_repeat": "High: repeat",
+              "high_acknowledged": "High: acknowledged",
+              "high_resolved": "High: over",
+              "urgent_high_triggered": "Urgent high: alarm",
+              "urgent_high_repeat": "Urgent high: repeat",
+              "urgent_high_acknowledged": "Urgent high: acknowledged",
+              "urgent_high_resolved": "Urgent high: over",
+              "rapid_fall_triggered": "Rapid fall: alarm",
+              "rapid_fall_repeat": "Rapid fall: repeat",
+              "rapid_fall_acknowledged": "Rapid fall: acknowledged",
+              "rapid_fall_resolved": "Rapid fall: over",
+              "rapid_rise_triggered": "Rapid rise: alarm",
+              "rapid_rise_repeat": "Rapid rise: repeat",
+              "rapid_rise_acknowledged": "Rapid rise: acknowledged",
+              "rapid_rise_resolved": "Rapid rise: over"
             }
           }
         }
@@ -206,6 +328,10 @@
           "no_data": "No data",
           "urgent_low": "Urgent low",
           "low": "Low",
+          "rapid_fall": "Falling fast",
+          "urgent_high": "Urgent high",
+          "high": "High",
+          "rapid_rise": "Rising fast",
           "paused": "Paused",
           "ok": "OK"
         },
@@ -227,6 +353,9 @@
           },
           "snoozed_alarms": {
             "name": "Snoozed alarms"
+          },
+          "rate": {
+            "name": "Rate of change"
           }
         }
       },
@@ -250,6 +379,42 @@
       },
       "data_loss_alarm": {
         "name": "Data loss alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "high_alarm": {
+        "name": "High alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Urgent high alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Rapid fall alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Rapid rise alarm",
         "state": {
           "idle": "Idle",
           "pending": "Pending",
@@ -283,17 +448,38 @@
       "options": {
         "urgent_low": "Urgent low",
         "low": "Low",
-        "data_loss": "Data loss"
+        "data_loss": "Data loss",
+        "high": "High",
+        "urgent_high": "Urgent high",
+        "rapid_fall": "Rapid fall",
+        "rapid_rise": "Rapid rise"
       }
     },
     "alarm_text": {
       "options": {
+        "high": "{name}: high glucose",
+        "urgent_high": "{name}: urgent high glucose",
+        "rapid_fall": "{name}: glucose falling fast",
+        "rapid_rise": "{name}: glucose rising fast",
         "urgent_low": "{name}: urgent low glucose",
         "low": "{name}: low glucose",
         "data_loss": "{name}: no glucose data",
         "data_loss_message": "No new reading for {minutes} min.",
         "acknowledged": "Acknowledged.",
         "resolved": "Over."
+      }
+    },
+    "detection": {
+      "options": {
+        "off": "Off",
+        "trend": "Trend of the glucose data",
+        "rate": "Own rate of change"
+      }
+    },
+    "trend_level": {
+      "options": {
+        "quickly": "Quickly or faster",
+        "very_quickly": "Only very quickly"
       }
     }
   },
@@ -320,7 +506,15 @@
       "low_alert": "Low alarm started or repeated",
       "low_ended": "Low alarm acknowledged or over",
       "data_loss_alert": "Data loss alarm started or repeated",
-      "data_loss_ended": "Data loss alarm acknowledged or over"
+      "data_loss_ended": "Data loss alarm acknowledged or over",
+      "high_alert": "High alarm started or repeated",
+      "high_ended": "High alarm acknowledged or over",
+      "urgent_high_alert": "Urgent high alarm started or repeated",
+      "urgent_high_ended": "Urgent high alarm acknowledged or over",
+      "rapid_fall_alert": "Rapid fall alarm started or repeated",
+      "rapid_fall_ended": "Rapid fall alarm acknowledged or over",
+      "rapid_rise_alert": "Rapid rise alarm started or repeated",
+      "rapid_rise_ended": "Rapid rise alarm acknowledged or over"
     }
   }
 }

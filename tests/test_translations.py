@@ -11,6 +11,7 @@ import pytest
 
 from custom_components.blood_glucose_monitor import (
     config_flow,
+    const,
     device_trigger,
     monitor,
 )
@@ -33,10 +34,14 @@ FORMS = {
     ("options", "already_monitored"): config_flow.ALREADY_MONITORED_SCHEMA,
     ("options", "urgent_low"): config_flow.THRESHOLD_ALARM_SCHEMA,
     ("options", "low"): config_flow.THRESHOLD_ALARM_SCHEMA,
+    ("options", "high"): config_flow.THRESHOLD_ALARM_SCHEMA,
+    ("options", "urgent_high"): config_flow.THRESHOLD_ALARM_SCHEMA,
+    ("options", "rapid_fall"): config_flow.RATE_ALARM_SCHEMA,
+    ("options", "rapid_rise"): config_flow.RATE_ALARM_SCHEMA,
     ("options", "data_loss"): config_flow.DATA_LOSS_SCHEMA,
     ("options", "pause"): config_flow.PAUSE_SCHEMA,
 }
-MENU_OPTIONS = {"sources", "urgent_low", "low", "data_loss", "pause"}
+MENU_OPTIONS = {"sources", *const.ALARMS, "pause"}
 SOURCE_ERRORS = {
     "unsupported_unit",
     "not_numeric",
@@ -50,6 +55,8 @@ FLOW_ERRORS = {
         *SOURCE_ERRORS,
         "threshold_unit_required",
         "person_required",
+        "rate_unit_required",
+        "rate_limit_required",
     },
 }
 
@@ -128,7 +135,7 @@ def test_entities_translated() -> None:
     """Every alarm has a state sensor, a button and event types."""
     entity = load("en")["entity"]
     assert set(entity["sensor"]["status"]["state"]) == set(monitor.STATUSES)
-    for alarm in ("urgent_low", "low", "data_loss"):
+    for alarm in const.ALARMS:
         assert entity["sensor"][f"{alarm}_alarm"]["name"]
         assert set(entity["sensor"][f"{alarm}_alarm"]["state"]) == {
             "idle",
