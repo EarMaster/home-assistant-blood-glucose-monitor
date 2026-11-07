@@ -15,6 +15,8 @@ CONF_PERSON_ENTITY: Final = "person_entity"
 CONF_TREND_ENTITY: Final = "trend_entity"
 CONF_CHANGE_ENTITY: Final = "change_entity"
 CONF_READING_TIME_ENTITY: Final = "reading_time_entity"
+# Unit of source sensors that do not report one. Never guessed.
+CONF_GLUCOSE_UNIT: Final = "glucose_unit"
 
 SOURCE_ENTITY_KEYS: Final = (
     CONF_GLUCOSE_ENTITY,

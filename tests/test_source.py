@@ -12,6 +12,7 @@ from pytest_homeassistant_custom_component.common import MockConfigEntry
 from custom_components.blood_glucose_monitor.const import (
     CONF_CHANGE_ENTITY,
     CONF_GLUCOSE_ENTITY,
+    CONF_GLUCOSE_UNIT,
     CONF_READING_TIME_ENTITY,
     CONF_TREND_ENTITY,
 )
@@ -21,6 +22,7 @@ from custom_components.blood_glucose_monitor.source import (
     SourceEntities,
     async_suggest_sources,
     build_reading,
+    sensor_unit,
     to_mg_dl,
 )
 
@@ -50,21 +52,29 @@ def test_source_entities_from_options() -> None:
     )
     assert sources == SourceEntities(glucose=GLUCOSE_ENTITY)
     assert sources.entity_ids == [GLUCOSE_ENTITY]
-    assert SourceEntities.from_options(
+    sources = SourceEntities.from_options(
         {
             CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
             CONF_TREND_ENTITY: TREND_ENTITY,
             CONF_CHANGE_ENTITY: CHANGE_ENTITY,
             CONF_READING_TIME_ENTITY: READING_TIME_ENTITY,
+            CONF_GLUCOSE_UNIT: "mmol/L",
         }
-    ).entity_ids == [GLUCOSE_ENTITY, TREND_ENTITY, CHANGE_ENTITY, READING_TIME_ENTITY]
+    )
+    assert sources.unit == "mmol/L"
+    assert sources.entity_ids == [
+        GLUCOSE_ENTITY,
+        TREND_ENTITY,
+        CHANGE_ENTITY,
+        READING_TIME_ENTITY,
+    ]
 
 
 @pytest.mark.parametrize(
     ("value", "unit", "expected"),
     [
         (112, "mg/dL", 112),
-        (112, None, 112),
+        (112, None, None),
         (5, "mmol/L", 90.08),
         (5, "°C", None),
         (None, "mg/dL", None),
@@ -73,7 +83,7 @@ def test_source_entities_from_options() -> None:
 def test_to_mg_dl(
     value: float | None, unit: str | None, expected: float | None
 ) -> None:
-    """Values are converted to mg/dL, unknown units are rejected."""
+    """Values are converted to mg/dL, missing and unknown units are rejected."""
     result = to_mg_dl(value, unit)
     assert result == (None if expected is None else pytest.approx(expected))
 
@@ -115,15 +125,55 @@ async def test_reading_falls_back_when_entities_unavailable(
     assert reading.reading_time_source is ReadingTimeSource.ATTRIBUTE
 
 
-async def test_reading_falls_back_to_last_changed(hass: HomeAssistant) -> None:
-    """Without any time information, the last state change is used."""
+async def test_reading_without_time(hass: HomeAssistant) -> None:
+    """Without time information, the reading time stays unknown."""
     hass.states.async_set(GLUCOSE_ENTITY, "6.2", {"unit_of_measurement": "mmol/L"})
     reading = build_reading(hass, SourceEntities(glucose=GLUCOSE_ENTITY))
     assert reading.value == pytest.approx(111.6992)
     assert reading.trend is None
     assert reading.change is None
-    assert reading.reading_time == hass.states.get(GLUCOSE_ENTITY).last_changed
-    assert reading.reading_time_source is ReadingTimeSource.LAST_CHANGED
+    assert reading.reading_time is None
+    assert reading.reading_time_source is None
+
+
+async def test_reading_without_unit(hass: HomeAssistant) -> None:
+    """Sensors without a unit are only read with the unit set in the entry."""
+    hass.states.async_set(GLUCOSE_ENTITY, "6.2", {"delta": -0.3})
+    hass.states.async_set(CHANGE_ENTITY, "0.5")
+    sources = SourceEntities(glucose=GLUCOSE_ENTITY, change=CHANGE_ENTITY)
+    reading = build_reading(hass, sources)
+    assert reading.value is None
+    assert reading.change is None
+
+    reading = build_reading(
+        hass,
+        SourceEntities(glucose=GLUCOSE_ENTITY, change=CHANGE_ENTITY, unit="mmol/L"),
+    )
+    assert reading.value == pytest.approx(111.6992)
+    assert reading.change == pytest.approx(9.008)
+
+    # The delta attribute has the unit of the glucose sensor.
+    reading = build_reading(hass, SourceEntities(glucose=GLUCOSE_ENTITY, unit="mmol/L"))
+    assert reading.change == pytest.approx(-5.4048)
+
+
+async def test_reported_unit_wins(hass: HomeAssistant) -> None:
+    """The unit set in the entry only applies to sensors without a unit."""
+    hass.states.async_set(GLUCOSE_ENTITY, "112", {"unit_of_measurement": "mg/dL"})
+    reading = build_reading(hass, SourceEntities(glucose=GLUCOSE_ENTITY, unit="mmol/L"))
+    assert reading.value == 112
+
+
+async def test_unit_from_entity_registry(hass: HomeAssistant) -> None:
+    """The unit of the entity registry is used when the state has none."""
+    registry = er.async_get(hass)
+    entry = registry.async_get_or_create(
+        "sensor", SOURCE_PLATFORM, "registry_unit", unit_of_measurement="mmol/L"
+    )
+    assert sensor_unit(hass, entry.entity_id) == "mmol/L"
+    hass.states.async_set(entry.entity_id, "6.2")
+    assert sensor_unit(hass, entry.entity_id) == "mmol/L"
+    assert sensor_unit(hass, "sensor.not_registered") is None
 
 
 @pytest.mark.parametrize("state", ["unavailable", "unknown"])

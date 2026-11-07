@@ -38,6 +38,8 @@ Work in progress. The current version (0.1) contains the foundation only:
   from the same device as the glucose sensor
 - Fallback to the `direction`, `delta` and `date` attributes of the glucose
   sensor (as provided by Nightscout)
+- Any glucose source: every sensor can be selected, its current value is
+  checked during setup
 - Diagnostics download showing how the glucose data is read
 
 Planned next: low/urgent low alarms with acknowledge, snooze and re-check,
@@ -48,8 +50,9 @@ actions per feature.
 ## Requirements
 
 - Home Assistant 2026.11 or newer
-- An integration that provides a glucose sensor (device class
-  `blood_glucose_concentration`, unit mg/dL or mmol/L)
+- An integration that provides a sensor with the current glucose value in
+  mg/dL or mmol/L, for example Nightscout, Dexcom or a custom integration. If
+  the sensor does not report a unit, you set it during setup.
 
 ## Installation
 
@@ -75,16 +78,29 @@ Add one entry per person:
 1. Read and confirm the notice.
 2. Enter the name and select the glucose sensor (and optionally the person).
 3. Check the suggested trend, change and reading time sensors. Leave a field
-   empty to use the attributes of the glucose sensor instead.
+   empty to use the attributes of the glucose sensor instead. Select the unit
+   if the glucose or change sensor does not report one.
 
 All settings except the name can be changed later via **Configure**.
 
 | Data | Preferred source | Fallback |
 | --- | --- | --- |
 | Glucose value | glucose sensor | – |
-| Trend | enum sensor (`steady`, `falling_quickly`, …) | `direction` attribute |
-| Change | glucose concentration sensor | `delta` attribute (mg/dL) |
-| Reading time | timestamp sensor | `date` attribute, then last value change |
+| Trend | trend sensor | `direction` attribute |
+| Change | change sensor | `delta` attribute (unit of the glucose sensor) |
+| Reading time | reading time sensor | `date` attribute |
+
+Nothing is guessed:
+
+- Sensors without a unit are only read once you have set the unit.
+- Without a reading time, the age of the data is unknown and no alarms are
+  possible. The time of the last value change is not used, because the same
+  value twice in a row would look like missing data.
+
+The trend is understood as state key (`steady`, `falling_quickly`, …),
+Nightscout direction (`Flat`, `SingleDown`, …), common word (`stable`,
+`rising fast`, `decreasing`, …) or arrow (`→`, `↘`, `⇊`, …). Setup tells you
+when the current value of a selected sensor cannot be read.
 
 ## Development
 

@@ -27,9 +27,16 @@ FORMS = {
     ("options", "init"): config_flow.OPTIONS_SCHEMA,
     ("options", "already_monitored"): config_flow.ALREADY_MONITORED_SCHEMA,
 }
+SOURCE_ERRORS = {
+    "unsupported_unit",
+    "not_numeric",
+    "unknown_trend",
+    "invalid_reading_time",
+    "unit_required",
+}
 FLOW_ERRORS = {
-    "config": {"disclaimer_required", "name_required", "unsupported_unit"},
-    "options": {"unsupported_unit"},
+    "config": {"disclaimer_required", "name_required", *SOURCE_ERRORS},
+    "options": SOURCE_ERRORS,
 }
 
 

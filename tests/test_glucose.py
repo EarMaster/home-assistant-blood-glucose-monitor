@@ -48,13 +48,26 @@ def test_parse_number(value: object, expected: float | None) -> None:
         ("FortyFiveDown", Trend.FALLING_SLIGHTLY),
         ("NOT COMPUTABLE", Trend.NOT_COMPUTABLE),
         ("RATE OUT OF RANGE", Trend.RATE_OUT_OF_RANGE),
+        ("Rising quickly", Trend.RISING_QUICKLY),
+        ("Stable", Trend.STEADY),
+        ("Decreasing fast", Trend.FALLING_QUICKLY),
+        ("decreasing-slowly", Trend.FALLING_SLIGHTLY),
+        ("Increasing", Trend.RISING),
+        ("↘", Trend.FALLING_SLIGHTLY),
+        ("⇊", Trend.FALLING_QUICKLY),
+        ("↓↓", Trend.FALLING_QUICKLY),
+        ("⬆️", Trend.RISING),
+        (" ➡ ", Trend.STEADY),
+        ("?", None),
         ("NONE", None),
+        ("sideways", None),
+        ("3", None),
         ("", None),
         (None, None),
     ],
 )
 def test_parse_trend(value: object, expected: Trend | None) -> None:
-    """Enum state keys and raw Nightscout directions are understood."""
+    """State keys, Nightscout directions, common words and arrows are understood."""
     assert parse_trend(value) == expected
 
 

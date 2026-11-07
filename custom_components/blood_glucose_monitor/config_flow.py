@@ -2,22 +2,24 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.config_entries import (
     ConfigEntry,
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlowWithReload,
 )
-from homeassistant.const import ATTR_UNIT_OF_MEASUREMENT
+from homeassistant.const import UnitOfBloodGlucoseConcentration
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.selector import (
     BooleanSelector,
     EntitySelector,
     EntitySelectorConfig,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
     TextSelector,
 )
 from homeassistant.util.unit_conversion import BloodGlucoseConcentrationConverter
@@ -27,30 +29,28 @@ from .const import (
     CONF_CHANGE_ENTITY,
     CONF_DISCLAIMER_ACCEPTED,
     CONF_GLUCOSE_ENTITY,
+    CONF_GLUCOSE_UNIT,
     CONF_NAME,
     CONF_PERSON_ENTITY,
     CONF_READING_TIME_ENTITY,
     CONF_TREND_ENTITY,
     DOMAIN,
 )
-from .source import async_suggest_sources
+from .glucose import parse_number, parse_timestamp, parse_trend
+from .source import async_suggest_sources, sensor_unit, state_value
 
-GLUCOSE_SELECTOR = EntitySelector(
-    EntitySelectorConfig(
-        domain="sensor", device_class=SensorDeviceClass.BLOOD_GLUCOSE_CONCENTRATION
-    )
-)
+# Any sensor can be selected: not every source sets a device class. The
+# current values are checked instead.
+SENSOR_SELECTOR = EntitySelector(EntitySelectorConfig(domain="sensor"))
 PERSON_SELECTOR = EntitySelector(EntitySelectorConfig(domain="person"))
-TREND_SELECTOR = EntitySelector(
-    EntitySelectorConfig(domain="sensor", device_class=SensorDeviceClass.ENUM)
-)
-CHANGE_SELECTOR = EntitySelector(
-    EntitySelectorConfig(
-        domain="sensor", device_class=SensorDeviceClass.BLOOD_GLUCOSE_CONCENTRATION
+UNIT_SELECTOR = SelectSelector(
+    SelectSelectorConfig(
+        options=[
+            UnitOfBloodGlucoseConcentration.MILLIGRAMS_PER_DECILITER,
+            UnitOfBloodGlucoseConcentration.MILLIMOLE_PER_LITER,
+        ],
+        mode=SelectSelectorMode.DROPDOWN,
     )
-)
-READING_TIME_SELECTOR = EntitySelector(
-    EntitySelectorConfig(domain="sensor", device_class=SensorDeviceClass.TIMESTAMP)
 )
 
 DISCLAIMER_SCHEMA = vol.Schema(
@@ -59,20 +59,21 @@ DISCLAIMER_SCHEMA = vol.Schema(
 PERSON_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME): TextSelector(),
-        vol.Required(CONF_GLUCOSE_ENTITY): GLUCOSE_SELECTOR,
+        vol.Required(CONF_GLUCOSE_ENTITY): SENSOR_SELECTOR,
         vol.Optional(CONF_PERSON_ENTITY): PERSON_SELECTOR,
     }
 )
 SOURCES_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_TREND_ENTITY): TREND_SELECTOR,
-        vol.Optional(CONF_CHANGE_ENTITY): CHANGE_SELECTOR,
-        vol.Optional(CONF_READING_TIME_ENTITY): READING_TIME_SELECTOR,
+        vol.Optional(CONF_TREND_ENTITY): SENSOR_SELECTOR,
+        vol.Optional(CONF_CHANGE_ENTITY): SENSOR_SELECTOR,
+        vol.Optional(CONF_READING_TIME_ENTITY): SENSOR_SELECTOR,
+        vol.Optional(CONF_GLUCOSE_UNIT): UNIT_SELECTOR,
     }
 )
 OPTIONS_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_GLUCOSE_ENTITY): GLUCOSE_SELECTOR,
+        vol.Required(CONF_GLUCOSE_ENTITY): SENSOR_SELECTOR,
         vol.Optional(CONF_PERSON_ENTITY): PERSON_SELECTOR,
     }
 ).extend(SOURCES_SCHEMA.schema)
@@ -85,6 +86,7 @@ OPTION_KEYS = (
     CONF_TREND_ENTITY,
     CONF_CHANGE_ENTITY,
     CONF_READING_TIME_ENTITY,
+    CONF_GLUCOSE_UNIT,
 )
 
 
@@ -93,13 +95,50 @@ def _clean_options(values: Mapping[str, Any]) -> dict[str, Any]:
     return {key: values[key] for key in OPTION_KEYS if values.get(key)}
 
 
-def _validate_glucose_entity(hass: HomeAssistant, entity_id: str) -> dict[str, str]:
-    """Return form errors for the selected glucose sensor."""
-    if (state := hass.states.get(entity_id)) is not None and state.attributes.get(
-        ATTR_UNIT_OF_MEASUREMENT
-    ) not in (None, *BloodGlucoseConcentrationConverter.VALID_UNITS):
-        return {CONF_GLUCOSE_ENTITY: "unsupported_unit"}
+def _unparsable(
+    hass: HomeAssistant, entity_id: str, parse: Callable[[Any], object | None]
+) -> bool:
+    """Return True if the current state of a sensor cannot be parsed.
+
+    Missing, unknown and unavailable states cannot be checked and pass.
+    """
+    value = state_value(hass.states.get(entity_id))
+    return value is not None and parse(value) is None
+
+
+def _validate_glucose_value(
+    hass: HomeAssistant, key: str, entity_id: str
+) -> dict[str, str]:
+    """Return form errors for a sensor with a glucose value or change."""
+    unit = sensor_unit(hass, entity_id)
+    if unit is not None and unit not in BloodGlucoseConcentrationConverter.VALID_UNITS:
+        return {key: "unsupported_unit"}
+    if _unparsable(hass, entity_id, parse_number):
+        return {key: "not_numeric"}
     return {}
+
+
+def _validate_sources(hass: HomeAssistant, values: Mapping[str, Any]) -> dict[str, str]:
+    """Return form errors for the optional source sensors and the unit."""
+    errors: dict[str, str] = {}
+    if change := values.get(CONF_CHANGE_ENTITY):
+        errors |= _validate_glucose_value(hass, CONF_CHANGE_ENTITY, change)
+    if (trend := values.get(CONF_TREND_ENTITY)) and _unparsable(
+        hass, trend, parse_trend
+    ):
+        errors[CONF_TREND_ENTITY] = "unknown_trend"
+    if (reading_time := values.get(CONF_READING_TIME_ENTITY)) and _unparsable(
+        hass, reading_time, parse_timestamp
+    ):
+        errors[CONF_READING_TIME_ENTITY] = "invalid_reading_time"
+    # The unit is never guessed: sensors without one need it set here.
+    if not values.get(CONF_GLUCOSE_UNIT) and any(
+        sensor_unit(hass, entity_id) is None
+        for entity_id in (values[CONF_GLUCOSE_ENTITY], change)
+        if entity_id
+    ):
+        errors[CONF_GLUCOSE_UNIT] = "unit_required"
+    return errors
 
 
 def _other_entries_monitoring(
@@ -164,8 +203,8 @@ class BloodGlucoseMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
             name = str(user_input[CONF_NAME]).strip()
             if not name:
                 errors[CONF_NAME] = "name_required"
-            errors |= _validate_glucose_entity(
-                self.hass, user_input[CONF_GLUCOSE_ENTITY]
+            errors |= _validate_glucose_value(
+                self.hass, CONF_GLUCOSE_ENTITY, user_input[CONF_GLUCOSE_ENTITY]
             )
             if not errors:
                 self._name = name
@@ -199,13 +238,17 @@ class BloodGlucoseMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_sources(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Ask for the optional trend, change and reading time sensors."""
+        """Ask for the optional sensors and the unit, if the sensors have none."""
+        errors: dict[str, str] = {}
         if user_input is not None:
-            options = _clean_options({**self._options, **user_input})
-            return self.async_create_entry(
-                title=self._name, data={CONF_NAME: self._name}, options=options
-            )
-        suggestions = async_suggest_sources(
+            options = {**self._options, **user_input}
+            if not (errors := _validate_sources(self.hass, options)):
+                return self.async_create_entry(
+                    title=self._name,
+                    data={CONF_NAME: self._name},
+                    options=_clean_options(options),
+                )
+        suggestions = user_input or async_suggest_sources(
             self.hass, self._options[CONF_GLUCOSE_ENTITY]
         )
         return self.async_show_form(
@@ -213,6 +256,7 @@ class BloodGlucoseMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
             data_schema=self.add_suggested_values_to_schema(
                 SOURCES_SCHEMA, suggestions
             ),
+            errors=errors,
             description_placeholders={"name": self._name},
         )
 
@@ -230,9 +274,9 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Edit the source entities."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            errors = _validate_glucose_entity(
-                self.hass, user_input[CONF_GLUCOSE_ENTITY]
-            )
+            errors = _validate_glucose_value(
+                self.hass, CONF_GLUCOSE_ENTITY, user_input[CONF_GLUCOSE_ENTITY]
+            ) | _validate_sources(self.hass, user_input)
             if not errors:
                 self._options = _clean_options(user_input)
                 glucose_entity = self._options[CONF_GLUCOSE_ENTITY]

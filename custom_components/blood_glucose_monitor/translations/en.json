@@ -28,43 +28,51 @@
       },
       "sources": {
         "title": "Additional glucose data for {name}",
-        "description": "Select the sensors of the glucose integration that provide the trend, the change to the previous reading and the time of the reading. Matching sensors of the same device are suggested automatically.\n\nIf a field is left empty, the attributes of the glucose sensor are used instead (`direction`, `delta` and `date`, as provided by Nightscout). Without a reading time, the time of the last value change is used, which detects missing data less reliably.",
+        "description": "Select the sensors of the glucose integration that provide the trend, the change to the previous reading and the time of the reading. Matching sensors of the same device are suggested automatically.\n\nIf a field is left empty, the attributes of the glucose sensor are used instead (`direction`, `delta` and `date`, as provided by Nightscout).\n\nWithout a reading time (sensor or `date` attribute), the age of the data is unknown and no alarms are possible.",
         "data": {
           "trend_entity": "Trend sensor",
           "change_entity": "Change sensor",
-          "reading_time_entity": "Reading time sensor"
+          "reading_time_entity": "Reading time sensor",
+          "glucose_unit": "Unit"
         },
         "data_description": {
-          "trend_entity": "Enum sensor with the glucose trend, for example \"Glucose trend\".",
+          "trend_entity": "Sensor with the glucose trend, for example \"Glucose trend\".",
           "change_entity": "Sensor with the change to the previous reading, for example \"Glucose change\".",
-          "reading_time_entity": "Timestamp sensor with the time of the latest reading, for example \"Glucose reading time\"."
+          "reading_time_entity": "Sensor with the time of the latest reading, for example \"Glucose reading time\".",
+          "glucose_unit": "Only needed if the glucose or change sensor does not report a unit."
         }
       }
     },
     "error": {
       "disclaimer_required": "Please confirm that you have read and understood the notice.",
       "name_required": "Please enter a name.",
-      "unsupported_unit": "The glucose sensor has an unsupported unit. Supported are mg/dL and mmol/L."
+      "unsupported_unit": "This sensor has an unsupported unit. Supported are mg/dL and mmol/L.",
+      "not_numeric": "The current value of this sensor is not a number.",
+      "unknown_trend": "The current value of this sensor is not a glucose trend this integration understands.",
+      "invalid_reading_time": "The current value of this sensor is not a time.",
+      "unit_required": "The glucose or change sensor does not report a unit. Please select the unit."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Glucose data",
-        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.\n\nIf an optional field is left empty, the attributes of the glucose sensor are used instead.",
+        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.\n\nIf an optional field is left empty, the attributes of the glucose sensor are used instead. Without a reading time, no alarms are possible.",
         "data": {
           "glucose_entity": "Glucose sensor",
           "person_entity": "Person",
           "trend_entity": "Trend sensor",
           "change_entity": "Change sensor",
-          "reading_time_entity": "Reading time sensor"
+          "reading_time_entity": "Reading time sensor",
+          "glucose_unit": "Unit"
         },
         "data_description": {
           "glucose_entity": "The sensor with the current glucose value.",
           "person_entity": "Optional. Needed for features that should only run when the person is at home.",
-          "trend_entity": "Optional. Enum sensor with the glucose trend.",
+          "trend_entity": "Optional. Sensor with the glucose trend.",
           "change_entity": "Optional. Sensor with the change to the previous reading.",
-          "reading_time_entity": "Optional. Timestamp sensor with the time of the latest reading."
+          "reading_time_entity": "Optional. Sensor with the time of the latest reading.",
+          "glucose_unit": "Optional. Only needed if the glucose or change sensor does not report a unit."
         }
       },
       "already_monitored": {
@@ -73,7 +81,11 @@
       }
     },
     "error": {
-      "unsupported_unit": "The glucose sensor has an unsupported unit. Supported are mg/dL and mmol/L."
+      "unsupported_unit": "This sensor has an unsupported unit. Supported are mg/dL and mmol/L.",
+      "not_numeric": "The current value of this sensor is not a number.",
+      "unknown_trend": "The current value of this sensor is not a glucose trend this integration understands.",
+      "invalid_reading_time": "The current value of this sensor is not a time.",
+      "unit_required": "The glucose or change sensor does not report a unit. Please select the unit."
     }
   }
 }

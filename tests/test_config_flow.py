@@ -14,6 +14,7 @@ from custom_components.blood_glucose_monitor.const import (
     CONF_CHANGE_ENTITY,
     CONF_DISCLAIMER_ACCEPTED,
     CONF_GLUCOSE_ENTITY,
+    CONF_GLUCOSE_UNIT,
     CONF_NAME,
     CONF_PERSON_ENTITY,
     CONF_READING_TIME_ENTITY,
@@ -135,6 +136,11 @@ async def test_flow_without_suggestions(hass: HomeAssistant) -> None:
             ("21", {"unit_of_measurement": "°C"}),
             {CONF_GLUCOSE_ENTITY: "unsupported_unit"},
         ),
+        (
+            {CONF_NAME: "Alex", CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY},
+            ("high", {"unit_of_measurement": "mg/dL"}),
+            {CONF_GLUCOSE_ENTITY: "not_numeric"},
+        ),
     ],
 )
 async def test_person_step_errors(
@@ -152,6 +158,109 @@ async def test_person_step_errors(
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "person"
     assert result["errors"] == errors
+
+
+async def test_glucose_sensor_without_unit(hass: HomeAssistant) -> None:
+    """A glucose sensor without a unit needs the unit set in the sources step."""
+    hass.states.async_set(GLUCOSE_ENTITY, "6.2")
+    result = await start_flow_at_person_step(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_NAME: "Alex", CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY}
+    )
+    assert result["step_id"] == "sources"
+    result = await hass.config_entries.flow.async_configure(result["flow_id"], {})
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {CONF_GLUCOSE_UNIT: "unit_required"}
+
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_GLUCOSE_UNIT: "mmol/L"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["options"] == {
+        CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
+        CONF_GLUCOSE_UNIT: "mmol/L",
+    }
+
+
+@pytest.mark.parametrize(
+    ("key", "entity_id", "state", "errors"),
+    [
+        (
+            CONF_CHANGE_ENTITY,
+            CHANGE_ENTITY,
+            ("21", {"unit_of_measurement": "°C"}),
+            {CONF_CHANGE_ENTITY: "unsupported_unit"},
+        ),
+        (
+            CONF_CHANGE_ENTITY,
+            CHANGE_ENTITY,
+            ("up", {"unit_of_measurement": "mg/dL"}),
+            {CONF_CHANGE_ENTITY: "not_numeric"},
+        ),
+        (
+            CONF_CHANGE_ENTITY,
+            CHANGE_ENTITY,
+            ("-3", {}),
+            {CONF_GLUCOSE_UNIT: "unit_required"},
+        ),
+        (
+            CONF_TREND_ENTITY,
+            TREND_ENTITY,
+            ("sideways", {}),
+            {CONF_TREND_ENTITY: "unknown_trend"},
+        ),
+        (
+            CONF_READING_TIME_ENTITY,
+            READING_TIME_ENTITY,
+            ("a while ago", {}),
+            {CONF_READING_TIME_ENTITY: "invalid_reading_time"},
+        ),
+    ],
+)
+@pytest.mark.usefixtures("glucose_state")
+async def test_sources_step_errors(
+    hass: HomeAssistant,
+    key: str,
+    entity_id: str,
+    state: tuple[str, dict[str, Any]],
+    errors: dict[str, str],
+) -> None:
+    """Sensors whose current value cannot be read are reported."""
+    hass.states.async_set(entity_id, *state)
+    result = await start_flow_at_person_step(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_NAME: "Alex", CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY}
+    )
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {key: entity_id}
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "sources"
+    assert result["errors"] == errors
+    assert suggested_values(result) == {key: entity_id}
+
+
+@pytest.mark.usefixtures("glucose_state")
+async def test_sources_step_accepts_any_spelling(hass: HomeAssistant) -> None:
+    """Sensors without device class are accepted when their values can be read."""
+    hass.states.async_set(TREND_ENTITY, "Decreasing fast")
+    hass.states.async_set(CHANGE_ENTITY, "-0.3")
+    hass.states.async_set(READING_TIME_ENTITY, "1794060000000")
+    result = await start_flow_at_person_step(hass)
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], {CONF_NAME: "Alex", CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY}
+    )
+    user_input = {
+        CONF_TREND_ENTITY: TREND_ENTITY,
+        CONF_CHANGE_ENTITY: CHANGE_ENTITY,
+        CONF_READING_TIME_ENTITY: READING_TIME_ENTITY,
+        CONF_GLUCOSE_UNIT: "mmol/L",
+    }
+    result = await hass.config_entries.flow.async_configure(
+        result["flow_id"], user_input
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert result["options"] == {CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY, **user_input}
 
 
 @pytest.mark.usefixtures("glucose_state")
@@ -203,9 +312,21 @@ async def test_options_flow(hass: HomeAssistant) -> None:
         CONF_TREND_ENTITY: TREND_ENTITY,
     }
 
+    # A change sensor without unit needs the unit.
+    hass.states.async_set(CHANGE_ENTITY, "-3")
+    user_input = {
+        CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
+        CONF_CHANGE_ENTITY: CHANGE_ENTITY,
+    }
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"],
-        {CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY, CONF_CHANGE_ENTITY: CHANGE_ENTITY},
+        result["flow_id"], user_input
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == {CONF_GLUCOSE_UNIT: "unit_required"}
+
+    hass.states.async_set(CHANGE_ENTITY, "-3", {"unit_of_measurement": "mg/dL"})
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()

@@ -47,9 +47,10 @@ TREND_ARROWS: dict[Trend, str] = {
     Trend.RATE_OUT_OF_RANGE: "⇕",
 }
 
-# Raw Nightscout directions (``direction`` attribute of the Nightscout glucose
-# sensor), see Nightscout lib/plugins/direction.js. Keys are casefolded.
-_NIGHTSCOUT_DIRECTIONS: dict[str, Trend] = {
+# Other spellings of the trend, keys are normalized (see ``_normalize``):
+# raw Nightscout directions (``direction`` attribute of the Nightscout glucose
+# sensor, see Nightscout lib/plugins/direction.js), common words and arrows.
+_TREND_ALIASES: dict[str, Trend] = {
     "tripleup": Trend.RISING_VERY_QUICKLY,
     "doubleup": Trend.RISING_QUICKLY,
     "singleup": Trend.RISING,
@@ -59,9 +60,33 @@ _NIGHTSCOUT_DIRECTIONS: dict[str, Trend] = {
     "singledown": Trend.FALLING,
     "doubledown": Trend.FALLING_QUICKLY,
     "tripledown": Trend.FALLING_VERY_QUICKLY,
-    "not computable": Trend.NOT_COMPUTABLE,
-    "rate out of range": Trend.RATE_OUT_OF_RANGE,
-}
+    "stable": Trend.STEADY,
+    "rising_fast": Trend.RISING_QUICKLY,
+    "rising_slowly": Trend.RISING_SLIGHTLY,
+    "increasing": Trend.RISING,
+    "increasing_fast": Trend.RISING_QUICKLY,
+    "increasing_quickly": Trend.RISING_QUICKLY,
+    "increasing_slightly": Trend.RISING_SLIGHTLY,
+    "increasing_slowly": Trend.RISING_SLIGHTLY,
+    "falling_fast": Trend.FALLING_QUICKLY,
+    "falling_slowly": Trend.FALLING_SLIGHTLY,
+    "decreasing": Trend.FALLING,
+    "decreasing_fast": Trend.FALLING_QUICKLY,
+    "decreasing_quickly": Trend.FALLING_QUICKLY,
+    "decreasing_slightly": Trend.FALLING_SLIGHTLY,
+    "decreasing_slowly": Trend.FALLING_SLIGHTLY,
+    "↑↑↑": Trend.RISING_VERY_QUICKLY,
+    "↑↑": Trend.RISING_QUICKLY,
+    "⬆": Trend.RISING,
+    "⬈": Trend.RISING_SLIGHTLY,
+    "➚": Trend.RISING_SLIGHTLY,
+    "➡": Trend.STEADY,
+    "⬊": Trend.FALLING_SLIGHTLY,
+    "➘": Trend.FALLING_SLIGHTLY,
+    "⬇": Trend.FALLING,
+    "↓↓": Trend.FALLING_QUICKLY,
+    "↓↓↓": Trend.FALLING_VERY_QUICKLY,
+} | {arrow: trend for trend, arrow in TREND_ARROWS.items() if arrow != "?"}
 
 # Epoch values above this are treated as milliseconds (Nightscout uses ms).
 _EPOCH_MS_THRESHOLD = 100_000_000_000
@@ -72,7 +97,6 @@ class ReadingTimeSource(StrEnum):
 
     ENTITY = "entity"
     ATTRIBUTE = "attribute"
-    LAST_CHANGED = "last_changed"
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,6 +111,12 @@ class GlucoseReading:
     """Change to the previous reading in mg/dL."""
 
     reading_time: datetime | None = None
+    """Time of the reading, ``None`` if the source does not provide it.
+
+    The time is never guessed (for example from the last state change):
+    without it, the age of the data is unknown and no alarms are possible.
+    """
+
     reading_time_source: ReadingTimeSource | None = None
 
     @property
@@ -119,15 +149,21 @@ def parse_number(value: object) -> float | None:
     return number if math.isfinite(number) else None
 
 
+def _normalize(text: str) -> str:
+    """Normalize a trend text: casefold, drop emoji variation selectors."""
+    text = text.strip().casefold().replace("️", "")
+    return "_".join(text.replace("-", " ").split())
+
+
 def parse_trend(value: object) -> Trend | None:
-    """Parse a trend from an enum state key or a raw Nightscout direction."""
+    """Parse a trend from a state key, Nightscout direction, word or arrow."""
     if value is None:
         return None
-    text = str(value).strip()
+    text = _normalize(str(value))
     try:
-        return Trend(text.lower())
+        return Trend(text)
     except ValueError:
-        return _NIGHTSCOUT_DIRECTIONS.get(text.casefold())
+        return _TREND_ALIASES.get(text)
 
 
 def parse_timestamp(value: object) -> datetime | None:

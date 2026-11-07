@@ -1,12 +1,14 @@
 """Read glucose data from the configured source entities.
 
 The glucose data itself (value, trend, change, reading time, thresholds) is
-provided by the integration that connects to the CGM, e.g. Nightscout or
-Dexcom. This module only reads those entities. When no dedicated entity is
-configured for trend, change or reading time, the matching state attributes
-of the glucose sensor are used instead (Nightscout exposes ``direction``,
-``delta`` and ``date``), and as a last resort the time of the last state
-change of the glucose sensor.
+provided by the integration that connects to the CGM, e.g. Nightscout,
+Dexcom or any other source. This module only reads those entities. When no
+dedicated entity is configured for trend, change or reading time, the matching
+state attributes of the glucose sensor are used instead (Nightscout exposes
+``direction``, ``delta`` and ``date``).
+
+Nothing is guessed: sensors without a unit need the unit set in the entry,
+and without a reading time the reading has none.
 """
 
 from __future__ import annotations
@@ -40,6 +42,7 @@ from .const import (
     ATTR_SOURCE_DIRECTION,
     CONF_CHANGE_ENTITY,
     CONF_GLUCOSE_ENTITY,
+    CONF_GLUCOSE_UNIT,
     CONF_READING_TIME_ENTITY,
     CONF_TREND_ENTITY,
     SOURCE_TRANSLATION_KEY_CHANGE,
@@ -73,6 +76,8 @@ class SourceEntities:
     trend: str | None = None
     change: str | None = None
     reading_time: str | None = None
+    unit: str | None = None
+    """Unit of glucose and change sensors that do not report one."""
 
     @classmethod
     def from_options(cls, options: Mapping[str, Any]) -> SourceEntities:
@@ -82,6 +87,7 @@ class SourceEntities:
             trend=options.get(CONF_TREND_ENTITY) or None,
             change=options.get(CONF_CHANGE_ENTITY) or None,
             reading_time=options.get(CONF_READING_TIME_ENTITY) or None,
+            unit=options.get(CONF_GLUCOSE_UNIT) or None,
         )
 
     @property
@@ -97,32 +103,41 @@ class SourceEntities:
 def to_mg_dl(value: float | None, unit: str | None) -> float | None:
     """Convert a glucose value to mg/dL.
 
-    Values without a unit are assumed to be in mg/dL. Values with an unknown
-    unit are rejected.
+    Values without a unit or with an unknown unit are rejected.
     """
-    if value is None:
+    if value is None or unit not in BloodGlucoseConcentrationConverter.VALID_UNITS:
         return None
-    if not unit or unit == MG_DL:
+    if unit == MG_DL:
         return value
-    if unit not in BloodGlucoseConcentrationConverter.VALID_UNITS:
-        return None
     return BloodGlucoseConcentrationConverter.convert(value, unit, MG_DL)
 
 
-def _state_value(state: State | None) -> str | None:
+def state_value(state: State | None) -> str | None:
     """Return the state value, ``None`` if missing, unknown or unavailable."""
     if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
         return None
     return state.state
 
 
-def _glucose_mg_dl(state: State | None) -> float | None:
-    """Return the numeric state of a glucose sensor in mg/dL."""
-    if state is None:
-        return None
+def sensor_unit(hass: HomeAssistant, entity_id: str) -> str | None:
+    """Return the unit a sensor reports, from its state or entity registry."""
+    if (state := hass.states.get(entity_id)) is not None and (
+        unit := state.attributes.get(ATTR_UNIT_OF_MEASUREMENT)
+    ):
+        return str(unit)
+    if (entry := er.async_get(hass).async_get(entity_id)) is not None:
+        return entry.unit_of_measurement
+    return None
+
+
+def _value_mg_dl(hass: HomeAssistant, entity_id: str, unit: str | None) -> float | None:
+    """Return the numeric state of a sensor in mg/dL.
+
+    ``unit`` is used when the sensor does not report a unit itself.
+    """
     return to_mg_dl(
-        parse_number(_state_value(state)),
-        state.attributes.get(ATTR_UNIT_OF_MEASUREMENT),
+        parse_number(state_value(hass.states.get(entity_id))),
+        sensor_unit(hass, entity_id) or unit,
     )
 
 
@@ -132,34 +147,33 @@ def build_reading(hass: HomeAssistant, sources: SourceEntities) -> GlucoseReadin
     attributes: Mapping[str, Any] = (
         glucose_state.attributes if glucose_state is not None else {}
     )
-    value = _glucose_mg_dl(glucose_state)
+    glucose_unit = sensor_unit(hass, sources.glucose) or sources.unit
+    value = _value_mg_dl(hass, sources.glucose, sources.unit)
 
     trend = None
     if sources.trend:
-        trend = parse_trend(_state_value(hass.states.get(sources.trend)))
+        trend = parse_trend(state_value(hass.states.get(sources.trend)))
     if trend is None:
         trend = parse_trend(attributes.get(ATTR_SOURCE_DIRECTION))
 
     change = None
     if sources.change:
-        change = _glucose_mg_dl(hass.states.get(sources.change))
+        change = _value_mg_dl(hass, sources.change, sources.unit)
     if change is None:
-        # Nightscout reports the delta attribute in mg/dL.
-        change = parse_number(attributes.get(ATTR_SOURCE_DELTA))
+        # The delta attribute has the unit of the glucose sensor (Nightscout).
+        change = to_mg_dl(parse_number(attributes.get(ATTR_SOURCE_DELTA)), glucose_unit)
 
+    # The reading time is never guessed, see GlucoseReading.reading_time.
     reading_time = None
     reading_time_source = None
     if sources.reading_time and (
         reading_time := parse_timestamp(
-            _state_value(hass.states.get(sources.reading_time))
+            state_value(hass.states.get(sources.reading_time))
         )
     ):
         reading_time_source = ReadingTimeSource.ENTITY
     elif reading_time := parse_timestamp(attributes.get(ATTR_SOURCE_DATE)):
         reading_time_source = ReadingTimeSource.ATTRIBUTE
-    elif glucose_state is not None and value is not None:
-        reading_time = glucose_state.last_changed
-        reading_time_source = ReadingTimeSource.LAST_CHANGED
 
     return GlucoseReading(
         value=value,

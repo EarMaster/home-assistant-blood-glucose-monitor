@@ -28,43 +28,51 @@
       },
       "sources": {
         "title": "Weitere Glukosedaten für {name}",
-        "description": "Wähle die Sensoren der Glukose-Integration für den Trend, die Änderung zum vorherigen Messwert und den Zeitpunkt der Messung. Passende Sensoren desselben Geräts werden automatisch vorgeschlagen.\n\nBleibt ein Feld leer, werden stattdessen die Attribute des Glukosesensors verwendet (`direction`, `delta` und `date`, wie von Nightscout bereitgestellt). Ohne Messzeitpunkt wird der Zeitpunkt der letzten Wertänderung verwendet; fehlende Daten werden damit weniger zuverlässig erkannt.",
+        "description": "Wähle die Sensoren der Glukose-Integration für den Trend, die Änderung zum vorherigen Messwert und den Zeitpunkt der Messung. Passende Sensoren desselben Geräts werden automatisch vorgeschlagen.\n\nBleibt ein Feld leer, werden stattdessen die Attribute des Glukosesensors verwendet (`direction`, `delta` und `date`, wie von Nightscout bereitgestellt).\n\nOhne Messzeitpunkt (Sensor oder Attribut `date`) ist das Alter der Daten unbekannt und es sind keine Alarme möglich.",
         "data": {
           "trend_entity": "Trend-Sensor",
           "change_entity": "Änderungs-Sensor",
-          "reading_time_entity": "Messzeitpunkt-Sensor"
+          "reading_time_entity": "Messzeitpunkt-Sensor",
+          "glucose_unit": "Einheit"
         },
         "data_description": {
-          "trend_entity": "Aufzählungs-Sensor mit dem Glukosetrend, zum Beispiel „Glukosetrend“.",
+          "trend_entity": "Sensor mit dem Glukosetrend, zum Beispiel „Glukosetrend“.",
           "change_entity": "Sensor mit der Änderung zum vorherigen Messwert, zum Beispiel „Glukoseänderung“.",
-          "reading_time_entity": "Zeitstempel-Sensor mit dem Zeitpunkt der letzten Messung, zum Beispiel „Glukose-Messzeitpunkt“."
+          "reading_time_entity": "Sensor mit dem Zeitpunkt der letzten Messung, zum Beispiel „Glukose-Messzeitpunkt“.",
+          "glucose_unit": "Nur nötig, wenn der Glukose- oder Änderungs-Sensor keine Einheit meldet."
         }
       }
     },
     "error": {
       "disclaimer_required": "Bitte bestätige, dass du den Hinweis gelesen und verstanden hast.",
       "name_required": "Bitte gib einen Namen ein.",
-      "unsupported_unit": "Der Glukosesensor hat eine nicht unterstützte Einheit. Unterstützt werden mg/dL und mmol/L."
+      "unsupported_unit": "Dieser Sensor hat eine nicht unterstützte Einheit. Unterstützt werden mg/dL und mmol/L.",
+      "not_numeric": "Der aktuelle Wert dieses Sensors ist keine Zahl.",
+      "unknown_trend": "Der aktuelle Wert dieses Sensors ist kein Glukosetrend, den diese Integration versteht.",
+      "invalid_reading_time": "Der aktuelle Wert dieses Sensors ist kein Zeitpunkt.",
+      "unit_required": "Der Glukose- oder Änderungs-Sensor meldet keine Einheit. Bitte wähle die Einheit aus."
     }
   },
   "options": {
     "step": {
       "init": {
         "title": "Glukosedaten",
-        "description": "Zur Erinnerung: Diese Integration ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.\n\nBleibt ein optionales Feld leer, werden stattdessen die Attribute des Glukosesensors verwendet.",
+        "description": "Zur Erinnerung: Diese Integration ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.\n\nBleibt ein optionales Feld leer, werden stattdessen die Attribute des Glukosesensors verwendet. Ohne Messzeitpunkt sind keine Alarme möglich.",
         "data": {
           "glucose_entity": "Glukosesensor",
           "person_entity": "Person",
           "trend_entity": "Trend-Sensor",
           "change_entity": "Änderungs-Sensor",
-          "reading_time_entity": "Messzeitpunkt-Sensor"
+          "reading_time_entity": "Messzeitpunkt-Sensor",
+          "glucose_unit": "Einheit"
         },
         "data_description": {
           "glucose_entity": "Der Sensor mit dem aktuellen Glukosewert.",
           "person_entity": "Optional. Wird für Funktionen benötigt, die nur laufen sollen, wenn die Person zu Hause ist.",
-          "trend_entity": "Optional. Aufzählungs-Sensor mit dem Glukosetrend.",
+          "trend_entity": "Optional. Sensor mit dem Glukosetrend.",
           "change_entity": "Optional. Sensor mit der Änderung zum vorherigen Messwert.",
-          "reading_time_entity": "Optional. Zeitstempel-Sensor mit dem Zeitpunkt der letzten Messung."
+          "reading_time_entity": "Optional. Sensor mit dem Zeitpunkt der letzten Messung.",
+          "glucose_unit": "Optional. Nur nötig, wenn der Glukose- oder Änderungs-Sensor keine Einheit meldet."
         }
       },
       "already_monitored": {
@@ -73,7 +81,11 @@
       }
     },
     "error": {
-      "unsupported_unit": "Der Glukosesensor hat eine nicht unterstützte Einheit. Unterstützt werden mg/dL und mmol/L."
+      "unsupported_unit": "Dieser Sensor hat eine nicht unterstützte Einheit. Unterstützt werden mg/dL und mmol/L.",
+      "not_numeric": "Der aktuelle Wert dieses Sensors ist keine Zahl.",
+      "unknown_trend": "Der aktuelle Wert dieses Sensors ist kein Glukosetrend, den diese Integration versteht.",
+      "invalid_reading_time": "Der aktuelle Wert dieses Sensors ist kein Zeitpunkt.",
+      "unit_required": "Der Glukose- oder Änderungs-Sensor meldet keine Einheit. Bitte wähle die Einheit aus."
     }
   }
 }
