@@ -37,7 +37,10 @@ async def test_triggers_of_enabled_alarms(
     hass: HomeAssistant, freezer: FrozenDateTimeFactory
 ) -> None:
     """Each enabled alarm offers an alert and an ended trigger."""
-    _, device_id = await setup_scenario(hass, freezer, data_loss={"enabled": False})
+    # Urgent low without threshold is off.
+    _, device_id = await setup_scenario(
+        hass, freezer, urgent_low={"only_when_home": False}
+    )
     triggers = await async_get_device_automations(
         hass, DeviceAutomationType.TRIGGER, [device_id]
     )
@@ -45,7 +48,7 @@ async def test_triggers_of_enabled_alarms(
         trigger["type"]
         for trigger in triggers[device_id]
         if trigger["domain"] == DOMAIN
-    } == {"urgent_low_alert", "urgent_low_ended", "low_alert", "low_ended"}
+    } == {"low_alert", "low_ended", "data_loss_alert", "data_loss_ended"}
     assert await device_trigger.async_get_triggers(hass, "unknown") == []
 
 

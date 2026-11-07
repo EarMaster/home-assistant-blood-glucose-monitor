@@ -420,7 +420,6 @@ async def open_options_step(
 
 
 LOW_INPUT = {
-    "enabled": True,
     "threshold_entity": "input_number.low",
     "clear_offset": 10,
     "delay": 5,
@@ -464,6 +463,18 @@ async def test_alarm_options_suggest_threshold(
     result = await open_options_step(hass, entry, "urgent_low")
     assert "threshold_entity" not in suggested_values(result)
 
+    # Saved without threshold (alarm off): no suggestion any more.
+    result = await open_options_step(hass, entry, "low")
+    user_input = dict(LOW_INPUT)
+    del user_input["threshold_entity"]
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    result = await open_options_step(hass, entry, "low")
+    assert "threshold_entity" not in suggested_values(result)
+
 
 @pytest.mark.usefixtures("glucose_state")
 async def test_alarm_options_saved(
@@ -490,11 +501,6 @@ async def test_alarm_options_saved(
 @pytest.mark.parametrize(
     ("user_input", "threshold_state", "errors"),
     [
-        (
-            {**LOW_INPUT, "threshold_entity": None},
-            None,
-            {"threshold_entity": "threshold_required"},
-        ),
         (LOW_INPUT, ("70", {}), {"threshold_entity": "threshold_unit_required"}),
         (
             LOW_INPUT,
@@ -529,12 +535,12 @@ async def test_alarm_options_errors(
 
 
 @pytest.mark.usefixtures("glucose_state")
-async def test_disabled_alarm_needs_no_threshold(
+async def test_alarm_without_threshold_is_off(
     hass: HomeAssistant, config_entry: MockConfigEntry
 ) -> None:
-    """A disabled alarm can be saved without threshold."""
+    """An alarm saved without threshold is off and gets no new suggestion."""
     result = await open_options_step(hass, config_entry, "urgent_low")
-    user_input = {**LOW_INPUT, "enabled": False}
+    user_input = dict(LOW_INPUT)
     del user_input["threshold_entity"]
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], user_input
@@ -552,7 +558,6 @@ async def test_data_loss_and_pause_options(
     result = await open_options_step(hass, config_entry, "data_loss")
     assert suggested_values(result) == {"max_age": 20, "repeat": 15, "snooze": 30}
     data_loss = {
-        "enabled": True,
         "max_age": 15,
         "repeat": 0,
         "snooze": 30,

@@ -39,7 +39,6 @@ from .const import (
     CONF_DELAY,
     CONF_DISCLAIMER_ACCEPTED,
     CONF_DURATION,
-    CONF_ENABLED,
     CONF_GLUCOSE_ENTITY,
     CONF_GLUCOSE_UNIT,
     CONF_MAX_AGE,
@@ -132,7 +131,6 @@ CLEAR_OFFSET_SELECTOR = NumberSelector(
 )
 THRESHOLD_ALARM_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_ENABLED, default=False): BooleanSelector(),
         vol.Optional(CONF_THRESHOLD_ENTITY): THRESHOLD_SELECTOR,
         vol.Required(CONF_CLEAR_OFFSET): CLEAR_OFFSET_SELECTOR,
         vol.Required(CONF_DELAY): _minutes(),
@@ -143,7 +141,6 @@ THRESHOLD_ALARM_SCHEMA = vol.Schema(
 )
 DATA_LOSS_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_ENABLED, default=False): BooleanSelector(),
         vol.Required(CONF_MAX_AGE): _minutes(1),
         vol.Required(CONF_REPEAT): _minutes(),
         vol.Required(CONF_SNOOZE): _minutes(1),
@@ -456,16 +453,13 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         errors: dict[str, str] = {}
         if user_input is not None:
             values = dict(user_input)
-            if values[CONF_ENABLED]:
-                if alarm in THRESHOLD_ALARMS:
-                    if entity_id := values.get(CONF_THRESHOLD_ENTITY):
-                        errors |= _validate_threshold(
-                            self.hass, entity_id, options.get(CONF_GLUCOSE_UNIT)
-                        )
-                    else:
-                        errors[CONF_THRESHOLD_ENTITY] = "threshold_required"
-                if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):
-                    errors[CONF_ONLY_WHEN_HOME] = "person_required"
+            # Without threshold a threshold alarm is off.
+            if entity_id := values.get(CONF_THRESHOLD_ENTITY):
+                errors |= _validate_threshold(
+                    self.hass, entity_id, options.get(CONF_GLUCOSE_UNIT)
+                )
+            if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):
+                errors[CONF_ONLY_WHEN_HOME] = "person_required"
             if not errors:
                 return self._async_save(alarm, values)
             current = user_input
@@ -473,6 +467,9 @@ class OptionsFlowHandler(OptionsFlowWithReload):
             current = {**ALARM_DEFAULTS[alarm], **options.get(alarm, {})}
             if alarm in THRESHOLD_ALARMS:
                 current.setdefault(CONF_CLEAR_OFFSET, DEFAULT_CLEAR_OFFSET[unit])
+            # Suggest a threshold only before the alarm was ever saved: an
+            # empty threshold switches the alarm off.
+            if alarm in THRESHOLD_ALARMS and alarm not in options:
                 current.setdefault(
                     CONF_THRESHOLD_ENTITY,
                     async_suggest_related(

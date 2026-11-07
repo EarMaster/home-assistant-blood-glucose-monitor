@@ -50,7 +50,6 @@ THRESHOLD_ALARMS: Final = (ALARM_URGENT_LOW, ALARM_LOW)
 # Urgent low is never paused.
 PAUSABLE_ALARMS: Final = (ALARM_LOW, ALARM_DATA_LOSS)
 
-CONF_ENABLED: Final = "enabled"
 CONF_THRESHOLD_ENTITY: Final = "threshold_entity"
 CONF_CLEAR_OFFSET: Final = "clear_offset"
 CONF_DELAY: Final = "delay"

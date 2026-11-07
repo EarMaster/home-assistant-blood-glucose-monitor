@@ -32,6 +32,7 @@ LOW_THRESHOLD = "input_number.low_threshold"
 URGENT_THRESHOLD = "input_number.urgent_threshold"
 PERSON = "person.alex"
 
+STATUS_SENSOR = "sensor.alex_status"
 LOW_SENSOR = "sensor.alex_low_alarm"
 URGENT_SENSOR = "sensor.alex_urgent_low_alarm"
 DATA_LOSS_SENSOR = "sensor.alex_data_loss_alarm"
@@ -43,8 +44,8 @@ ALARM_EVENT = "blood_glucose_monitor_alarm"
 
 
 def alarm(**overrides: Any) -> dict[str, Any]:
-    """Return enabled alarm options."""
-    return {"enabled": True, "only_when_home": False, **overrides}
+    """Return alarm options."""
+    return {"only_when_home": False, **overrides}
 
 
 def options(**overrides: Any) -> dict[str, Any]:
@@ -426,15 +427,69 @@ async def test_unavailable_threshold_holds(scenario: Scenario) -> None:
     assert scenario.phases() == []
 
 
-async def test_disabled_alarms_have_no_entities(scenario: Scenario) -> None:
-    """Only enabled alarms get entities; no alarms, no event entity."""
+async def test_alarms_without_threshold_are_off(scenario: Scenario) -> None:
+    """Alarms without threshold have no entities; data loss is always active."""
     await scenario.setup(
-        {CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY, "low": {"enabled": False}}
+        {
+            CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
+            CONF_READING_TIME_ENTITY: READING_TIME_ENTITY,
+            "low": {"only_when_home": False},
+        }
     )
     hass = scenario.hass
     assert hass.states.get(LOW_SENSOR) is None
-    assert hass.states.get(EVENT_ENTITY) is None
-    assert hass.states.get(PAUSE_SWITCH) is None
+    assert hass.states.get(URGENT_SENSOR) is None
+    assert scenario.state(DATA_LOSS_SENSOR) == "idle"
+    assert scenario.state(EVENT_ENTITY) is not None
+    assert scenario.state(PAUSE_SWITCH) == "off"
+    await scenario.reading(40)
+    assert scenario.events == []
+
+
+async def test_status(scenario: Scenario) -> None:
+    """The status shows the most important running alarm."""
+    hass = scenario.hass
+    await scenario.setup()
+    assert scenario.state(STATUS_SENSOR) == "ok"
+    attributes = hass.states.get(STATUS_SENSOR).attributes
+    assert attributes["glucose"] == 110
+    assert attributes["unit"] == "mg/dL"
+    assert attributes["active_alarms"] == []
+
+    await scenario.reading(65)
+    assert scenario.state(STATUS_SENSOR) == "ok"  # still pending
+    await scenario.wait(5, 65)
+    assert scenario.state(STATUS_SENSOR) == "low"
+    await scenario.reading(50)
+    assert scenario.state(STATUS_SENSOR) == "urgent_low"
+    attributes = hass.states.get(STATUS_SENSOR).attributes
+    assert attributes["active_alarms"] == ["urgent_low", "low"]
+
+    await hass.services.async_call(
+        DOMAIN,
+        "acknowledge",
+        {"config_entry_id": scenario.entry.entry_id},
+        blocking=True,
+    )
+    assert scenario.state(STATUS_SENSOR) == "urgent_low"
+    assert hass.states.get(STATUS_SENSOR).attributes["snoozed_alarms"] == [
+        "urgent_low",
+        "low",
+    ]
+
+    await scenario.reading(120)
+    assert scenario.state(STATUS_SENSOR) == "ok"
+    await hass.services.async_call(
+        "switch", "turn_on", {"entity_id": PAUSE_SWITCH}, blocking=True
+    )
+    assert scenario.state(STATUS_SENSOR) == "paused"
+    await hass.services.async_call(
+        "switch", "turn_off", {"entity_id": PAUSE_SWITCH}, blocking=True
+    )
+
+    # Stale data is "no data" at once, before the data loss alarm.
+    await scenario.wait(21)
+    assert scenario.state(STATUS_SENSOR) == "no_data"
 
 
 async def test_acknowledge_service_errors(scenario: Scenario) -> None:

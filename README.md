@@ -105,7 +105,10 @@ when the current value of a selected sensor cannot be read.
 ## Alarms
 
 Under **Configure** each entry has a menu: glucose data, the urgent low, low
-and data loss alarms, and the pause. Every alarm is off until you enable it.
+and data loss alarms, and the pause. The urgent low and low alarms are
+active once they have a threshold (leave it empty to switch them off); the
+data loss alarm is always active. Without an automation on their triggers,
+alarms only change their state sensors.
 
 | Alarm | Starts | Ends |
 | --- | --- | --- |
@@ -137,7 +140,7 @@ and data loss alarms, and the pause. Every alarm is off until you enable it.
 ### Notifications
 
 Notifications are automations: the integration only decides *when* to alarm,
-you decide *how*. Every enabled alarm adds two triggers to the device of the
+you decide *how*. Every active alarm adds two triggers to the device of the
 person (in the automation editor under **Device**):
 
 | Trigger | Fires when |
@@ -190,6 +193,11 @@ actions:
       data:
         tag: "{{ trigger.event.data.tag }}"
 ```
+
+Every entry has a *Status* sensor with the most important current state:
+`no_data` (data loss or no reading time), `urgent_low`, `low`, `paused` or
+`ok`. Its attributes hold the latest glucose value with unit and trend arrow,
+the reading time and the active and snoozed alarms.
 
 Per entry there are also a state sensor per alarm (`idle`, `pending`,
 `active`, `snoozed`) and an *Alarm* event entity that records every alarm

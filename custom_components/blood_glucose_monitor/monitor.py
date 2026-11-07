@@ -38,11 +38,12 @@ from .alarm import AlarmEngine, AlarmSettings, AlarmState, AlarmStatus, Conditio
 from .const import (
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
+    ALARM_LOW,
+    ALARM_URGENT_LOW,
     ALARMS,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
     CONF_DURATION,
-    CONF_ENABLED,
     CONF_MAX_AGE,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
@@ -78,6 +79,14 @@ TEXT_PREFIX = f"component.{DOMAIN}.selector.alarm_text.options."
 
 type AlarmEventListener = Callable[[str, Phase, dict[str, Any]], None]
 
+STATUS_OK = "ok"
+STATUS_PAUSED = "paused"
+STATUS_NO_DATA = "no_data"
+# Overall status, most important first: the first that applies wins.
+STATUSES = (STATUS_NO_DATA, ALARM_URGENT_LOW, ALARM_LOW, STATUS_PAUSED, STATUS_OK)
+# Alarm states that count for the overall status.
+RUNNING_STATES = (AlarmState.ACTIVE, AlarmState.SNOOZED)
+
 
 def minutes(value: float) -> timedelta:
     """Return a duration from minutes."""
@@ -90,8 +99,16 @@ def alarm_options(options: Mapping[str, Any], alarm: str) -> dict[str, Any]:
 
 
 def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
-    """Return the enabled alarms."""
-    return [alarm for alarm in ALARMS if options.get(alarm, {}).get(CONF_ENABLED)]
+    """Return the active alarms.
+
+    A threshold alarm is active once it has a threshold entity; the data loss
+    alarm is always active. Notifications are the user's automations.
+    """
+    return [
+        alarm
+        for alarm in ALARMS
+        if alarm == ALARM_DATA_LOSS or options.get(alarm, {}).get(CONF_THRESHOLD_ENTITY)
+    ]
 
 
 def alarm_settings(alarm: str, options: Mapping[str, Any]) -> AlarmSettings:
@@ -169,6 +186,54 @@ class AlarmMonitor:
     def state(self, alarm: str) -> AlarmState:
         """Return the state of an enabled alarm."""
         return self.engines[alarm].state
+
+    @property
+    def status(self) -> str:
+        """Return the overall status of the person, see ``STATUSES``."""
+        if (
+            self.last_reading_time is None
+            or dt_util.utcnow() - self.last_reading_time > self.max_age
+            or self._running(ALARM_DATA_LOSS)
+        ):
+            return STATUS_NO_DATA
+        for alarm in (ALARM_URGENT_LOW, ALARM_LOW):
+            if self._running(alarm):
+                return alarm
+        return STATUS_PAUSED if self.paused else STATUS_OK
+
+    @property
+    def status_attributes(self) -> dict[str, Any]:
+        """Return the latest reading and the running alarms."""
+        reading = self.source.reading
+        unit = self._unit()
+        return {
+            "glucose": self._display(reading.value, unit),
+            "unit": unit,
+            "trend_arrow": reading.trend_arrow,
+            "reading_time": _iso(self.last_reading_time),
+            "active_alarms": [
+                alarm
+                for alarm, engine in self.engines.items()
+                if engine.state is AlarmState.ACTIVE
+            ],
+            "snoozed_alarms": [
+                alarm
+                for alarm, engine in self.engines.items()
+                if engine.state is AlarmState.SNOOZED
+            ],
+        }
+
+    def _running(self, alarm: str) -> bool:
+        engine = self.engines.get(alarm)
+        return engine is not None and engine.state in RUNNING_STATES
+
+    @staticmethod
+    def _display(value: float | None, unit: str) -> float | None:
+        """Return a mg/dL value in ``unit``, rounded for display."""
+        converted = from_mg_dl(value, unit)
+        if converted is None:
+            return None
+        return round(converted, 0 if unit == MG_DL else 1)
 
     async def async_start(self) -> None:
         """Restore the states and start tracking."""
@@ -432,10 +497,8 @@ class AlarmMonitor:
         reading = self.source.reading
         unit = self._unit()
         digits = 0 if unit == MG_DL else 1
-        glucose = from_mg_dl(reading.value, unit)
-        change = from_mg_dl(reading.change, unit)
-        glucose = None if glucose is None else round(glucose, digits)
-        change = None if change is None else round(change, digits)
+        glucose = self._display(reading.value, unit)
+        change = self._display(reading.change, unit)
         age = (
             None
             if self.last_reading_time is None

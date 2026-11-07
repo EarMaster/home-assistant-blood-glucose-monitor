@@ -35,9 +35,8 @@ async def async_setup_entry(
     entry: BloodGlucoseMonitorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add the alarm event entity if any alarm is enabled."""
-    if entry.runtime_data.monitor.alarms:
-        async_add_entities([AlarmEventEntity(entry)])
+    """Add the alarm event entity (the data loss alarm is always active)."""
+    async_add_entities([AlarmEventEntity(entry)])
 
 
 class AlarmEventEntity(BloodGlucoseMonitorEntity, EventEntity):
