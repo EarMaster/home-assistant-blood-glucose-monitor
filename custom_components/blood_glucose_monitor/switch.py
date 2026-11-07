@@ -9,7 +9,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import BloodGlucoseMonitorConfigEntry
-from .const import PAUSABLE_ALARMS
 from .entity import BloodGlucoseMonitorEntity
 
 PARALLEL_UPDATES = 0
@@ -20,9 +19,8 @@ async def async_setup_entry(
     entry: BloodGlucoseMonitorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add the pause switch if a pausable alarm is enabled."""
-    if any(alarm in PAUSABLE_ALARMS for alarm in entry.runtime_data.monitor.alarms):
-        async_add_entities([PauseSwitch(entry)])
+    """Add the pause switch (the data loss alarm is always active)."""
+    async_add_entities([PauseSwitch(entry)])
 
 
 class PauseSwitch(BloodGlucoseMonitorEntity, SwitchEntity):

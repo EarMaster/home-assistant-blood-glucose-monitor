@@ -9,7 +9,11 @@ from typing import Any
 
 import pytest
 
-from custom_components.blood_glucose_monitor import config_flow, device_trigger
+from custom_components.blood_glucose_monitor import (
+    config_flow,
+    device_trigger,
+    monitor,
+)
 
 TRANSLATIONS = (
     Path(__file__).parent.parent
@@ -44,7 +48,6 @@ FLOW_ERRORS = {
     "config": {"disclaimer_required", "name_required", *SOURCE_ERRORS},
     "options": {
         *SOURCE_ERRORS,
-        "threshold_required",
         "threshold_unit_required",
         "person_required",
     },
@@ -124,6 +127,7 @@ def test_menu_options_translated() -> None:
 def test_entities_translated() -> None:
     """Every alarm has a state sensor, a button and event types."""
     entity = load("en")["entity"]
+    assert set(entity["sensor"]["status"]["state"]) == set(monitor.STATUSES)
     for alarm in ("urgent_low", "low", "data_loss"):
         assert entity["sensor"][f"{alarm}_alarm"]["name"]
         assert set(entity["sensor"][f"{alarm}_alarm"]["state"]) == {

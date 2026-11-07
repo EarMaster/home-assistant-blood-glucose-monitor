@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Status sensor per person with the most important current state (no data, urgent low, low, paused, OK), the latest glucose value and the running alarms
+
+### Changed
+- No enable switch per alarm: urgent low and low are active once they have a threshold (empty threshold = off), the data loss alarm is always active; notifications only come from your automations on the device triggers
+
 ## [0.2.0] - 2026-11-07
 
 ### Changed

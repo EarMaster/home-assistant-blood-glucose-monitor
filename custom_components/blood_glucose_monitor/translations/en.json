@@ -94,7 +94,6 @@
         "title": "Urgent low alarm",
         "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
         "data": {
-          "enabled": "Enabled",
           "threshold_entity": "Threshold",
           "clear_offset": "Clear offset",
           "delay": "Delay",
@@ -103,7 +102,7 @@
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number.",
+          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
           "clear_offset": "The alarm ends at the threshold plus this value.",
           "delay": "How long the glucose has to stay below the threshold.",
           "repeat": "0 notifies only once.",
@@ -115,7 +114,6 @@
         "title": "Low alarm",
         "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
         "data": {
-          "enabled": "Enabled",
           "threshold_entity": "Threshold",
           "clear_offset": "Clear offset",
           "delay": "Delay",
@@ -124,7 +122,7 @@
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number.",
+          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
           "clear_offset": "The alarm ends at the threshold plus this value.",
           "delay": "How long the glucose has to stay below the threshold.",
           "repeat": "0 notifies only once.",
@@ -134,9 +132,8 @@
       },
       "data_loss": {
         "title": "Data loss alarm",
-        "description": "Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "This alarm is always active. Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
         "data": {
-          "enabled": "Enabled",
           "max_age": "Maximum data age",
           "repeat": "Repeat interval",
           "snooze": "Snooze",
@@ -163,7 +160,6 @@
       "unknown_trend": "The current value of this sensor is not a glucose trend this integration understands.",
       "invalid_reading_time": "The current value of this sensor is not a time.",
       "unit_required": "The glucose or change sensor does not report a unit. Please select the unit.",
-      "threshold_required": "Select a threshold entity.",
       "threshold_unit_required": "This entity does not report a unit. Set the unit under Glucose data.",
       "person_required": "Select a person under Glucose data first."
     }
@@ -204,6 +200,36 @@
       }
     },
     "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "no_data": "No data",
+          "urgent_low": "Urgent low",
+          "low": "Low",
+          "paused": "Paused",
+          "ok": "OK"
+        },
+        "state_attributes": {
+          "glucose": {
+            "name": "Glucose"
+          },
+          "unit": {
+            "name": "Unit"
+          },
+          "trend_arrow": {
+            "name": "Trend"
+          },
+          "reading_time": {
+            "name": "Reading time"
+          },
+          "active_alarms": {
+            "name": "Active alarms"
+          },
+          "snoozed_alarms": {
+            "name": "Snoozed alarms"
+          }
+        }
+      },
       "urgent_low_alarm": {
         "name": "Urgent low alarm",
         "state": {

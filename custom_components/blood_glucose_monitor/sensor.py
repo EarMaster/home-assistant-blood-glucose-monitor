@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -9,6 +11,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from . import BloodGlucoseMonitorConfigEntry
 from .alarm import AlarmState
 from .entity import BloodGlucoseMonitorEntity
+from .monitor import STATUSES
 
 PARALLEL_UPDATES = 0
 
@@ -18,10 +21,38 @@ async def async_setup_entry(
     entry: BloodGlucoseMonitorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add one state sensor per enabled alarm."""
+    """Add the status sensor and one state sensor per active alarm."""
     async_add_entities(
-        AlarmStateSensor(entry, alarm) for alarm in entry.runtime_data.monitor.alarms
+        [
+            StatusSensor(entry),
+            *(
+                AlarmStateSensor(entry, alarm)
+                for alarm in entry.runtime_data.monitor.alarms
+            ),
+        ]
     )
+
+
+class StatusSensor(BloodGlucoseMonitorEntity, SensorEntity):
+    """Overall status of the person: the most important running alarm."""
+
+    _attr_device_class = SensorDeviceClass.ENUM
+    _attr_translation_key = "status"
+
+    def __init__(self, entry: BloodGlucoseMonitorConfigEntry) -> None:
+        """Initialize."""
+        super().__init__(entry, "status")
+        self._attr_options = list(STATUSES)
+
+    @property
+    def native_value(self) -> str:
+        """Return the status."""
+        return self.monitor.status
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the latest reading and the running alarms."""
+        return self.monitor.status_attributes
 
 
 class AlarmStateSensor(BloodGlucoseMonitorEntity, SensorEntity):
