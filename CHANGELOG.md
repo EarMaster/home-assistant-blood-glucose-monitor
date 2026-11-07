@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-07
+
 ### Added
 - High and urgent high alarms with threshold entities (the Nightscout target range top and urgent high threshold are suggested)
 - Rapid fall and rapid rise alarms, detected by the trend of the glucose data or by the own rate of change with a limit as number or entity
