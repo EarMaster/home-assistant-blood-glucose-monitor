@@ -1,0 +1,47 @@
+"""Alarm state sensors of the Blood Glucose Monitor integration."""
+
+from __future__ import annotations
+
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+
+from . import BloodGlucoseMonitorConfigEntry
+from .alarm import AlarmState
+from .entity import BloodGlucoseMonitorEntity
+
+PARALLEL_UPDATES = 0
+
+
+async def async_setup_entry(
+    hass: HomeAssistant,
+    entry: BloodGlucoseMonitorConfigEntry,
+    async_add_entities: AddConfigEntryEntitiesCallback,
+) -> None:
+    """Add one state sensor per enabled alarm."""
+    async_add_entities(
+        AlarmStateSensor(entry, alarm) for alarm in entry.runtime_data.monitor.alarms
+    )
+
+
+class AlarmStateSensor(BloodGlucoseMonitorEntity, SensorEntity):
+    """State of one alarm: idle, pending, active or snoozed."""
+
+    _attr_device_class = SensorDeviceClass.ENUM
+
+    def __init__(self, entry: BloodGlucoseMonitorConfigEntry, alarm: str) -> None:
+        """Initialize."""
+        super().__init__(entry, f"{alarm}_alarm")
+        self._attr_options = [state.value for state in AlarmState]
+        self.alarm = alarm
+        self._attr_translation_key = f"{alarm}_alarm"
+
+    @property
+    def available(self) -> bool:
+        """Without a reading time no alarms are possible."""
+        return self.monitor.reading_time_known
+
+    @property
+    def native_value(self) -> str:
+        """Return the alarm state."""
+        return self.monitor.state(self.alarm).value

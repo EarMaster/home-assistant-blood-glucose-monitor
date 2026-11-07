@@ -56,8 +56,19 @@
   "options": {
     "step": {
       "init": {
+        "title": "Settings",
+        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.",
+        "menu_options": {
+          "sources": "Glucose data",
+          "urgent_low": "Urgent low alarm",
+          "low": "Low alarm",
+          "data_loss": "Data loss alarm",
+          "pause": "Pause"
+        }
+      },
+      "sources": {
         "title": "Glucose data",
-        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.\n\nIf an optional field is left empty, the attributes of the glucose sensor are used instead. Without a reading time, no alarms are possible.",
+        "description": "If an optional field is left empty, the attributes of the glucose sensor are used instead. Without a reading time, no alarms are possible.",
         "data": {
           "glucose_entity": "Glucose sensor",
           "person_entity": "Person",
@@ -78,6 +89,84 @@
       "already_monitored": {
         "title": "Glucose sensor already monitored",
         "description": "`{entity_id}` is already monitored by: {entries}.\n\nBoth entries work independently of each other.\n\nSubmit to save, or close this dialog to cancel."
+      },
+      "urgent_low": {
+        "title": "Urgent low alarm",
+        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nThe action runs when the alarm starts and on every repeat, the end action when the alarm is acknowledged or over. Both get the variables `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "enabled": "Enabled",
+          "threshold_entity": "Threshold",
+          "clear_offset": "Clear offset",
+          "delay": "Delay",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home",
+          "action": "Action",
+          "end_action": "End action"
+        },
+        "data_description": {
+          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number.",
+          "clear_offset": "The alarm ends at the threshold plus this value.",
+          "delay": "How long the glucose has to stay below the threshold.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues.",
+          "action": "Runs when the alarm starts and on every repeat.",
+          "end_action": "Runs when the alarm is acknowledged or over."
+        }
+      },
+      "low": {
+        "title": "Low alarm",
+        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nThe action runs when the alarm starts and on every repeat, the end action when the alarm is acknowledged or over. Both get the variables `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "enabled": "Enabled",
+          "threshold_entity": "Threshold",
+          "clear_offset": "Clear offset",
+          "delay": "Delay",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home",
+          "action": "Action",
+          "end_action": "End action"
+        },
+        "data_description": {
+          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number.",
+          "clear_offset": "The alarm ends at the threshold plus this value.",
+          "delay": "How long the glucose has to stay below the threshold.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues.",
+          "action": "Runs when the alarm starts and on every repeat.",
+          "end_action": "Runs when the alarm is acknowledged or over."
+        }
+      },
+      "data_loss": {
+        "title": "Data loss alarm",
+        "description": "Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nThe action runs when the alarm starts and on every repeat, the end action when the alarm is acknowledged or over.",
+        "data": {
+          "enabled": "Enabled",
+          "max_age": "Maximum data age",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home",
+          "action": "Action",
+          "end_action": "End action"
+        },
+        "data_description": {
+          "max_age": "Time without a new reading until the alarm.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues.",
+          "action": "Runs when the alarm starts and on every repeat.",
+          "end_action": "Runs when the alarm is acknowledged or over."
+        }
+      },
+      "pause": {
+        "title": "Pause",
+        "description": "The pause switch silences the low and data loss alarms for this duration. The urgent low alarm is never paused. When the pause ends, the alarms are checked again at once.",
+        "data": {
+          "duration": "Pause duration"
+        }
       }
     },
     "error": {
@@ -85,7 +174,130 @@
       "not_numeric": "The current value of this sensor is not a number.",
       "unknown_trend": "The current value of this sensor is not a glucose trend this integration understands.",
       "invalid_reading_time": "The current value of this sensor is not a time.",
-      "unit_required": "The glucose or change sensor does not report a unit. Please select the unit."
+      "unit_required": "The glucose or change sensor does not report a unit. Please select the unit.",
+      "threshold_required": "Select a threshold entity.",
+      "threshold_unit_required": "This entity does not report a unit. Set the unit under Glucose data.",
+      "person_required": "Select a person under Glucose data first.",
+      "invalid_action": "The action is invalid."
+    }
+  },
+  "entity": {
+    "button": {
+      "acknowledge_urgent_low": {
+        "name": "Acknowledge urgent low alarm"
+      },
+      "acknowledge_low": {
+        "name": "Acknowledge low alarm"
+      },
+      "acknowledge_data_loss": {
+        "name": "Acknowledge data loss alarm"
+      }
+    },
+    "event": {
+      "alarm": {
+        "name": "Alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_low_triggered": "Urgent low: alarm",
+              "urgent_low_repeat": "Urgent low: repeat",
+              "urgent_low_acknowledged": "Urgent low: acknowledged",
+              "urgent_low_resolved": "Urgent low: over",
+              "low_triggered": "Low: alarm",
+              "low_repeat": "Low: repeat",
+              "low_acknowledged": "Low: acknowledged",
+              "low_resolved": "Low: over",
+              "data_loss_triggered": "Data loss: alarm",
+              "data_loss_repeat": "Data loss: repeat",
+              "data_loss_acknowledged": "Data loss: acknowledged",
+              "data_loss_resolved": "Data loss: over"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "urgent_low_alarm": {
+        "name": "Urgent low alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "low_alarm": {
+        "name": "Low alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Data loss alarm",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      }
+    },
+    "switch": {
+      "pause": {
+        "name": "Pause alarms"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "No Blood Glucose Monitor entry with the ID {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "The entry {name} is not loaded."
+    }
+  },
+  "issues": {
+    "no_reading_time": {
+      "title": "No reading time for {name}",
+      "description": "The glucose data of {name} has no reading time. Without it the age of the data is unknown and no alarms are possible.\n\nSelect a reading time sensor under **Configure → Glucose data**."
+    }
+  },
+  "selector": {
+    "alarm": {
+      "options": {
+        "urgent_low": "Urgent low",
+        "low": "Low",
+        "data_loss": "Data loss"
+      }
+    },
+    "alarm_text": {
+      "options": {
+        "urgent_low": "{name}: urgent low glucose",
+        "low": "{name}: low glucose",
+        "data_loss": "{name}: no glucose data",
+        "data_loss_message": "No new reading for {minutes} min.",
+        "acknowledged": "Acknowledged.",
+        "resolved": "Over."
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Acknowledge alarm",
+      "description": "Acknowledges one or all alarms of a person. Alarms of other entries are not affected.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Person",
+          "description": "The entry of the person."
+        },
+        "alarm": {
+          "name": "Alarm",
+          "description": "Leave empty to acknowledge all alarms of the person."
+        }
+      }
     }
   }
 }

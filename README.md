@@ -30,7 +30,7 @@ be notified.
 
 ## Status
 
-Work in progress. The current version (0.1) contains the foundation only:
+Work in progress. The current version (0.1) contains:
 
 - Setup with a mandatory acknowledgement of the notice above
 - One entry per person: glucose sensor and optional person
@@ -40,12 +40,12 @@ Work in progress. The current version (0.1) contains the foundation only:
   sensor (as provided by Nightscout)
 - Any glucose source: every sensor can be selected, its current value is
   checked during setup
-- Diagnostics download showing how the glucose data is read
+- Alarms for urgent low, low and data loss with acknowledge, snooze,
+  re-check and pause; notifications as your own Home Assistant actions
+- Diagnostics download showing how the glucose data and alarms are read
 
-Planned next: low/urgent low alarms with acknowledge, snooze and re-check,
-missing data detection, high alarms, rapid change, night report and phone
-charging reminder. Notifications will be configured as free Home Assistant
-actions per feature.
+Planned next: high alarms, rapid change, night report and phone charging
+reminder.
 
 ## Requirements
 
@@ -101,6 +101,81 @@ The trend is understood as state key (`steady`, `falling_quickly`, …),
 Nightscout direction (`Flat`, `SingleDown`, …), common word (`stable`,
 `rising fast`, `decreasing`, …) or arrow (`→`, `↘`, `⇊`, …). Setup tells you
 when the current value of a selected sensor cannot be read.
+
+## Alarms
+
+Under **Configure** each entry has a menu: glucose data, the urgent low, low
+and data loss alarms, and the pause. Every alarm is off until you enable it.
+
+| Alarm | Starts | Ends |
+| --- | --- | --- |
+| Urgent low | glucose below its threshold for the delay | glucose at threshold plus clear offset |
+| Low | glucose below its threshold for the delay | glucose at threshold plus clear offset |
+| Data loss | no new reading within the maximum data age | a new reading |
+
+- **Thresholds** are entities: for example the threshold sensors of the
+  glucose integration (suggested automatically when available) or an
+  `input_number`. Each alarm has its own threshold.
+- **Repeat:** an active alarm runs its action again in this interval
+  (0 = once).
+- **Acknowledge** silences an alarm for its snooze time. Afterwards the alarm
+  is checked again and starts at once if it still applies. Ways to
+  acknowledge: the *Acknowledge … alarm* button, the
+  `blood_glucose_monitor.acknowledge` action, or a mobile app notification
+  action with the id from `ack_action`. Each alarm of each entry is
+  acknowledged on its own.
+- **Pause:** the *Pause alarms* switch silences the low and data loss alarms
+  for the configured duration and turns off by itself. Urgent low is never
+  paused.
+- **Only when the person is at home:** new alarms only start while the
+  selected person is at home; a running alarm continues.
+- **Stale data:** readings older than the maximum data age neither start nor
+  end the glucose alarms; the data loss alarm covers this.
+- **Restart:** alarm states survive a restart of Home Assistant.
+- Without a reading time no alarms are possible; a repair issue tells you so.
+
+Each alarm has an *action* (alarm starts and every repeat) and an *end
+action* (acknowledged or over). Both get these variables:
+
+| Variable | Content |
+| --- | --- |
+| `title`, `message` | ready-made texts in the language of Home Assistant |
+| `alarm` | `urgent_low`, `low` or `data_loss` |
+| `phase` | `triggered`, `repeat`, `acknowledged` or `resolved` |
+| `glucose`, `unit`, `delta` | latest value and change in the unit of the glucose sensor |
+| `trend`, `trend_arrow` | trend key and arrow |
+| `data_age_min` | age of the latest reading in minutes |
+| `person_name`, `entry_id` | the entry |
+| `tag` | notification tag, unique per entry and alarm |
+| `ack_action` | mobile app action id that acknowledges this alarm |
+
+Example for the Home Assistant Companion app, action:
+
+```yaml
+action: notify.mobile_app_your_phone
+data:
+  title: "{{ title }}"
+  message: "{{ message }}"
+  data:
+    tag: "{{ tag }}"
+    actions:
+      - action: "{{ ack_action }}"
+        title: Acknowledge
+```
+
+End action:
+
+```yaml
+action: notify.mobile_app_your_phone
+data:
+  message: clear_notification
+  data:
+    tag: "{{ tag }}"
+```
+
+Per entry there are also a state sensor per alarm (`idle`, `pending`,
+`active`, `snoozed`) and an *Alarm* event entity that records every alarm
+event in the logbook and can trigger automations.
 
 ## Development
 

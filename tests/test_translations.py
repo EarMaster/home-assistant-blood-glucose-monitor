@@ -24,9 +24,15 @@ FORMS = {
     ("config", "person"): config_flow.PERSON_SCHEMA,
     ("config", "already_monitored"): config_flow.ALREADY_MONITORED_SCHEMA,
     ("config", "sources"): config_flow.SOURCES_SCHEMA,
-    ("options", "init"): config_flow.OPTIONS_SCHEMA,
+    ("options", "init"): config_flow.MENU_SCHEMA,
+    ("options", "sources"): config_flow.OPTIONS_SCHEMA,
     ("options", "already_monitored"): config_flow.ALREADY_MONITORED_SCHEMA,
+    ("options", "urgent_low"): config_flow.THRESHOLD_ALARM_SCHEMA,
+    ("options", "low"): config_flow.THRESHOLD_ALARM_SCHEMA,
+    ("options", "data_loss"): config_flow.DATA_LOSS_SCHEMA,
+    ("options", "pause"): config_flow.PAUSE_SCHEMA,
 }
+MENU_OPTIONS = {"sources", "urgent_low", "low", "data_loss", "pause"}
 SOURCE_ERRORS = {
     "unsupported_unit",
     "not_numeric",
@@ -36,7 +42,13 @@ SOURCE_ERRORS = {
 }
 FLOW_ERRORS = {
     "config": {"disclaimer_required", "name_required", *SOURCE_ERRORS},
-    "options": SOURCE_ERRORS,
+    "options": {
+        *SOURCE_ERRORS,
+        "threshold_required",
+        "threshold_unit_required",
+        "person_required",
+        "invalid_action",
+    },
 }
 
 
@@ -102,3 +114,26 @@ def test_disclaimer_present(language: str) -> None:
     step = load(language)["config"]["step"]["user"]
     assert step["description"].strip()
     assert step["data"]["disclaimer_accepted"].strip()
+
+
+def test_menu_options_translated() -> None:
+    """Every option of the options menu has a label."""
+    menu = load("en")["options"]["step"]["init"]["menu_options"]
+    assert set(menu) == MENU_OPTIONS
+
+
+def test_entities_translated() -> None:
+    """Every alarm has a state sensor, a button and event types."""
+    entity = load("en")["entity"]
+    for alarm in ("urgent_low", "low", "data_loss"):
+        assert entity["sensor"][f"{alarm}_alarm"]["name"]
+        assert set(entity["sensor"][f"{alarm}_alarm"]["state"]) == {
+            "idle",
+            "pending",
+            "active",
+            "snoozed",
+        }
+        assert entity["button"][f"acknowledge_{alarm}"]["name"]
+        event_types = entity["event"]["alarm"]["state_attributes"]["event_type"]
+        for phase in ("triggered", "repeat", "acknowledged", "resolved"):
+            assert event_types["state"][f"{alarm}_{phase}"]

@@ -24,7 +24,7 @@ async def test_setup_and_unload(
     await hass.async_block_till_done()
     assert config_entry.state is ConfigEntryState.LOADED
 
-    source = config_entry.runtime_data
+    source = config_entry.runtime_data.source
     assert source.reading.value == 112
     assert source.reading.trend is Trend.FALLING_SLIGHTLY
 

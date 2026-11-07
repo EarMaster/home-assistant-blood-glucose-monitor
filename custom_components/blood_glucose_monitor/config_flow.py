@@ -13,10 +13,17 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import UnitOfBloodGlucoseConcentration
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import HomeAssistantError
+from homeassistant.helpers import config_validation as cv
+from homeassistant.helpers.script import async_validate_actions_config
 from homeassistant.helpers.selector import (
+    ActionSelector,
     BooleanSelector,
     EntitySelector,
     EntitySelectorConfig,
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
     SelectSelector,
     SelectSelectorConfig,
     SelectSelectorMode,
@@ -26,18 +33,45 @@ from homeassistant.util.unit_conversion import BloodGlucoseConcentrationConverte
 import probatio as vol
 
 from .const import (
+    ALARM_DATA_LOSS,
+    ALARM_DEFAULTS,
+    ALARM_LOW,
+    ALARM_URGENT_LOW,
+    ALARMS,
+    CONF_ACTION,
     CONF_CHANGE_ENTITY,
+    CONF_CLEAR_OFFSET,
+    CONF_DELAY,
     CONF_DISCLAIMER_ACCEPTED,
+    CONF_DURATION,
+    CONF_ENABLED,
+    CONF_END_ACTION,
     CONF_GLUCOSE_ENTITY,
     CONF_GLUCOSE_UNIT,
+    CONF_MAX_AGE,
     CONF_NAME,
+    CONF_ONLY_WHEN_HOME,
+    CONF_PAUSE,
     CONF_PERSON_ENTITY,
     CONF_READING_TIME_ENTITY,
+    CONF_REPEAT,
+    CONF_SNOOZE,
+    CONF_THRESHOLD_ENTITY,
     CONF_TREND_ENTITY,
+    DEFAULT_CLEAR_OFFSET,
+    DEFAULT_PAUSE_DURATION,
     DOMAIN,
+    THRESHOLD_ALARMS,
+    THRESHOLD_TRANSLATION_KEYS,
 )
 from .glucose import parse_number, parse_timestamp, parse_trend
-from .source import async_suggest_sources, sensor_unit, state_value
+from .source import (
+    MG_DL,
+    async_suggest_related,
+    async_suggest_sources,
+    sensor_unit,
+    state_value,
+)
 
 # Any sensor can be selected: not every source sets a device class. The
 # current values are checked instead.
@@ -79,6 +113,60 @@ OPTIONS_SCHEMA = vol.Schema(
 ).extend(SOURCES_SCHEMA.schema)
 # Notice without fields: submitting continues, closing the dialog cancels.
 ALREADY_MONITORED_SCHEMA = vol.Schema({})
+# Menu steps have no fields.
+MENU_SCHEMA = vol.Schema({})
+
+
+def _minutes(minimum: int = 0) -> NumberSelector:
+    """Return a selector for a duration in minutes."""
+    return NumberSelector(
+        NumberSelectorConfig(
+            min=minimum,
+            max=1440,
+            step=1,
+            unit_of_measurement="min",
+            mode=NumberSelectorMode.BOX,
+        )
+    )
+
+
+THRESHOLD_SELECTOR = EntitySelector(
+    EntitySelectorConfig(domain=["sensor", "number", "input_number"])
+)
+CLEAR_OFFSET_SELECTOR = NumberSelector(
+    NumberSelectorConfig(min=0, max=100, step="any", mode=NumberSelectorMode.BOX)
+)
+_ALARM_ACTIONS = {
+    vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
+    vol.Optional(CONF_ACTION): ActionSelector(),
+    vol.Optional(CONF_END_ACTION): ActionSelector(),
+}
+THRESHOLD_ALARM_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENABLED, default=False): BooleanSelector(),
+        vol.Optional(CONF_THRESHOLD_ENTITY): THRESHOLD_SELECTOR,
+        vol.Required(CONF_CLEAR_OFFSET): CLEAR_OFFSET_SELECTOR,
+        vol.Required(CONF_DELAY): _minutes(),
+        vol.Required(CONF_REPEAT): _minutes(),
+        vol.Required(CONF_SNOOZE): _minutes(1),
+        **_ALARM_ACTIONS,
+    }
+)
+DATA_LOSS_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ENABLED, default=False): BooleanSelector(),
+        vol.Required(CONF_MAX_AGE): _minutes(1),
+        vol.Required(CONF_REPEAT): _minutes(),
+        vol.Required(CONF_SNOOZE): _minutes(1),
+        **_ALARM_ACTIONS,
+    }
+)
+PAUSE_SCHEMA = vol.Schema({vol.Required(CONF_DURATION): _minutes(1)})
+ALARM_SCHEMAS = {
+    ALARM_URGENT_LOW: THRESHOLD_ALARM_SCHEMA,
+    ALARM_LOW: THRESHOLD_ALARM_SCHEMA,
+    ALARM_DATA_LOSS: DATA_LOSS_SCHEMA,
+}
 
 OPTION_KEYS = (
     CONF_GLUCOSE_ENTITY,
@@ -261,14 +349,47 @@ class BloodGlucoseMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
+async def _validate_actions(
+    hass: HomeAssistant, values: Mapping[str, Any]
+) -> dict[str, str]:
+    """Return form errors for invalid actions."""
+    errors: dict[str, str] = {}
+    for key in (CONF_ACTION, CONF_END_ACTION):
+        if actions := values.get(key):
+            try:
+                await async_validate_actions_config(hass, cv.SCRIPT_SCHEMA(actions))
+            except vol.Invalid, HomeAssistantError:
+                errors[key] = "invalid_action"
+    return errors
+
+
+def _validate_threshold(
+    hass: HomeAssistant, entity_id: str, manual_unit: str | None
+) -> dict[str, str]:
+    """Return form errors for a threshold entity."""
+    if errors := _validate_glucose_value(hass, CONF_THRESHOLD_ENTITY, entity_id):
+        return errors
+    if sensor_unit(hass, entity_id) is None and not manual_unit:
+        return {CONF_THRESHOLD_ENTITY: "threshold_unit_required"}
+    return {}
+
+
 class OptionsFlowHandler(OptionsFlowWithReload):
-    """Change the source entities of a monitored person."""
+    """Change the glucose data, the alarms and the pause of a person."""
 
     def __init__(self) -> None:
         """Initialize the options flow."""
         self._options: dict[str, Any] = {}
 
     async def async_step_init(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Show what can be configured."""
+        return self.async_show_menu(
+            step_id="init", menu_options=["sources", *ALARMS, CONF_PAUSE]
+        )
+
+    async def async_step_sources(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Edit the source entities."""
@@ -287,9 +408,9 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                     self.hass, glucose_entity, self.config_entry.entry_id
                 ):
                     return await self.async_step_already_monitored()
-                return self._async_save()
+                return self._async_save_sources()
         return self.async_show_form(
-            step_id="init",
+            step_id="sources",
             data_schema=self.add_suggested_values_to_schema(
                 OPTIONS_SCHEMA, user_input or self.config_entry.options
             ),
@@ -301,7 +422,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
     ) -> ConfigFlowResult:
         """Tell the user that another entry already monitors the glucose sensor."""
         if user_input is not None:
-            return self._async_save()
+            return self._async_save_sources()
         entity_id = self._options[CONF_GLUCOSE_ENTITY]
         return self.async_show_form(
             step_id="already_monitored",
@@ -314,9 +435,96 @@ class OptionsFlowHandler(OptionsFlowWithReload):
             ),
         )
 
+    async def async_step_urgent_low(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the urgent low alarm."""
+        return await self._async_alarm_step(ALARM_URGENT_LOW, user_input)
+
+    async def async_step_low(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the low alarm."""
+        return await self._async_alarm_step(ALARM_LOW, user_input)
+
+    async def async_step_data_loss(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the data loss alarm."""
+        return await self._async_alarm_step(ALARM_DATA_LOSS, user_input)
+
+    async def async_step_pause(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the pause of the low and data loss alarms."""
+        if user_input is not None:
+            return self._async_save(CONF_PAUSE, user_input)
+        current = {
+            CONF_DURATION: DEFAULT_PAUSE_DURATION,
+            **self.config_entry.options.get(CONF_PAUSE, {}),
+        }
+        return self.async_show_form(
+            step_id=CONF_PAUSE,
+            data_schema=self.add_suggested_values_to_schema(PAUSE_SCHEMA, current),
+        )
+
+    async def _async_alarm_step(
+        self, alarm: str, user_input: dict[str, Any] | None
+    ) -> ConfigFlowResult:
+        """Show and save the form of one alarm."""
+        options = self.config_entry.options
+        unit = (
+            sensor_unit(self.hass, options[CONF_GLUCOSE_ENTITY])
+            or options.get(CONF_GLUCOSE_UNIT)
+            or MG_DL
+        )
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            values = {key: value for key, value in user_input.items() if value != []}
+            if values[CONF_ENABLED]:
+                if alarm in THRESHOLD_ALARMS:
+                    if entity_id := values.get(CONF_THRESHOLD_ENTITY):
+                        errors |= _validate_threshold(
+                            self.hass, entity_id, options.get(CONF_GLUCOSE_UNIT)
+                        )
+                    else:
+                        errors[CONF_THRESHOLD_ENTITY] = "threshold_required"
+                if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):
+                    errors[CONF_ONLY_WHEN_HOME] = "person_required"
+            errors |= await _validate_actions(self.hass, values)
+            if not errors:
+                return self._async_save(alarm, values)
+            current = user_input
+        else:
+            current = {**ALARM_DEFAULTS[alarm], **options.get(alarm, {})}
+            if alarm in THRESHOLD_ALARMS:
+                current.setdefault(CONF_CLEAR_OFFSET, DEFAULT_CLEAR_OFFSET[unit])
+                current.setdefault(
+                    CONF_THRESHOLD_ENTITY,
+                    async_suggest_related(
+                        self.hass,
+                        options[CONF_GLUCOSE_ENTITY],
+                        {THRESHOLD_TRANSLATION_KEYS[alarm]: CONF_THRESHOLD_ENTITY},
+                    ).get(CONF_THRESHOLD_ENTITY),
+                )
+        return self.async_show_form(
+            step_id=alarm,
+            data_schema=self.add_suggested_values_to_schema(
+                ALARM_SCHEMAS[alarm],
+                {key: value for key, value in current.items() if value is not None},
+            ),
+            errors=errors,
+            description_placeholders={"unit": unit},
+        )
+
     @callback
-    def _async_save(self) -> ConfigFlowResult:
-        """Keep options of other steps, replace the source entities."""
+    def _async_save(self, key: str, values: dict[str, Any]) -> ConfigFlowResult:
+        """Replace the options of one alarm or the pause."""
+        return self.async_create_entry(data={**self.config_entry.options, key: values})
+
+    @callback
+    def _async_save_sources(self) -> ConfigFlowResult:
+        """Keep the other options, replace the source entities."""
         other_options = {
             key: value
             for key, value in self.config_entry.options.items()

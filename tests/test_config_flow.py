@@ -7,6 +7,7 @@ from typing import Any
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult, FlowResultType
+from homeassistant.helpers import entity_registry as er
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -26,6 +27,7 @@ from .conftest import (
     CHANGE_ENTITY,
     GLUCOSE_ENTITY,
     READING_TIME_ENTITY,
+    SOURCE_PLATFORM,
     TREND_ENTITY,
     nightscout_attributes,
 )
@@ -54,6 +56,19 @@ async def start_flow_at_person_step(hass: HomeAssistant) -> FlowResult:
     )
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "person"
+    return result
+
+
+async def open_sources_options(hass: HomeAssistant, entry_id: str) -> FlowResult:
+    """Open the options and choose the glucose data step."""
+    result = await hass.config_entries.options.async_init(entry_id)
+    assert result["type"] is FlowResultType.MENU
+    assert result["step_id"] == "init"
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": "sources"}
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == "sources"
     return result
 
 
@@ -304,9 +319,7 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
 
-    result = await hass.config_entries.options.async_init(entry.entry_id)
-    assert result["type"] is FlowResultType.FORM
-    assert result["step_id"] == "init"
+    result = await open_sources_options(hass, entry.entry_id)
     assert suggested_values(result) == {
         CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
         CONF_TREND_ENTITY: TREND_ENTITY,
@@ -335,7 +348,7 @@ async def test_options_flow(hass: HomeAssistant) -> None:
         CONF_CHANGE_ENTITY: CHANGE_ENTITY,
         "other_option": 42,
     }
-    assert entry.runtime_data.entities.change == CHANGE_ENTITY
+    assert entry.runtime_data.source.entities.change == CHANGE_ENTITY
 
 
 async def add_entry(hass: HomeAssistant, title: str, glucose: str) -> MockConfigEntry:
@@ -360,7 +373,7 @@ async def test_options_flow_already_monitored(
     hass.states.async_set(OTHER_GLUCOSE_ENTITY, "120", nightscout_attributes())
     other = await add_entry(hass, "Sam", OTHER_GLUCOSE_ENTITY)
 
-    result = await hass.config_entries.options.async_init(other.entry_id)
+    result = await open_sources_options(hass, other.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY}
     )
@@ -385,9 +398,180 @@ async def test_options_flow_shared_sensor_unchanged(
     """Saving without changing a shared sensor does not show the notice again."""
     other = await add_entry(hass, "Alex 2", GLUCOSE_ENTITY)
 
-    result = await hass.config_entries.options.async_init(other.entry_id)
+    result = await open_sources_options(hass, other.entry_id)
     result = await hass.config_entries.options.async_configure(
         result["flow_id"],
         {CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY, CONF_TREND_ENTITY: TREND_ENTITY},
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
+async def open_options_step(
+    hass: HomeAssistant, entry: MockConfigEntry, step: str
+) -> FlowResult:
+    """Open the options and choose a step of the menu."""
+    result = await hass.config_entries.options.async_init(entry.entry_id)
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"next_step_id": step}
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["step_id"] == step
+    return result
+
+
+LOW_INPUT = {
+    "enabled": True,
+    "threshold_entity": "input_number.low",
+    "clear_offset": 10,
+    "delay": 5,
+    "repeat": 5,
+    "snooze": 15,
+    "only_when_home": False,
+}
+
+
+async def test_alarm_options_suggest_threshold(
+    hass: HomeAssistant, source_entities: MockConfigEntry
+) -> None:
+    """The alarm step suggests the threshold sensor and the defaults."""
+    hass.states.async_set(GLUCOSE_ENTITY, "112", nightscout_attributes())
+    registry = er.async_get(hass)
+    registry.async_get_or_create(
+        "sensor",
+        SOURCE_PLATFORM,
+        "target_range_bottom",
+        suggested_object_id="test_target_range_bottom",
+        config_entry=source_entities,
+        translation_key="target_range_bottom",
+    )
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Alex",
+        data={CONF_NAME: "Alex"},
+        options={CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY},
+    )
+    entry.add_to_hass(hass)
+    result = await open_options_step(hass, entry, "low")
+    assert suggested_values(result) == {
+        "threshold_entity": "sensor.test_target_range_bottom",
+        "clear_offset": 10,
+        "delay": 5,
+        "repeat": 5,
+        "snooze": 15,
+    }
+    assert result["description_placeholders"] == {"unit": "mg/dL"}
+
+    result = await open_options_step(hass, entry, "urgent_low")
+    assert "threshold_entity" not in suggested_values(result)
+
+
+@pytest.mark.usefixtures("glucose_state")
+async def test_alarm_options_saved(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    """Saving an alarm keeps the other options."""
+    hass.states.async_set("input_number.low", "70", {"unit_of_measurement": "mg/dL"})
+    action = [{"action": "persistent_notification.create", "data": {"message": "x"}}]
+    result = await open_options_step(hass, config_entry, "low")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {**LOW_INPUT, "action": action, "end_action": []}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert dict(config_entry.options) == {
+        CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
+        "low": {**LOW_INPUT, "action": action},
+    }
+
+    # Opening the step again shows the saved values.
+    result = await open_options_step(hass, config_entry, "low")
+    assert suggested_values(result)["action"] == action
+
+
+@pytest.mark.parametrize(
+    ("user_input", "threshold_state", "errors"),
+    [
+        (
+            {**LOW_INPUT, "threshold_entity": None},
+            None,
+            {"threshold_entity": "threshold_required"},
+        ),
+        (LOW_INPUT, ("70", {}), {"threshold_entity": "threshold_unit_required"}),
+        (
+            LOW_INPUT,
+            ("70", {"unit_of_measurement": "%"}),
+            {"threshold_entity": "unsupported_unit"},
+        ),
+        (
+            {**LOW_INPUT, "only_when_home": True},
+            ("70", {"unit_of_measurement": "mg/dL"}),
+            {"only_when_home": "person_required"},
+        ),
+        (
+            {**LOW_INPUT, "end_action": [{"action": "not valid!"}]},
+            ("70", {"unit_of_measurement": "mg/dL"}),
+            {"end_action": "invalid_action"},
+        ),
+    ],
+)
+@pytest.mark.usefixtures("glucose_state")
+async def test_alarm_options_errors(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    user_input: dict[str, Any],
+    threshold_state: tuple[str, dict[str, Any]] | None,
+    errors: dict[str, str],
+) -> None:
+    """Invalid alarm settings are reported."""
+    if threshold_state is not None:
+        hass.states.async_set("input_number.low", *threshold_state)
+    result = await open_options_step(hass, config_entry, "low")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {key: value for key, value in user_input.items() if value is not None},
+    )
+    assert result["type"] is FlowResultType.FORM
+    assert result["errors"] == errors
+
+
+@pytest.mark.usefixtures("glucose_state")
+async def test_disabled_alarm_needs_no_threshold(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    """A disabled alarm can be saved without threshold."""
+    result = await open_options_step(hass, config_entry, "urgent_low")
+    user_input = {**LOW_INPUT, "enabled": False}
+    del user_input["threshold_entity"]
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert config_entry.options["urgent_low"] == user_input
+
+
+@pytest.mark.usefixtures("glucose_state")
+async def test_data_loss_and_pause_options(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    """The data loss alarm and the pause are saved."""
+    result = await open_options_step(hass, config_entry, "data_loss")
+    assert suggested_values(result) == {"max_age": 20, "repeat": 15, "snooze": 30}
+    data_loss = {
+        "enabled": True,
+        "max_age": 15,
+        "repeat": 0,
+        "snooze": 30,
+        "only_when_home": False,
+    }
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], data_loss
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+    result = await open_options_step(hass, config_entry, "pause")
+    assert suggested_values(result) == {"duration": 60}
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"duration": 30}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    assert config_entry.options["data_loss"] == data_loss
+    assert config_entry.options["pause"] == {"duration": 30}

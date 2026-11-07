@@ -112,6 +112,13 @@ def to_mg_dl(value: float | None, unit: str | None) -> float | None:
     return BloodGlucoseConcentrationConverter.convert(value, unit, MG_DL)
 
 
+def from_mg_dl(value: float | None, unit: str) -> float | None:
+    """Convert a glucose value from mg/dL to ``unit``."""
+    if value is None or unit == MG_DL:
+        return value
+    return BloodGlucoseConcentrationConverter.convert(value, MG_DL, unit)
+
+
 def state_value(state: State | None) -> str | None:
     """Return the state value, ``None`` if missing, unknown or unavailable."""
     if state is None or state.state in (STATE_UNKNOWN, STATE_UNAVAILABLE):
@@ -130,7 +137,7 @@ def sensor_unit(hass: HomeAssistant, entity_id: str) -> str | None:
     return None
 
 
-def _value_mg_dl(hass: HomeAssistant, entity_id: str, unit: str | None) -> float | None:
+def value_mg_dl(hass: HomeAssistant, entity_id: str, unit: str | None) -> float | None:
     """Return the numeric state of a sensor in mg/dL.
 
     ``unit`` is used when the sensor does not report a unit itself.
@@ -148,7 +155,7 @@ def build_reading(hass: HomeAssistant, sources: SourceEntities) -> GlucoseReadin
         glucose_state.attributes if glucose_state is not None else {}
     )
     glucose_unit = sensor_unit(hass, sources.glucose) or sources.unit
-    value = _value_mg_dl(hass, sources.glucose, sources.unit)
+    value = value_mg_dl(hass, sources.glucose, sources.unit)
 
     trend = None
     if sources.trend:
@@ -158,7 +165,7 @@ def build_reading(hass: HomeAssistant, sources: SourceEntities) -> GlucoseReadin
 
     change = None
     if sources.change:
-        change = _value_mg_dl(hass, sources.change, sources.unit)
+        change = value_mg_dl(hass, sources.change, sources.unit)
     if change is None:
         # The delta attribute has the unit of the glucose sensor (Nightscout).
         change = to_mg_dl(parse_number(attributes.get(ATTR_SOURCE_DELTA)), glucose_unit)
@@ -231,14 +238,14 @@ class GlucoseSource:
 
 
 @callback
-def async_suggest_sources(
-    hass: HomeAssistant, glucose_entity_id: str
+def async_suggest_related(
+    hass: HomeAssistant, glucose_entity_id: str, keys: Mapping[str, str]
 ) -> dict[str, str]:
-    """Suggest trend, change and reading time entities for a glucose sensor.
+    """Suggest sensors related to a glucose sensor.
 
-    Looks at the sensors of the same device and config entry as the glucose
-    sensor and matches them by their translation key (as used by Dexcom and
-    Nightscout).
+    Looks at the enabled sensors of the same device and config entry as the
+    glucose sensor and maps their translation key via ``keys`` (translation
+    key -> option key). Returns option key -> entity ID.
     """
     registry = er.async_get(hass)
     glucose_entry = registry.async_get(glucose_entity_id)
@@ -266,8 +273,19 @@ def async_suggest_sources(
             entity_id == glucose_entity_id
             or entry.domain != "sensor"
             or entry.disabled_by is not None
-            or (option := _SUGGESTION_KEYS.get(entry.translation_key or "")) is None
+            or (option := keys.get(entry.translation_key or "")) is None
         ):
             continue
         suggestions.setdefault(option, entity_id)
     return suggestions
+
+
+@callback
+def async_suggest_sources(
+    hass: HomeAssistant, glucose_entity_id: str
+) -> dict[str, str]:
+    """Suggest trend, change and reading time entities for a glucose sensor.
+
+    Matches the translation keys used by Dexcom and Nightscout.
+    """
+    return async_suggest_related(hass, glucose_entity_id, _SUGGESTION_KEYS)

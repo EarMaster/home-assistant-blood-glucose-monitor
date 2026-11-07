@@ -1,0 +1,16 @@
+acknowledge:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: blood_glucose_monitor
+    alarm:
+      required: false
+      selector:
+        select:
+          translation_key: alarm
+          options:
+            - urgent_low
+            - low
+            - data_loss

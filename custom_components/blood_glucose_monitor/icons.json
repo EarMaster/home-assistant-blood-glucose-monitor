@@ -1,0 +1,56 @@
+{
+  "entity": {
+    "button": {
+      "acknowledge_urgent_low": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_low": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_data_loss": {
+        "default": "mdi:bell-check"
+      }
+    },
+    "event": {
+      "alarm": {
+        "default": "mdi:bell-ring"
+      }
+    },
+    "sensor": {
+      "urgent_low_alarm": {
+        "default": "mdi:arrow-down-bold-circle",
+        "state": {
+          "idle": "mdi:arrow-down-bold-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "low_alarm": {
+        "default": "mdi:arrow-down-circle",
+        "state": {
+          "idle": "mdi:arrow-down-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "data_loss_alarm": {
+        "default": "mdi:cloud-alert",
+        "state": {
+          "idle": "mdi:cloud-check-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      }
+    },
+    "switch": {
+      "pause": {
+        "default": "mdi:bell-pause",
+        "state": {
+          "off": "mdi:bell"
+        }
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "service": "mdi:bell-check"
+    }
+  }
+}
