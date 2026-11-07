@@ -104,6 +104,17 @@ pytest --cov
 tests, [hassfest](https://github.com/home-assistant/actions) and the
 Marketplace (HACS) validation on every push.
 
+### Branches and releases
+
+- `develop` holds the work in progress; pull requests for changes go there.
+  New entries go into the `[Unreleased]` section of [CHANGELOG.md](CHANGELOG.md).
+- `main` is the released state. A release is a pull request from `develop`
+  into `main` with a higher version in `manifest.json` and its own
+  CHANGELOG section. Merging it (as a merge commit) creates the tag and the
+  GitHub release automatically.
+- `scripts/check_version.py` makes sure the version only grows; it runs on
+  every push and, stricter, on pull requests into `main`.
+
 All glucose values in tests are synthetic. Please do not add real health data
 to issues, tests or fixtures.
 

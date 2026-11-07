@@ -1,9 +1,4 @@
-[project]
-name = "home-assistant-blood-glucose-monitor"
-version = "0.1.0"
-description = "Home Assistant integration with optional glucose hints. Not a medical device."
-requires-python = ">=3.14"
-license = "MIT"
+# Tool settings only: the version lives in manifest.json (see CHANGELOG.md).
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

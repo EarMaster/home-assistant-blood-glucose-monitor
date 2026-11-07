@@ -2,7 +2,10 @@ name: Validate
 
 on:
   push:
+    # main is validated by the release workflow.
+    branches-ignore: [main]
   pull_request:
+  workflow_call:
   schedule:
     - cron: "0 3 * * *"
   workflow_dispatch:

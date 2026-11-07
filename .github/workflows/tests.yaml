@@ -2,7 +2,10 @@ name: Tests
 
 on:
   push:
+    # main is tested by the release workflow.
+    branches-ignore: [main]
   pull_request:
+  workflow_call:
   workflow_dispatch:
 
 permissions:
@@ -23,3 +26,28 @@ jobs:
       - run: ruff check .
       - run: ruff format --check .
       - run: python -m pytest --cov --cov-report=term-missing
+
+  release-source:
+    name: Release source
+    # Releases come from develop only; required by the main ruleset.
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - if: github.head_ref != 'develop'
+        run: |
+          echo "::error::Pull requests into main must come from develop (got ${{ github.head_ref }})."
+          exit 1
+      - run: echo "Release from develop"
+
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      # Pull requests into main are releases: the version has to grow.
+      - run: python scripts/check_version.py ${{ github.base_ref == 'main' && '--release' || '' }}
