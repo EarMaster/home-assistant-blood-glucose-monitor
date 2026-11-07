@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-07
+
 ### Added
 - Setup per person with a mandatory notice that this is not a medical device and does not replace the alarms of a CGM, pump or medical app
 - Glucose sensor, optional person, and optional trend, change and reading time sensors, suggested from the same device as the glucose sensor
@@ -21,5 +23,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repair issue when the glucose data has no reading time
 - Notice when another entry already monitors the selected glucose sensor
 - Options to change the sensors later
-- Diagnostics download showing how the glucose data is read
+- Diagnostics download showing how the glucose data is read and the alarm states
 - English and German translations
