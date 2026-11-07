@@ -477,6 +477,7 @@ async def test_alarm_options_saved(
         result["flow_id"], {**LOW_INPUT, "action": action, "end_action": []}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
     assert dict(config_entry.options) == {
         CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
         "low": {**LOW_INPUT, "action": action},
@@ -545,6 +546,7 @@ async def test_disabled_alarm_needs_no_threshold(
         result["flow_id"], user_input
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
     assert config_entry.options["urgent_low"] == user_input
 
 
@@ -566,6 +568,7 @@ async def test_data_loss_and_pause_options(
         result["flow_id"], data_loss
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
 
     result = await open_options_step(hass, config_entry, "pause")
     assert suggested_values(result) == {"duration": 60}
@@ -573,5 +576,6 @@ async def test_data_loss_and_pause_options(
         result["flow_id"], {"duration": 30}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
     assert config_entry.options["data_loss"] == data_loss
     assert config_entry.options["pause"] == {"duration": 30}
