@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Notifications are automations: every enabled alarm adds the device triggers "started or repeated" and "acknowledged or over" to the person's device; the alarm data (title, message, tag, ack_action, glucose, ...) is available as `trigger.event.data`
+
+### Removed
+- Action and end action fields of the alarms. Actions set up in 0.1.0 no longer run; recreate them as automations with the device triggers
+
 ## [0.1.0] - 2026-11-07
 
 ### Added
@@ -16,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Works with any glucose source: every sensor can be selected and its current value is checked; the trend is understood as state key, Nightscout direction, common word or arrow
 - Unit setting for sensors that do not report a unit; units and reading times are never guessed
 - Urgent low, low and data loss alarms with threshold entities, delay, repeat, clear offset, acknowledge, snooze with re-check and an option to alarm only while the person is at home
-- Device triggers per alarm ("started or repeated", "acknowledged or over") for notifications as automations, with ready-made, translated texts and the alarm data
+- Alarm notifications as your own actions (start/repeat and end) with ready-made, translated texts and variables
 - Acknowledge per alarm via button, `blood_glucose_monitor.acknowledge` action or mobile app notification action
 - Pause switch for the low and data loss alarms that turns off by itself; urgent low is never paused
 - Alarm state sensors and an alarm event entity; alarm states survive restarts
