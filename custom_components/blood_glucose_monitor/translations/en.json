@@ -1,0 +1,79 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Important: not a medical device",
+        "description": "Blood Glucose Monitor adds **extra** hints and information to Home Assistant, based on the glucose data of another integration (for example Nightscout).\n\n**It is not a medical device and does not replace the alarms of your CGM, insulin pump or medical app** (for example Dexcom, LibreLink, CamAPS FX or xDrip+). Keep those alarms switched on at all times.\n\nNotifications from Home Assistant can be delayed or not arrive at all, for example when Home Assistant, your network or the glucose data source is down. Never rely on them alone.",
+        "data": {
+          "disclaimer_accepted": "I understand that this integration does not replace the alarms of my CGM, pump or medical app"
+        }
+      },
+      "person": {
+        "title": "Person and glucose sensor",
+        "description": "Create one entry per person whose glucose should be monitored.",
+        "data": {
+          "name": "Name",
+          "glucose_entity": "Glucose sensor",
+          "person_entity": "Person"
+        },
+        "data_description": {
+          "name": "Used in entity names and messages, for example \"Alex\".",
+          "glucose_entity": "The sensor with the current glucose value, provided by the integration that reads the CGM (for example Nightscout or Dexcom).",
+          "person_entity": "Optional. Needed for features that should only run when the person is at home."
+        }
+      },
+      "already_monitored": {
+        "title": "Glucose sensor already monitored",
+        "description": "`{entity_id}` is already monitored by: {entries}.\n\nBoth entries work independently of each other.\n\nSubmit to continue, or close this dialog to cancel."
+      },
+      "sources": {
+        "title": "Additional glucose data for {name}",
+        "description": "Select the sensors of the glucose integration that provide the trend, the change to the previous reading and the time of the reading. Matching sensors of the same device are suggested automatically.\n\nIf a field is left empty, the attributes of the glucose sensor are used instead (`direction`, `delta` and `date`, as provided by Nightscout). Without a reading time, the time of the last value change is used, which detects missing data less reliably.",
+        "data": {
+          "trend_entity": "Trend sensor",
+          "change_entity": "Change sensor",
+          "reading_time_entity": "Reading time sensor"
+        },
+        "data_description": {
+          "trend_entity": "Enum sensor with the glucose trend, for example \"Glucose trend\".",
+          "change_entity": "Sensor with the change to the previous reading, for example \"Glucose change\".",
+          "reading_time_entity": "Timestamp sensor with the time of the latest reading, for example \"Glucose reading time\"."
+        }
+      }
+    },
+    "error": {
+      "disclaimer_required": "Please confirm that you have read and understood the notice.",
+      "name_required": "Please enter a name.",
+      "unsupported_unit": "The glucose sensor has an unsupported unit. Supported are mg/dL and mmol/L."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Glucose data",
+        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.\n\nIf an optional field is left empty, the attributes of the glucose sensor are used instead.",
+        "data": {
+          "glucose_entity": "Glucose sensor",
+          "person_entity": "Person",
+          "trend_entity": "Trend sensor",
+          "change_entity": "Change sensor",
+          "reading_time_entity": "Reading time sensor"
+        },
+        "data_description": {
+          "glucose_entity": "The sensor with the current glucose value.",
+          "person_entity": "Optional. Needed for features that should only run when the person is at home.",
+          "trend_entity": "Optional. Enum sensor with the glucose trend.",
+          "change_entity": "Optional. Sensor with the change to the previous reading.",
+          "reading_time_entity": "Optional. Timestamp sensor with the time of the latest reading."
+        }
+      },
+      "already_monitored": {
+        "title": "Glucose sensor already monitored",
+        "description": "`{entity_id}` is already monitored by: {entries}.\n\nBoth entries work independently of each other.\n\nSubmit to save, or close this dialog to cancel."
+      }
+    },
+    "error": {
+      "unsupported_unit": "The glucose sensor has an unsupported unit. Supported are mg/dL and mmol/L."
+    }
+  }
+}

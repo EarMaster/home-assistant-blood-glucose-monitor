@@ -1,0 +1,33 @@
+[project]
+name = "home-assistant-blood-glucose-monitor"
+version = "0.1.0"
+description = "Home Assistant integration with optional glucose hints. Not a medical device."
+requires-python = ">=3.14"
+license = "MIT"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+addopts = "--strict-markers"
+
+[tool.coverage.run]
+source = ["custom_components/blood_glucose_monitor"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+
+[tool.ruff]
+target-version = "py314"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PT", "ASYNC", "C4", "PIE"]
+ignore = ["E501", "RUF001"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components"]
+combine-as-imports = true
