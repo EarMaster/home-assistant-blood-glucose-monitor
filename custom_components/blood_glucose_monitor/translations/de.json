@@ -1,0 +1,303 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Wichtig: kein Medizinprodukt",
+        "description": "Blood Glucose Monitor ergänzt Home Assistant um **zusätzliche** Hinweise und Informationen auf Basis der Glukosedaten einer anderen Integration (zum Beispiel Nightscout).\n\n**Die Integration ist kein Medizinprodukt und ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App** (zum Beispiel Dexcom, LibreLink, CamAPS FX oder xDrip+). Lass diese Alarme immer eingeschaltet.\n\nBenachrichtigungen aus Home Assistant können verspätet oder gar nicht ankommen, zum Beispiel wenn Home Assistant, dein Netzwerk oder die Glukose-Datenquelle ausfällt. Verlass dich nie allein darauf.",
+        "data": {
+          "disclaimer_accepted": "Ich habe verstanden, dass diese Integration die Alarme meines CGM, meiner Pumpe oder meiner Medizin-App nicht ersetzt"
+        }
+      },
+      "person": {
+        "title": "Person und Glukosesensor",
+        "description": "Lege für jede Person, deren Glukose überwacht werden soll, einen eigenen Eintrag an.",
+        "data": {
+          "name": "Name",
+          "glucose_entity": "Glukosesensor",
+          "person_entity": "Person"
+        },
+        "data_description": {
+          "name": "Wird in Entitätsnamen und Nachrichten verwendet, zum Beispiel „Alex“.",
+          "glucose_entity": "Der Sensor mit dem aktuellen Glukosewert, bereitgestellt von der Integration, die das CGM ausliest (zum Beispiel Nightscout oder Dexcom).",
+          "person_entity": "Optional. Wird für Funktionen benötigt, die nur laufen sollen, wenn die Person zu Hause ist."
+        }
+      },
+      "already_monitored": {
+        "title": "Glukosesensor wird bereits überwacht",
+        "description": "`{entity_id}` wird bereits überwacht von: {entries}.\n\nBeide Einträge arbeiten unabhängig voneinander.\n\nSende das Formular ab, um fortzufahren, oder schließe den Dialog, um abzubrechen."
+      },
+      "sources": {
+        "title": "Weitere Glukosedaten für {name}",
+        "description": "Wähle die Sensoren der Glukose-Integration für den Trend, die Änderung zum vorherigen Messwert und den Zeitpunkt der Messung. Passende Sensoren desselben Geräts werden automatisch vorgeschlagen.\n\nBleibt ein Feld leer, werden stattdessen die Attribute des Glukosesensors verwendet (`direction`, `delta` und `date`, wie von Nightscout bereitgestellt).\n\nOhne Messzeitpunkt (Sensor oder Attribut `date`) ist das Alter der Daten unbekannt und es sind keine Alarme möglich.",
+        "data": {
+          "trend_entity": "Trend-Sensor",
+          "change_entity": "Änderungs-Sensor",
+          "reading_time_entity": "Messzeitpunkt-Sensor",
+          "glucose_unit": "Einheit"
+        },
+        "data_description": {
+          "trend_entity": "Sensor mit dem Glukosetrend, zum Beispiel „Glukosetrend“.",
+          "change_entity": "Sensor mit der Änderung zum vorherigen Messwert, zum Beispiel „Glukoseänderung“.",
+          "reading_time_entity": "Sensor mit dem Zeitpunkt der letzten Messung, zum Beispiel „Glukose-Messzeitpunkt“.",
+          "glucose_unit": "Nur nötig, wenn der Glukose- oder Änderungs-Sensor keine Einheit meldet."
+        }
+      }
+    },
+    "error": {
+      "disclaimer_required": "Bitte bestätige, dass du den Hinweis gelesen und verstanden hast.",
+      "name_required": "Bitte gib einen Namen ein.",
+      "unsupported_unit": "Dieser Sensor hat eine nicht unterstützte Einheit. Unterstützt werden mg/dL und mmol/L.",
+      "not_numeric": "Der aktuelle Wert dieses Sensors ist keine Zahl.",
+      "unknown_trend": "Der aktuelle Wert dieses Sensors ist kein Glukosetrend, den diese Integration versteht.",
+      "invalid_reading_time": "Der aktuelle Wert dieses Sensors ist kein Zeitpunkt.",
+      "unit_required": "Der Glukose- oder Änderungs-Sensor meldet keine Einheit. Bitte wähle die Einheit aus."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Einstellungen",
+        "description": "Zur Erinnerung: Diese Integration ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.",
+        "menu_options": {
+          "sources": "Glukosedaten",
+          "urgent_low": "Alarm sehr niedrig",
+          "low": "Alarm niedrig",
+          "data_loss": "Alarm Datenausfall",
+          "pause": "Pause"
+        }
+      },
+      "sources": {
+        "title": "Glukosedaten",
+        "description": "Bleibt ein optionales Feld leer, werden stattdessen die Attribute des Glukosesensors verwendet. Ohne Messzeitpunkt sind keine Alarme möglich.",
+        "data": {
+          "glucose_entity": "Glukosesensor",
+          "person_entity": "Person",
+          "trend_entity": "Trend-Sensor",
+          "change_entity": "Änderungs-Sensor",
+          "reading_time_entity": "Messzeitpunkt-Sensor",
+          "glucose_unit": "Einheit"
+        },
+        "data_description": {
+          "glucose_entity": "Der Sensor mit dem aktuellen Glukosewert.",
+          "person_entity": "Optional. Wird für Funktionen benötigt, die nur laufen sollen, wenn die Person zu Hause ist.",
+          "trend_entity": "Optional. Sensor mit dem Glukosetrend.",
+          "change_entity": "Optional. Sensor mit der Änderung zum vorherigen Messwert.",
+          "reading_time_entity": "Optional. Sensor mit dem Zeitpunkt der letzten Messung.",
+          "glucose_unit": "Optional. Nur nötig, wenn der Glukose- oder Änderungs-Sensor keine Einheit meldet."
+        }
+      },
+      "already_monitored": {
+        "title": "Glukosesensor wird bereits überwacht",
+        "description": "`{entity_id}` wird bereits überwacht von: {entries}.\n\nBeide Einträge arbeiten unabhängig voneinander.\n\nSende das Formular ab, um zu speichern, oder schließe den Dialog, um abzubrechen."
+      },
+      "urgent_low": {
+        "title": "Alarm sehr niedrig",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}). Die Pause gilt für diesen Alarm nicht.\n\nDie Aktion läuft beim Start des Alarms und bei jeder Wiederholung, die Abschlussaktion, wenn der Alarm bestätigt wird oder vorbei ist. Beide erhalten unter anderem die Variablen `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "data": {
+          "enabled": "Aktiviert",
+          "threshold_entity": "Schwellwert",
+          "clear_offset": "Abstand zum Beenden",
+          "delay": "Verzögerung",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist",
+          "action": "Aktion",
+          "end_action": "Abschlussaktion"
+        },
+        "data_description": {
+          "threshold_entity": "Entität mit dem Schwellwert, zum Beispiel ein Schwellwert-Sensor der Glukose-Integration oder eine Zahleneingabe.",
+          "clear_offset": "Der Alarm endet beim Schwellwert plus diesem Wert.",
+          "delay": "Wie lange die Glukose unter dem Schwellwert bleiben muss.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter.",
+          "action": "Läuft beim Start des Alarms und bei jeder Wiederholung.",
+          "end_action": "Läuft, wenn der Alarm bestätigt wird oder vorbei ist."
+        }
+      },
+      "low": {
+        "title": "Alarm niedrig",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}).\n\nDie Aktion läuft beim Start des Alarms und bei jeder Wiederholung, die Abschlussaktion, wenn der Alarm bestätigt wird oder vorbei ist. Beide erhalten unter anderem die Variablen `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "data": {
+          "enabled": "Aktiviert",
+          "threshold_entity": "Schwellwert",
+          "clear_offset": "Abstand zum Beenden",
+          "delay": "Verzögerung",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist",
+          "action": "Aktion",
+          "end_action": "Abschlussaktion"
+        },
+        "data_description": {
+          "threshold_entity": "Entität mit dem Schwellwert, zum Beispiel ein Schwellwert-Sensor der Glukose-Integration oder eine Zahleneingabe.",
+          "clear_offset": "Der Alarm endet beim Schwellwert plus diesem Wert.",
+          "delay": "Wie lange die Glukose unter dem Schwellwert bleiben muss.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter.",
+          "action": "Läuft beim Start des Alarms und bei jeder Wiederholung.",
+          "end_action": "Läuft, wenn der Alarm bestätigt wird oder vorbei ist."
+        }
+      },
+      "data_loss": {
+        "title": "Alarm Datenausfall",
+        "description": "Alarm, wenn innerhalb des maximalen Datenalters kein neuer Messwert kommt. Ältere Messwerte ignorieren auch die anderen Alarme, selbst wenn dieser Alarm ausgeschaltet ist.\n\nDie Aktion läuft beim Start des Alarms und bei jeder Wiederholung, die Abschlussaktion, wenn der Alarm bestätigt wird oder vorbei ist.",
+        "data": {
+          "enabled": "Aktiviert",
+          "max_age": "Maximales Datenalter",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist",
+          "action": "Aktion",
+          "end_action": "Abschlussaktion"
+        },
+        "data_description": {
+          "max_age": "Zeit ohne neuen Messwert bis zum Alarm.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter.",
+          "action": "Läuft beim Start des Alarms und bei jeder Wiederholung.",
+          "end_action": "Läuft, wenn der Alarm bestätigt wird oder vorbei ist."
+        }
+      },
+      "pause": {
+        "title": "Pause",
+        "description": "Der Pause-Schalter schaltet die Alarme niedrig und Datenausfall für diese Dauer stumm. Der Alarm sehr niedrig wird nie pausiert. Endet die Pause, werden die Alarme sofort neu geprüft.",
+        "data": {
+          "duration": "Dauer der Pause"
+        }
+      }
+    },
+    "error": {
+      "unsupported_unit": "Dieser Sensor hat eine nicht unterstützte Einheit. Unterstützt werden mg/dL und mmol/L.",
+      "not_numeric": "Der aktuelle Wert dieses Sensors ist keine Zahl.",
+      "unknown_trend": "Der aktuelle Wert dieses Sensors ist kein Glukosetrend, den diese Integration versteht.",
+      "invalid_reading_time": "Der aktuelle Wert dieses Sensors ist kein Zeitpunkt.",
+      "unit_required": "Der Glukose- oder Änderungs-Sensor meldet keine Einheit. Bitte wähle die Einheit aus.",
+      "threshold_required": "Wähle eine Entität mit dem Schwellwert.",
+      "threshold_unit_required": "Diese Entität meldet keine Einheit. Lege die Einheit unter Glukosedaten fest.",
+      "person_required": "Wähle zuerst unter Glukosedaten eine Person.",
+      "invalid_action": "Die Aktion ist ungültig."
+    }
+  },
+  "entity": {
+    "button": {
+      "acknowledge_urgent_low": {
+        "name": "Alarm sehr niedrig bestätigen"
+      },
+      "acknowledge_low": {
+        "name": "Alarm niedrig bestätigen"
+      },
+      "acknowledge_data_loss": {
+        "name": "Alarm Datenausfall bestätigen"
+      }
+    },
+    "event": {
+      "alarm": {
+        "name": "Alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_low_triggered": "Sehr niedrig: Alarm",
+              "urgent_low_repeat": "Sehr niedrig: Wiederholung",
+              "urgent_low_acknowledged": "Sehr niedrig: bestätigt",
+              "urgent_low_resolved": "Sehr niedrig: vorbei",
+              "low_triggered": "Niedrig: Alarm",
+              "low_repeat": "Niedrig: Wiederholung",
+              "low_acknowledged": "Niedrig: bestätigt",
+              "low_resolved": "Niedrig: vorbei",
+              "data_loss_triggered": "Datenausfall: Alarm",
+              "data_loss_repeat": "Datenausfall: Wiederholung",
+              "data_loss_acknowledged": "Datenausfall: bestätigt",
+              "data_loss_resolved": "Datenausfall: vorbei"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "urgent_low_alarm": {
+        "name": "Alarm sehr niedrig",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      },
+      "low_alarm": {
+        "name": "Alarm niedrig",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarm Datenausfall",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      }
+    },
+    "switch": {
+      "pause": {
+        "name": "Alarme pausieren"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "Kein Blood-Glucose-Monitor-Eintrag mit der ID {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "Der Eintrag {name} ist nicht geladen."
+    }
+  },
+  "issues": {
+    "no_reading_time": {
+      "title": "Kein Messzeitpunkt für {name}",
+      "description": "Die Glukosedaten von {name} haben keinen Messzeitpunkt. Ohne ihn ist das Alter der Daten unbekannt und es sind keine Alarme möglich.\n\nWähle unter **Konfigurieren → Glukosedaten** einen Messzeitpunkt-Sensor."
+    }
+  },
+  "selector": {
+    "alarm": {
+      "options": {
+        "urgent_low": "Sehr niedrig",
+        "low": "Niedrig",
+        "data_loss": "Datenausfall"
+      }
+    },
+    "alarm_text": {
+      "options": {
+        "urgent_low": "{name}: Glukose sehr niedrig",
+        "low": "{name}: Glukose niedrig",
+        "data_loss": "{name}: keine Glukosedaten",
+        "data_loss_message": "Seit {minutes} min kein neuer Messwert.",
+        "acknowledged": "Bestätigt.",
+        "resolved": "Vorbei."
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Alarm bestätigen",
+      "description": "Bestätigt einen oder alle Alarme einer Person. Alarme anderer Einträge sind nicht betroffen.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Person",
+          "description": "Der Eintrag der Person."
+        },
+        "alarm": {
+          "name": "Alarm",
+          "description": "Leer lassen, um alle Alarme der Person zu bestätigen."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,78 @@
+name: Release
+
+# A release is made by merging a pull request from develop into main. The
+# version in manifest.json must be higher than the newest tag; the tag and the
+# GitHub release are created here.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.check.outputs.tag }}
+      prerelease: ${{ steps.check.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+      - id: check
+        run: >-
+          python scripts/check_version.py --release
+          --notes release_notes.md --github-output "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-notes
+          path: release_notes.md
+
+  tests:
+    uses: ./.github/workflows/tests.yaml
+
+  validate:
+    uses: ./.github/workflows/validate.yaml
+
+  release:
+    name: GitHub release
+    needs: [version, tests, validate]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      TAG: ${{ needs.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-notes
+      - name: Create zip
+        run: |
+          mkdir -p release/custom_components
+          cp -r custom_components/blood_glucose_monitor release/custom_components/
+          find release -name "__pycache__" -type d -prune -exec rm -rf {} +
+          cd release
+          zip -r "../blood_glucose_monitor-$TAG.zip" custom_components
+      - name: Create tag and release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PRERELEASE: ${{ needs.version.outputs.prerelease }}
+        run: |
+          FLAGS=()
+          if [[ "$PRERELEASE" == "true" ]]; then FLAGS+=(--prerelease); fi
+          gh release create "$TAG" "${FLAGS[@]}" \
+            --target "$GITHUB_SHA" \
+            --title "Blood Glucose Monitor $TAG" \
+            --notes-file release_notes.md \
+            "blood_glucose_monitor-$TAG.zip"

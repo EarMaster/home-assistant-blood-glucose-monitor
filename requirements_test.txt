@@ -1,0 +1,6 @@
+# Home Assistant test harness. Each release pins exactly one Home Assistant
+# version; bump this together with the "homeassistant" minimum in hacs.json.
+# 0.13.375 = Home Assistant 2026.10.4 (no harness for 2026.11 yet).
+pytest-homeassistant-custom-component==0.13.375
+pytest-cov
+ruff

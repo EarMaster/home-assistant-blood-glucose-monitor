@@ -1,0 +1,15 @@
+existing/*
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Test and lint output
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
