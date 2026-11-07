@@ -13,11 +13,7 @@ from homeassistant.config_entries import (
 )
 from homeassistant.const import UnitOfBloodGlucoseConcentration
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers.script import async_validate_actions_config
 from homeassistant.helpers.selector import (
-    ActionSelector,
     BooleanSelector,
     EntitySelector,
     EntitySelectorConfig,
@@ -38,14 +34,12 @@ from .const import (
     ALARM_LOW,
     ALARM_URGENT_LOW,
     ALARMS,
-    CONF_ACTION,
     CONF_CHANGE_ENTITY,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
     CONF_DISCLAIMER_ACCEPTED,
     CONF_DURATION,
     CONF_ENABLED,
-    CONF_END_ACTION,
     CONF_GLUCOSE_ENTITY,
     CONF_GLUCOSE_UNIT,
     CONF_MAX_AGE,
@@ -136,11 +130,6 @@ THRESHOLD_SELECTOR = EntitySelector(
 CLEAR_OFFSET_SELECTOR = NumberSelector(
     NumberSelectorConfig(min=0, max=100, step="any", mode=NumberSelectorMode.BOX)
 )
-_ALARM_ACTIONS = {
-    vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
-    vol.Optional(CONF_ACTION): ActionSelector(),
-    vol.Optional(CONF_END_ACTION): ActionSelector(),
-}
 THRESHOLD_ALARM_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ENABLED, default=False): BooleanSelector(),
@@ -149,7 +138,7 @@ THRESHOLD_ALARM_SCHEMA = vol.Schema(
         vol.Required(CONF_DELAY): _minutes(),
         vol.Required(CONF_REPEAT): _minutes(),
         vol.Required(CONF_SNOOZE): _minutes(1),
-        **_ALARM_ACTIONS,
+        vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
     }
 )
 DATA_LOSS_SCHEMA = vol.Schema(
@@ -158,7 +147,7 @@ DATA_LOSS_SCHEMA = vol.Schema(
         vol.Required(CONF_MAX_AGE): _minutes(1),
         vol.Required(CONF_REPEAT): _minutes(),
         vol.Required(CONF_SNOOZE): _minutes(1),
-        **_ALARM_ACTIONS,
+        vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
     }
 )
 PAUSE_SCHEMA = vol.Schema({vol.Required(CONF_DURATION): _minutes(1)})
@@ -349,20 +338,6 @@ class BloodGlucoseMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
         )
 
 
-async def _validate_actions(
-    hass: HomeAssistant, values: Mapping[str, Any]
-) -> dict[str, str]:
-    """Return form errors for invalid actions."""
-    errors: dict[str, str] = {}
-    for key in (CONF_ACTION, CONF_END_ACTION):
-        if actions := values.get(key):
-            try:
-                await async_validate_actions_config(hass, cv.SCRIPT_SCHEMA(actions))
-            except vol.Invalid, HomeAssistantError:
-                errors[key] = "invalid_action"
-    return errors
-
-
 def _validate_threshold(
     hass: HomeAssistant, entity_id: str, manual_unit: str | None
 ) -> dict[str, str]:
@@ -480,7 +455,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         )
         errors: dict[str, str] = {}
         if user_input is not None:
-            values = {key: value for key, value in user_input.items() if value != []}
+            values = dict(user_input)
             if values[CONF_ENABLED]:
                 if alarm in THRESHOLD_ALARMS:
                     if entity_id := values.get(CONF_THRESHOLD_ENTITY):
@@ -491,7 +466,6 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                         errors[CONF_THRESHOLD_ENTITY] = "threshold_required"
                 if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):
                     errors[CONF_ONLY_WHEN_HOME] = "person_required"
-            errors |= await _validate_actions(self.hass, values)
             if not errors:
                 return self._async_save(alarm, values)
             current = user_input

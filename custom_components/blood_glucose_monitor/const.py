@@ -58,8 +58,6 @@ CONF_REPEAT: Final = "repeat"
 CONF_SNOOZE: Final = "snooze"
 CONF_MAX_AGE: Final = "max_age"
 CONF_ONLY_WHEN_HOME: Final = "only_when_home"
-CONF_ACTION: Final = "action"
-CONF_END_ACTION: Final = "end_action"
 
 # Pause of the pausable alarms, options dict under this key.
 CONF_PAUSE: Final = "pause"
@@ -82,6 +80,13 @@ THRESHOLD_TRANSLATION_KEYS: Final = {
 }
 
 EVENT_MOBILE_APP_NOTIFICATION_ACTION: Final = "mobile_app_notification_action"
+# Fired for every alarm event; the device triggers listen to it. The data
+# contains "type" (f"{alarm}_{TRIGGER_ALERT|TRIGGER_ENDED}") and "device_id".
+EVENT_ALARM: Final = f"{DOMAIN}_alarm"
+TRIGGER_ALERT: Final = "alert"
+"""Alarm started or repeated."""
+TRIGGER_ENDED: Final = "ended"
+"""Alarm acknowledged or over."""
 SERVICE_ACKNOWLEDGE: Final = "acknowledge"
 ATTR_ALARM: Final = "alarm"
 ATTR_CONFIG_ENTRY_ID: Final = "config_entry_id"

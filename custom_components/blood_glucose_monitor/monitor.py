@@ -1,8 +1,9 @@
 """Run the alarms of one monitored person.
 
 Connects the alarm state machines (``alarm.py``) to Home Assistant: reads the
-glucose data and threshold entities, schedules the time based checks, runs the
-user's actions and keeps the alarm states across restarts.
+glucose data and threshold entities, schedules the time based checks, fires
+the events of the device triggers (``device_trigger.py``) and keeps the alarm
+states across restarts.
 
 Every config entry has its own monitor. Alarms of different entries, and
 different alarms of one entry, are acknowledged and snoozed independently.
@@ -19,39 +20,29 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_HOME, STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import (
     CALLBACK_TYPE,
-    Context,
     Event,
     EventStateChangedData,
     HomeAssistant,
     callback,
 )
-from homeassistant.exceptions import HomeAssistantError
-from homeassistant.helpers import config_validation as cv, issue_registry as ir
+from homeassistant.helpers import device_registry as dr, issue_registry as ir
 from homeassistant.helpers.event import (
     async_track_point_in_utc_time,
     async_track_state_change_event,
 )
-from homeassistant.helpers.script import (
-    SCRIPT_MODE_PARALLEL,
-    Script,
-    async_validate_actions_config,
-)
 from homeassistant.helpers.storage import Store
 from homeassistant.helpers.translation import async_get_translations
 from homeassistant.util import dt as dt_util
-import probatio as vol
 
 from .alarm import AlarmEngine, AlarmSettings, AlarmState, AlarmStatus, Condition, Phase
 from .const import (
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
     ALARMS,
-    CONF_ACTION,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
     CONF_DURATION,
     CONF_ENABLED,
-    CONF_END_ACTION,
     CONF_MAX_AGE,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
@@ -61,9 +52,12 @@ from .const import (
     CONF_THRESHOLD_ENTITY,
     DEFAULT_PAUSE_DURATION,
     DOMAIN,
+    EVENT_ALARM,
     EVENT_MOBILE_APP_NOTIFICATION_ACTION,
     PAUSABLE_ALARMS,
     THRESHOLD_ALARMS,
+    TRIGGER_ALERT,
+    TRIGGER_ENDED,
 )
 from .glucose import GlucoseReading
 from .source import (
@@ -78,9 +72,8 @@ from .source import (
 _LOGGER = logging.getLogger(__name__)
 
 STORAGE_VERSION = 1
-SCRIPT_MAX_RUNS = 10
-# Phases that run the alarm action; the others run the end action.
-START_PHASES = (Phase.TRIGGERED, Phase.REPEAT)
+# Phases of the alert trigger; the others are the ended trigger.
+ALERT_PHASES = (Phase.TRIGGERED, Phase.REPEAT)
 TEXT_PREFIX = f"component.{DOMAIN}.selector.alarm_text.options."
 
 type AlarmEventListener = Callable[[str, Phase, dict[str, Any]], None]
@@ -152,7 +145,6 @@ class AlarmMonitor:
         self._store = Store[dict[str, Any]](
             hass, STORAGE_VERSION, f"{DOMAIN}.{entry.entry_id}"
         )
-        self._scripts: dict[tuple[str, str], Script] = {}
         self._texts: dict[str, str] = {}
         self._listeners: list[CALLBACK_TYPE] = []
         self._event_listeners: list[AlarmEventListener] = []
@@ -182,7 +174,6 @@ class AlarmMonitor:
         """Restore the states and start tracking."""
         self._started = dt_util.utcnow()
         await self._async_restore()
-        await self._async_build_scripts()
         self._texts = await async_get_translations(
             self.hass, self.hass.config.language, "selector", [DOMAIN]
         )
@@ -417,21 +408,27 @@ class AlarmMonitor:
 
     @callback
     def _async_notify(self, alarm: str, phase: Phase, now: datetime) -> None:
-        """Tell the event listeners and run the user's action."""
+        """Tell the event listeners and fire the event of the device triggers."""
         variables = self._variables(alarm, phase, now)
         _LOGGER.debug("%s: %s alarm %s", self.entry.title, alarm, phase)
         for listener in list(self._event_listeners):
             listener(alarm, phase, variables)
-        key = CONF_ACTION if phase in START_PHASES else CONF_END_ACTION
-        if (script := self._scripts.get((alarm, key))) is not None:
-            self.entry.async_create_background_task(
-                self.hass,
-                script.async_run(variables, Context()),
-                f"{DOMAIN} {self.entry.title} {alarm} {phase}",
-            )
+        kind = TRIGGER_ALERT if phase in ALERT_PHASES else TRIGGER_ENDED
+        entry_id = self.entry.entry_id
+        device = dr.async_get(self.hass).async_get_device_by_identifier(
+            (DOMAIN, entry_id), entry_id
+        )
+        self.hass.bus.async_fire(
+            EVENT_ALARM,
+            {
+                "device_id": None if device is None else device.id,
+                "type": f"{alarm}_{kind}",
+                **variables,
+            },
+        )
 
     def _variables(self, alarm: str, phase: Phase, now: datetime) -> dict[str, Any]:
-        """Return the variables passed to the user's actions."""
+        """Return the data of an alarm event."""
         reading = self.source.reading
         unit = self._unit()
         digits = 0 if unit == MG_DL else 1
@@ -479,35 +476,6 @@ class AlarmMonitor:
             return text.format(**placeholders)
         except KeyError, IndexError, ValueError:
             return text
-
-    async def _async_build_scripts(self) -> None:
-        """Prepare the user's actions of the enabled alarms."""
-        for alarm in self.alarms:
-            for key in (CONF_ACTION, CONF_END_ACTION):
-                if not (actions := self._options[alarm].get(key)):
-                    continue
-                try:
-                    validated = await async_validate_actions_config(
-                        self.hass, cv.SCRIPT_SCHEMA(actions)
-                    )
-                except (vol.Invalid, HomeAssistantError) as err:
-                    _LOGGER.error(
-                        "Invalid %s of the %s alarm of %s: %s",
-                        key,
-                        alarm,
-                        self.entry.title,
-                        err,
-                    )
-                    continue
-                self._scripts[alarm, key] = Script(
-                    self.hass,
-                    validated,
-                    f"{self.entry.title} {alarm} {key}",
-                    DOMAIN,
-                    script_mode=SCRIPT_MODE_PARALLEL,
-                    max_runs=SCRIPT_MAX_RUNS,
-                    logger=_LOGGER,
-                )
 
     async def _async_restore(self) -> None:
         """Restore the alarm states after a restart."""
