@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-07
+
+### Changed
+- Notifications are automations: every enabled alarm adds the device triggers "started or repeated" and "acknowledged or over" to the person's device; the alarm data (title, message, tag, ack_action, glucose, ...) is available as `trigger.event.data`
+
+### Removed
+- Action and end action fields of the alarms. Actions set up in 0.1.0 no longer run; recreate them as automations with the device triggers
+
 ## [0.1.0] - 2026-11-07
 
 ### Added

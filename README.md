@@ -41,7 +41,7 @@ Work in progress. The current version (0.1) contains:
 - Any glucose source: every sensor can be selected, its current value is
   checked during setup
 - Alarms for urgent low, low and data loss with acknowledge, snooze,
-  re-check and pause; notifications as your own Home Assistant actions
+  re-check and pause; notifications as automations with device triggers
 - Diagnostics download showing how the glucose data and alarms are read
 
 Planned next: high alarms, rapid change, night report and phone charging
@@ -116,7 +116,7 @@ and data loss alarms, and the pause. Every alarm is off until you enable it.
 - **Thresholds** are entities: for example the threshold sensors of the
   glucose integration (suggested automatically when available) or an
   `input_number`. Each alarm has its own threshold.
-- **Repeat:** an active alarm runs its action again in this interval
+- **Repeat:** an active alarm fires its trigger again in this interval
   (0 = once).
 - **Acknowledge** silences an alarm for its snooze time. Afterwards the alarm
   is checked again and starts at once if it still applies. Ways to
@@ -134,10 +134,20 @@ and data loss alarms, and the pause. Every alarm is off until you enable it.
 - **Restart:** alarm states survive a restart of Home Assistant.
 - Without a reading time no alarms are possible; a repair issue tells you so.
 
-Each alarm has an *action* (alarm starts and every repeat) and an *end
-action* (acknowledged or over). Both get these variables:
+### Notifications
 
-| Variable | Content |
+Notifications are automations: the integration only decides *when* to alarm,
+you decide *how*. Every enabled alarm adds two triggers to the device of the
+person (in the automation editor under **Device**):
+
+| Trigger | Fires when |
+| --- | --- |
+| *… alarm started or repeated* | the alarm starts and on every repeat |
+| *… alarm acknowledged or over* | the alarm is acknowledged or ends |
+
+The automation gets the alarm data as `trigger.event.data`:
+
+| Field | Content |
 | --- | --- |
 | `title`, `message` | ready-made texts in the language of Home Assistant |
 | `alarm` | `urgent_low`, `low` or `data_loss` |
@@ -149,28 +159,36 @@ action* (acknowledged or over). Both get these variables:
 | `tag` | notification tag, unique per entry and alarm |
 | `ack_action` | mobile app action id that acknowledges this alarm |
 
-Example for the Home Assistant Companion app, action:
+Example for the Home Assistant Companion app (select the device and the
+trigger in the editor, then switch the action to YAML):
 
 ```yaml
-action: notify.mobile_app_your_phone
-data:
-  title: "{{ title }}"
-  message: "{{ message }}"
-  data:
-    tag: "{{ tag }}"
-    actions:
-      - action: "{{ ack_action }}"
-        title: Acknowledge
+triggers:
+  - trigger: device
+    domain: blood_glucose_monitor
+    device_id: <device of the person>
+    type: low_alert
+actions:
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "{{ trigger.event.data.title }}"
+      message: "{{ trigger.event.data.message }}"
+      data:
+        tag: "{{ trigger.event.data.tag }}"
+        actions:
+          - action: "{{ trigger.event.data.ack_action }}"
+            title: Acknowledge
 ```
 
-End action:
+And to remove the notification again (trigger type `low_ended`):
 
 ```yaml
-action: notify.mobile_app_your_phone
-data:
-  message: clear_notification
-  data:
-    tag: "{{ tag }}"
+actions:
+  - action: notify.mobile_app_your_phone
+    data:
+      message: clear_notification
+      data:
+        tag: "{{ trigger.event.data.tag }}"
 ```
 
 Per entry there are also a state sensor per alarm (`idle`, `pending`,

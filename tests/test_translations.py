@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from custom_components.blood_glucose_monitor import config_flow
+from custom_components.blood_glucose_monitor import config_flow, device_trigger
 
 TRANSLATIONS = (
     Path(__file__).parent.parent
@@ -47,7 +47,6 @@ FLOW_ERRORS = {
         "threshold_required",
         "threshold_unit_required",
         "person_required",
-        "invalid_action",
     },
 }
 
@@ -137,3 +136,9 @@ def test_entities_translated() -> None:
         event_types = entity["event"]["alarm"]["state_attributes"]["event_type"]
         for phase in ("triggered", "repeat", "acknowledged", "resolved"):
             assert event_types["state"][f"{alarm}_{phase}"]
+
+
+def test_device_triggers_translated() -> None:
+    """Every device trigger type has a text."""
+    triggers = load("en")["device_automation"]["trigger_type"]
+    assert set(triggers) == set(device_trigger.TRIGGER_TYPES)

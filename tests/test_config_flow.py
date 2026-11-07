@@ -471,21 +471,20 @@ async def test_alarm_options_saved(
 ) -> None:
     """Saving an alarm keeps the other options."""
     hass.states.async_set("input_number.low", "70", {"unit_of_measurement": "mg/dL"})
-    action = [{"action": "persistent_notification.create", "data": {"message": "x"}}]
     result = await open_options_step(hass, config_entry, "low")
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {**LOW_INPUT, "action": action, "end_action": []}
+        result["flow_id"], LOW_INPUT
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
     assert dict(config_entry.options) == {
         CONF_GLUCOSE_ENTITY: GLUCOSE_ENTITY,
-        "low": {**LOW_INPUT, "action": action},
+        "low": LOW_INPUT,
     }
 
     # Opening the step again shows the saved values.
     result = await open_options_step(hass, config_entry, "low")
-    assert suggested_values(result)["action"] == action
+    assert suggested_values(result)["threshold_entity"] == "input_number.low"
 
 
 @pytest.mark.parametrize(
@@ -506,11 +505,6 @@ async def test_alarm_options_saved(
             {**LOW_INPUT, "only_when_home": True},
             ("70", {"unit_of_measurement": "mg/dL"}),
             {"only_when_home": "person_required"},
-        ),
-        (
-            {**LOW_INPUT, "end_action": [{"action": "not valid!"}]},
-            ("70", {"unit_of_measurement": "mg/dL"}),
-            {"end_action": "invalid_action"},
         ),
     ],
 )

@@ -39,42 +39,12 @@ LOW_BUTTON = "button.alex_acknowledge_low_alarm"
 PAUSE_SWITCH = "switch.alex_pause_alarms"
 EVENT_ENTITY = "event.alex_alarm"
 
-ACTION_EVENT = "bgm_test_action"
-END_EVENT = "bgm_test_end"
-VARIABLES = (
-    "alarm",
-    "phase",
-    "title",
-    "message",
-    "tag",
-    "ack_action",
-    "glucose",
-    "unit",
-    "trend_arrow",
-    "data_age_min",
-    "person_name",
-)
-
-
-def actions(event_type: str) -> list[dict[str, Any]]:
-    """Return an action that fires an event with all variables."""
-    return [
-        {
-            "event": event_type,
-            "event_data": {key: f"{{{{ {key} }}}}" for key in VARIABLES},
-        }
-    ]
+ALARM_EVENT = "blood_glucose_monitor_alarm"
 
 
 def alarm(**overrides: Any) -> dict[str, Any]:
-    """Return enabled alarm options with test actions."""
-    return {
-        "enabled": True,
-        "only_when_home": False,
-        "action": actions(ACTION_EVENT),
-        "end_action": actions(END_EVENT),
-        **overrides,
-    }
+    """Return enabled alarm options."""
+    return {"enabled": True, "only_when_home": False, **overrides}
 
 
 def options(**overrides: Any) -> dict[str, Any]:
@@ -110,8 +80,17 @@ class Scenario:
         """Initialize."""
         self.hass = hass
         self.freezer = freezer
-        self.actions = async_capture_events(hass, ACTION_EVENT)
-        self.ends = async_capture_events(hass, END_EVENT)
+        self.events = async_capture_events(hass, ALARM_EVENT)
+
+    @property
+    def actions(self) -> list[Event]:
+        """Return the alarm events of the "started or repeated" triggers."""
+        return [e for e in self.events if e.data["type"].endswith("_alert")]
+
+    @property
+    def ends(self) -> list[Event]:
+        """Return the alarm events of the "acknowledged or over" triggers."""
+        return [e for e in self.events if e.data["type"].endswith("_ended")]
 
     async def setup(self, entry_options: dict[str, Any] | None = None) -> None:
         """Set thresholds and person, then set up an entry."""
@@ -456,18 +435,6 @@ async def test_disabled_alarms_have_no_entities(scenario: Scenario) -> None:
     assert hass.states.get(LOW_SENSOR) is None
     assert hass.states.get(EVENT_ENTITY) is None
     assert hass.states.get(PAUSE_SWITCH) is None
-
-
-async def test_invalid_action_is_skipped(
-    scenario: Scenario, caplog: pytest.LogCaptureFixture
-) -> None:
-    """An invalid stored action is logged; the alarm still works."""
-    entry_options = options()
-    entry_options["urgent_low"]["action"] = [{"action": "not a valid action!"}]
-    await scenario.setup(entry_options)
-    assert "Invalid action of the urgent_low alarm of Alex" in caplog.text
-    await scenario.reading(50)
-    assert scenario.state(URGENT_SENSOR) == "active"
 
 
 async def test_acknowledge_service_errors(scenario: Scenario) -> None:

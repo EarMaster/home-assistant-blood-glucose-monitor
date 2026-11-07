@@ -92,7 +92,7 @@
       },
       "urgent_low": {
         "title": "Urgent low alarm",
-        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nThe action runs when the alarm starts and on every repeat, the end action when the alarm is acknowledged or over. Both get the variables `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
         "data": {
           "enabled": "Enabled",
           "threshold_entity": "Threshold",
@@ -100,9 +100,7 @@
           "delay": "Delay",
           "repeat": "Repeat interval",
           "snooze": "Snooze",
-          "only_when_home": "Only when the person is at home",
-          "action": "Action",
-          "end_action": "End action"
+          "only_when_home": "Only when the person is at home"
         },
         "data_description": {
           "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number.",
@@ -110,14 +108,12 @@
           "delay": "How long the glucose has to stay below the threshold.",
           "repeat": "0 notifies only once.",
           "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
-          "only_when_home": "New alarms only start while the person is at home. A running alarm continues.",
-          "action": "Runs when the alarm starts and on every repeat.",
-          "end_action": "Runs when the alarm is acknowledged or over."
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
         }
       },
       "low": {
         "title": "Low alarm",
-        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nThe action runs when the alarm starts and on every repeat, the end action when the alarm is acknowledged or over. Both get the variables `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
         "data": {
           "enabled": "Enabled",
           "threshold_entity": "Threshold",
@@ -125,9 +121,7 @@
           "delay": "Delay",
           "repeat": "Repeat interval",
           "snooze": "Snooze",
-          "only_when_home": "Only when the person is at home",
-          "action": "Action",
-          "end_action": "End action"
+          "only_when_home": "Only when the person is at home"
         },
         "data_description": {
           "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number.",
@@ -135,30 +129,24 @@
           "delay": "How long the glucose has to stay below the threshold.",
           "repeat": "0 notifies only once.",
           "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
-          "only_when_home": "New alarms only start while the person is at home. A running alarm continues.",
-          "action": "Runs when the alarm starts and on every repeat.",
-          "end_action": "Runs when the alarm is acknowledged or over."
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
         }
       },
       "data_loss": {
         "title": "Data loss alarm",
-        "description": "Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nThe action runs when the alarm starts and on every repeat, the end action when the alarm is acknowledged or over.",
+        "description": "Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
         "data": {
           "enabled": "Enabled",
           "max_age": "Maximum data age",
           "repeat": "Repeat interval",
           "snooze": "Snooze",
-          "only_when_home": "Only when the person is at home",
-          "action": "Action",
-          "end_action": "End action"
+          "only_when_home": "Only when the person is at home"
         },
         "data_description": {
           "max_age": "Time without a new reading until the alarm.",
           "repeat": "0 notifies only once.",
           "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
-          "only_when_home": "New alarms only start while the person is at home. A running alarm continues.",
-          "action": "Runs when the alarm starts and on every repeat.",
-          "end_action": "Runs when the alarm is acknowledged or over."
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
         }
       },
       "pause": {
@@ -177,8 +165,7 @@
       "unit_required": "The glucose or change sensor does not report a unit. Please select the unit.",
       "threshold_required": "Select a threshold entity.",
       "threshold_unit_required": "This entity does not report a unit. Set the unit under Glucose data.",
-      "person_required": "Select a person under Glucose data first.",
-      "invalid_action": "The action is invalid."
+      "person_required": "Select a person under Glucose data first."
     }
   },
   "entity": {
@@ -298,6 +285,16 @@
           "description": "Leave empty to acknowledge all alarms of the person."
         }
       }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "urgent_low_alert": "Urgent low alarm started or repeated",
+      "urgent_low_ended": "Urgent low alarm acknowledged or over",
+      "low_alert": "Low alarm started or repeated",
+      "low_ended": "Low alarm acknowledged or over",
+      "data_loss_alert": "Data loss alarm started or repeated",
+      "data_loss_ended": "Data loss alarm acknowledged or over"
     }
   }
 }

@@ -92,7 +92,7 @@
       },
       "urgent_low": {
         "title": "Alarm sehr niedrig",
-        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}). Die Pause gilt für diesen Alarm nicht.\n\nDie Aktion läuft beim Start des Alarms und bei jeder Wiederholung, die Abschlussaktion, wenn der Alarm bestätigt wird oder vorbei ist. Beide erhalten unter anderem die Variablen `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}). Die Pause gilt für diesen Alarm nicht.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
         "data": {
           "enabled": "Aktiviert",
           "threshold_entity": "Schwellwert",
@@ -100,9 +100,7 @@
           "delay": "Verzögerung",
           "repeat": "Wiederholen alle",
           "snooze": "Schlummern",
-          "only_when_home": "Nur wenn die Person zu Hause ist",
-          "action": "Aktion",
-          "end_action": "Abschlussaktion"
+          "only_when_home": "Nur wenn die Person zu Hause ist"
         },
         "data_description": {
           "threshold_entity": "Entität mit dem Schwellwert, zum Beispiel ein Schwellwert-Sensor der Glukose-Integration oder eine Zahleneingabe.",
@@ -110,14 +108,12 @@
           "delay": "Wie lange die Glukose unter dem Schwellwert bleiben muss.",
           "repeat": "0 benachrichtigt nur einmal.",
           "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
-          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter.",
-          "action": "Läuft beim Start des Alarms und bei jeder Wiederholung.",
-          "end_action": "Läuft, wenn der Alarm bestätigt wird oder vorbei ist."
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter."
         }
       },
       "low": {
         "title": "Alarm niedrig",
-        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}).\n\nDie Aktion läuft beim Start des Alarms und bei jeder Wiederholung, die Abschlussaktion, wenn der Alarm bestätigt wird oder vorbei ist. Beide erhalten unter anderem die Variablen `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}).\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
         "data": {
           "enabled": "Aktiviert",
           "threshold_entity": "Schwellwert",
@@ -125,9 +121,7 @@
           "delay": "Verzögerung",
           "repeat": "Wiederholen alle",
           "snooze": "Schlummern",
-          "only_when_home": "Nur wenn die Person zu Hause ist",
-          "action": "Aktion",
-          "end_action": "Abschlussaktion"
+          "only_when_home": "Nur wenn die Person zu Hause ist"
         },
         "data_description": {
           "threshold_entity": "Entität mit dem Schwellwert, zum Beispiel ein Schwellwert-Sensor der Glukose-Integration oder eine Zahleneingabe.",
@@ -135,30 +129,24 @@
           "delay": "Wie lange die Glukose unter dem Schwellwert bleiben muss.",
           "repeat": "0 benachrichtigt nur einmal.",
           "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
-          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter.",
-          "action": "Läuft beim Start des Alarms und bei jeder Wiederholung.",
-          "end_action": "Läuft, wenn der Alarm bestätigt wird oder vorbei ist."
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter."
         }
       },
       "data_loss": {
         "title": "Alarm Datenausfall",
-        "description": "Alarm, wenn innerhalb des maximalen Datenalters kein neuer Messwert kommt. Ältere Messwerte ignorieren auch die anderen Alarme, selbst wenn dieser Alarm ausgeschaltet ist.\n\nDie Aktion läuft beim Start des Alarms und bei jeder Wiederholung, die Abschlussaktion, wenn der Alarm bestätigt wird oder vorbei ist.",
+        "description": "Alarm, wenn innerhalb des maximalen Datenalters kein neuer Messwert kommt. Ältere Messwerte ignorieren auch die anderen Alarme, selbst wenn dieser Alarm ausgeschaltet ist.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
         "data": {
           "enabled": "Aktiviert",
           "max_age": "Maximales Datenalter",
           "repeat": "Wiederholen alle",
           "snooze": "Schlummern",
-          "only_when_home": "Nur wenn die Person zu Hause ist",
-          "action": "Aktion",
-          "end_action": "Abschlussaktion"
+          "only_when_home": "Nur wenn die Person zu Hause ist"
         },
         "data_description": {
           "max_age": "Zeit ohne neuen Messwert bis zum Alarm.",
           "repeat": "0 benachrichtigt nur einmal.",
           "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
-          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter.",
-          "action": "Läuft beim Start des Alarms und bei jeder Wiederholung.",
-          "end_action": "Läuft, wenn der Alarm bestätigt wird oder vorbei ist."
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter."
         }
       },
       "pause": {
@@ -177,8 +165,7 @@
       "unit_required": "Der Glukose- oder Änderungs-Sensor meldet keine Einheit. Bitte wähle die Einheit aus.",
       "threshold_required": "Wähle eine Entität mit dem Schwellwert.",
       "threshold_unit_required": "Diese Entität meldet keine Einheit. Lege die Einheit unter Glukosedaten fest.",
-      "person_required": "Wähle zuerst unter Glukosedaten eine Person.",
-      "invalid_action": "Die Aktion ist ungültig."
+      "person_required": "Wähle zuerst unter Glukosedaten eine Person."
     }
   },
   "entity": {
@@ -298,6 +285,16 @@
           "description": "Leer lassen, um alle Alarme der Person zu bestätigen."
         }
       }
+    }
+  },
+  "device_automation": {
+    "trigger_type": {
+      "urgent_low_alert": "Alarm sehr niedrig ausgelöst oder wiederholt",
+      "urgent_low_ended": "Alarm sehr niedrig bestätigt oder vorbei",
+      "low_alert": "Alarm niedrig ausgelöst oder wiederholt",
+      "low_ended": "Alarm niedrig bestätigt oder vorbei",
+      "data_loss_alert": "Alarm Datenausfall ausgelöst oder wiederholt",
+      "data_loss_ended": "Alarm Datenausfall bestätigt oder vorbei"
     }
   }
 }
