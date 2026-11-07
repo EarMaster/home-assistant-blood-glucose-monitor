@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-07
+
 ### Added
 - Status sensor per person with the most important current state (no data, urgent low, low, paused, OK), the latest glucose value and the running alarms
 
