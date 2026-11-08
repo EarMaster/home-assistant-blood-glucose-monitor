@@ -16,7 +16,8 @@ to follow. After changing an integration translation run
 from there (`site/_data/ha/`).
 
 A new language needs both files, `python scripts/site_pages.py <language>`,
-an entry in `site/_data/languages.json` and in `DOCS_LANGUAGES` (`const.py`).
+an entry in `site/_data/languages.json` and in `DOCS_LANGUAGES` (`const.py`),
+and then `python scripts/site_i18n.py`.
 
 ## Rules
 

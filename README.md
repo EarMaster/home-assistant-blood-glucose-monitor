@@ -37,7 +37,8 @@ be notified.
   [automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)
   prepares the automations
 
-More on the [documentation site](https://earmaster.github.io/home-assistant-blood-glucose-monitor/).
+More on the [documentation site](https://earmaster.github.io/home-assistant-blood-glucose-monitor/)
+(English, German, French, Spanish and Dutch).
 
 ## Requirements
 
@@ -147,7 +148,8 @@ Notifications are automations: the integration only decides *when* to alarm,
 you decide *how*. The **[automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)**
 prepares them for you; open it from the device page of the person
 (**Visit**) or from the **Configure** menu, and it already knows the
-entities of that person. The [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
+entities of that person and opens in the language of Home Assistant when the
+site has it (else in English). The [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
 lists every event type and value.
 
 Every active alarm has its own **event entity** (for example
