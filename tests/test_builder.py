@@ -31,37 +31,39 @@ triggers:
         - urgent_low_ended
         - low_alert
         - report
+variables:
+  event: "{{ trigger.to_state.attributes }}"
 actions:
   - choose:
       - conditions:
           - condition: template
-            value_template: "{{ trigger.to_state.attributes.event_type.endswith('_ended') }}"
+            value_template: "{{ event.event_type.endswith('_ended') }}"
         sequence:
           - action: notify.test_phone
             data:
               message: clear_notification
               data:
-                tag: "{{ trigger.to_state.attributes.tag }}"
+                tag: "{{ event.tag }}"
       - conditions:
           - condition: template
-            value_template: "{{ trigger.to_state.attributes.event_type.endswith('_alert') }}"
+            value_template: "{{ event.event_type.endswith('_alert') }}"
         sequence:
           - action: notify.test_phone
             data:
-              title: "{{ trigger.to_state.attributes.title }}"
-              message: "{{ trigger.to_state.attributes.message }}"
+              title: "{{ event.title }}"
+              message: "{{ event.message }}"
               data:
-                tag: "{{ trigger.to_state.attributes.tag }}"
+                tag: "{{ event.tag }}"
                 actions:
-                  - action: "{{ trigger.to_state.attributes.ack_action }}"
+                  - action: "{{ event.ack_action }}"
                     title: Acknowledge
     default:
       - action: notify.test_phone
         data:
-          title: "{{ trigger.to_state.attributes.title }}"
-          message: "{{ trigger.to_state.attributes.message }}"
+          title: "{{ event.title }}"
+          message: "{{ event.message }}"
           data:
-            tag: "{{ trigger.to_state.attributes.tag }}"
+            tag: "{{ event.tag }}"
 """
 
 

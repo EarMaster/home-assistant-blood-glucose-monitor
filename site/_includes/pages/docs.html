@@ -20,11 +20,13 @@
     options:
       event_type:
         - low_alert
+variables:
+  event: "{{ trigger.to_state.attributes }}"
 actions:
   - action: notify.mobile_app_your_phone
     data:
-      title: "{{ trigger.to_state.attributes.title }}"
-      message: "{{ trigger.to_state.attributes.message }}"</code></pre>{% endraw %}
+      title: "{{ event.title }}"
+      message: "{{ event.message }}"</code></pre>{% endraw %}
 {% include screenshot.html file="automation.png" alt=d.shot_automation_alt caption=d.shot_automation %}
 <p>{{ d.sensors_text }}</p>
 

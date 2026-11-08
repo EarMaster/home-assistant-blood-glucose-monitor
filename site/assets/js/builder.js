@@ -84,7 +84,8 @@
   // double-quoted (JSON) string, which is valid YAML.
   const value = (text) =>
     /^[a-z0-9_.]+$/.test(text) ? text : JSON.stringify(text);
-  const attr = (name) => `"{{ trigger.to_state.attributes.${name} }}"`;
+  // The event data, as variable "event" (see the variables block below).
+  const attr = (name) => `"{{ event.${name} }}"`;
 
   const notifyLines = (action, withAck) => [
     `- action: ${value(action)}`,
@@ -113,7 +114,7 @@
   const indent = (lines, spaces) => lines.map((line) => " ".repeat(spaces) + line);
 
   const endsWith = (suffix) =>
-    `"{{ trigger.to_state.attributes.event_type.endswith('${suffix}') }}"`;
+    `"{{ event.event_type.endswith('${suffix}') }}"`;
 
   function build() {
     const selected = groups.flatMap((group) =>
@@ -193,6 +194,8 @@
       "    options:",
       "      event_type:",
       ...types.map((type) => `        - ${type}`),
+      "variables:",
+      '  event: "{{ trigger.to_state.attributes }}"',
       "actions:",
       ...indent(actionLines, 2),
     ];

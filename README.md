@@ -195,26 +195,28 @@ triggers:
       event_type:
         - low_alert
         - low_ended
+variables:
+  event: "{{ trigger.to_state.attributes }}"
 actions:
   - if:
       - condition: template
-        value_template: "{{ trigger.to_state.attributes.event_type.endswith('_alert') }}"
+        value_template: "{{ event.event_type.endswith('_alert') }}"
     then:
       - action: notify.mobile_app_your_phone
         data:
-          title: "{{ trigger.to_state.attributes.title }}"
-          message: "{{ trigger.to_state.attributes.message }}"
+          title: "{{ event.title }}"
+          message: "{{ event.message }}"
           data:
-            tag: "{{ trigger.to_state.attributes.tag }}"
+            tag: "{{ event.tag }}"
             actions:
-              - action: "{{ trigger.to_state.attributes.ack_action }}"
+              - action: "{{ event.ack_action }}"
                 title: Acknowledge
     else:
       - action: notify.mobile_app_your_phone
         data:
           message: clear_notification
           data:
-            tag: "{{ trigger.to_state.attributes.tag }}"
+            tag: "{{ event.tag }}"
 ```
 
 ### Charging reminder

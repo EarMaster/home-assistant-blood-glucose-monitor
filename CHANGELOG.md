@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Automation builder: the event data are a variable `event` (`{{ event.title }}` instead of `{{ trigger.to_state.attributes.title }}`), shorter and easier to adapt
+
 ## [1.1.1] - 2026-11-08
 
 ### Fixed
