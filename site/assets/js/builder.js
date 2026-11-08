@@ -84,7 +84,8 @@
   // double-quoted (JSON) string, which is valid YAML.
   const value = (text) =>
     /^[a-z0-9_.]+$/.test(text) ? text : JSON.stringify(text);
-  const attr = (name) => `"{{ trigger.to_state.attributes.${name} }}"`;
+  // The event data, as variable "event" (see the variables block below).
+  const attr = (name) => `"{{ event.${name} }}"`;
 
   const notifyLines = (action, withAck) => [
     `- action: ${value(action)}`,
@@ -112,8 +113,16 @@
 
   const indent = (lines, spaces) => lines.map((line) => " ".repeat(spaces) + line);
 
-  const endsWith = (suffix) =>
-    `"{{ trigger.to_state.attributes.event_type.endswith('${suffix}') }}"`;
+  // One trigger per kind of event, with a trigger ID the actions choose by:
+  // "alert" (started or repeated, with acknowledge button), "ended"
+  // (acknowledged or over: remove the notification), "notify" (everything
+  // else: warnings, reports, alerts without button).
+  const kindOf = (type, ack) => {
+    if (type.endsWith("_ended")) return "ended";
+    if (ack && type.endsWith("_alert")) return "alert";
+    return "notify";
+  };
+  const KINDS = ["alert", "ended", "notify"];
 
   function build() {
     const selected = groups.flatMap((group) =>
@@ -138,47 +147,40 @@
       .filter(Boolean);
     if (!actions.length) actions.push("notify.mobile_app_your_phone");
     const ack = ackInput.checked;
-    const types = selected.map(({ type }) => type);
-    const entities = [
-      ...new Set(selected.map(({ group }) => group.entity.value.trim())),
-    ];
+    const kinds = KINDS.map((id) => {
+      const items = selected.filter(({ type }) => kindOf(type, ack) === id);
+      const lines = actions.flatMap((action) =>
+        id === "ended" ? clearLines(action) : notifyLines(action, id === "alert"),
+      );
+      return { id, items, lines };
+    }).filter(({ items }) => items.length);
 
-    const hasEnded = types.some((type) => type.endsWith("_ended"));
-    const hasAckAlert = ack && types.some((type) => type.endsWith("_alert"));
-    const hasPlain = types.some(
-      (type) => !type.endsWith("_ended") && !(hasAckAlert && type.endsWith("_alert")),
-    );
+    const triggerLines = kinds.flatMap(({ id, items }) => [
+      "  - trigger: event.received",
+      `    id: ${id}`,
+      "    target:",
+      "      entity_id:",
+      ...[...new Set(items.map(({ group }) => group.entity.value.trim()))].map(
+        (entity) => `        - ${value(entity)}`,
+      ),
+      "    options:",
+      "      event_type:",
+      ...items.map(({ type }) => `        - ${type}`),
+    ]);
 
-    const branches = [];
-    if (hasEnded) {
-      branches.push({ suffix: "_ended", lines: actions.flatMap(clearLines) });
-    }
-    if (hasAckAlert) {
-      branches.push({
-        suffix: "_alert",
-        lines: actions.flatMap((action) => notifyLines(action, true)),
-      });
-    }
-    const plain = hasPlain ? actions.flatMap((action) => notifyLines(action, false)) : [];
-
-    let actionLines;
-    if (branches.length === 1 && !hasPlain) {
-      actionLines = branches[0].lines;
-    } else if (!branches.length) {
-      actionLines = plain;
-    } else {
-      actionLines = [
-        "- choose:",
-        ...branches.flatMap(({ suffix, lines }) => [
-          "    - conditions:",
-          "        - condition: template",
-          `          value_template: ${endsWith(suffix)}`,
-          "      sequence:",
-          ...indent(lines, 8),
-        ]),
-        ...(hasPlain ? ["  default:", ...indent(plain, 4)] : []),
-      ];
-    }
+    const actionLines =
+      kinds.length === 1
+        ? kinds[0].lines
+        : [
+            "- choose:",
+            ...kinds.flatMap(({ id, lines }) => [
+              "    - conditions:",
+              "        - condition: trigger",
+              `          id: ${id}`,
+              "      sequence:",
+              ...indent(lines, 8),
+            ]),
+          ];
 
     const name = nameInput.value.trim();
     const lines = [
@@ -186,13 +188,9 @@
       `description: ${JSON.stringify(T.automation_description)}`,
       "mode: queued",
       "triggers:",
-      "  - trigger: event.received",
-      "    target:",
-      "      entity_id:",
-      ...entities.map((entity) => `        - ${value(entity)}`),
-      "    options:",
-      "      event_type:",
-      ...types.map((type) => `        - ${type}`),
+      ...triggerLines,
+      "variables:",
+      '  event: "{{ trigger.to_state.attributes }}"',
       "actions:",
       ...indent(actionLines, 2),
     ];

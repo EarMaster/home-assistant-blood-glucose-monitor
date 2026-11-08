@@ -49,5 +49,7 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.14"
-      # Pull requests into main are releases: the version has to grow.
-      - run: python scripts/check_version.py ${{ github.base_ref == 'main' && '--release' || '' }}
+      # Pull requests into main are releases: the version has to grow. A pull
+      # request that changes nothing of the integration is a docs update and
+      # may keep the version (no tag, no release).
+      - run: python scripts/check_version.py ${{ github.base_ref == 'main' && format('--release --base origin/{0}', github.base_ref) || '' }}

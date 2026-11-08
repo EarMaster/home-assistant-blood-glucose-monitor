@@ -130,6 +130,13 @@ Hassfest and the Marketplace validation run in GitHub Actions only.
   in `manifest.json`, `CHANGELOG.md` (Keep a Changelog), `scripts/check_version.py --release`.
 - Conventional commits: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`,
   `test:`; `BREAKING CHANGE` bumps the minor version while the major is 0.
+  The version is the integration's: changes that only touch the site,
+  README, scripts or tests are `docs:`/`test:`/`chore:`, never `feat:`.
+- **Docs update:** a pull request `develop` → `main` that changes nothing
+  under `custom_components/` (and not `hacs.json`) may keep the version; the
+  release workflow then runs tests and validation but makes no tag and no
+  release, and the Pages workflow publishes the site
+  (`check_version.py --release --base <old main>`).
 - The Pages workflow deploys the site from `main`; on `develop` it only
   produces the screenshots as an artifact.
 - Commit and push only when asked.

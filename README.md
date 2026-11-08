@@ -189,32 +189,45 @@ Example for the Home Assistant Companion app:
 ```yaml
 triggers:
   - trigger: event.received
+    id: alert
     target:
       entity_id: event.alex_low_alarm
     options:
       event_type:
         - low_alert
+  - trigger: event.received
+    id: ended
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
         - low_ended
+variables:
+  event: "{{ trigger.to_state.attributes }}"
 actions:
-  - if:
-      - condition: template
-        value_template: "{{ trigger.to_state.attributes.event_type.endswith('_alert') }}"
-    then:
-      - action: notify.mobile_app_your_phone
-        data:
-          title: "{{ trigger.to_state.attributes.title }}"
-          message: "{{ trigger.to_state.attributes.message }}"
-          data:
-            tag: "{{ trigger.to_state.attributes.tag }}"
-            actions:
-              - action: "{{ trigger.to_state.attributes.ack_action }}"
-                title: Acknowledge
-    else:
-      - action: notify.mobile_app_your_phone
-        data:
-          message: clear_notification
-          data:
-            tag: "{{ trigger.to_state.attributes.tag }}"
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: alert
+        sequence:
+          - action: notify.mobile_app_your_phone
+            data:
+              title: "{{ event.title }}"
+              message: "{{ event.message }}"
+              data:
+                tag: "{{ event.tag }}"
+                actions:
+                  - action: "{{ event.ack_action }}"
+                    title: Acknowledge
+      - conditions:
+          - condition: trigger
+            id: ended
+        sequence:
+          - action: notify.mobile_app_your_phone
+            data:
+              message: clear_notification
+              data:
+                tag: "{{ event.tag }}"
 ```
 
 ### Charging reminder
@@ -331,6 +344,9 @@ Marketplace (HACS) validation on every push.
   GitHub release automatically.
 - `scripts/check_version.py` makes sure the version only grows; it runs on
   every push and, stricter, on pull requests into `main`.
+- A pull request into `main` that changes nothing of the integration (only
+  README, documentation site, scripts or tests) is a docs update: it keeps
+  the version, and merging it publishes the site without a tag or release.
 
 All glucose values in tests are synthetic. Please do not add real health data
 to issues, tests or fixtures.

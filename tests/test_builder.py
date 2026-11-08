@@ -20,48 +20,67 @@ description: "Created with the Blood Glucose Monitor automation builder."
 mode: queued
 triggers:
   - trigger: event.received
+    id: alert
     target:
       entity_id:
         - event.alex_urgent_low_alarm
         - event.alex_low_alarm
-        - event.alex_report
     options:
       event_type:
         - urgent_low_alert
-        - urgent_low_ended
         - low_alert
+  - trigger: event.received
+    id: ended
+    target:
+      entity_id:
+        - event.alex_urgent_low_alarm
+    options:
+      event_type:
+        - urgent_low_ended
+  - trigger: event.received
+    id: notify
+    target:
+      entity_id:
+        - event.alex_report
+    options:
+      event_type:
         - report
+variables:
+  event: "{{ trigger.to_state.attributes }}"
 actions:
   - choose:
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.to_state.attributes.event_type.endswith('_ended') }}"
+          - condition: trigger
+            id: alert
+        sequence:
+          - action: notify.test_phone
+            data:
+              title: "{{ event.title }}"
+              message: "{{ event.message }}"
+              data:
+                tag: "{{ event.tag }}"
+                actions:
+                  - action: "{{ event.ack_action }}"
+                    title: "Acknowledge"
+      - conditions:
+          - condition: trigger
+            id: ended
         sequence:
           - action: notify.test_phone
             data:
               message: clear_notification
               data:
-                tag: "{{ trigger.to_state.attributes.tag }}"
+                tag: "{{ event.tag }}"
       - conditions:
-          - condition: template
-            value_template: "{{ trigger.to_state.attributes.event_type.endswith('_alert') }}"
+          - condition: trigger
+            id: notify
         sequence:
           - action: notify.test_phone
             data:
-              title: "{{ trigger.to_state.attributes.title }}"
-              message: "{{ trigger.to_state.attributes.message }}"
+              title: "{{ event.title }}"
+              message: "{{ event.message }}"
               data:
-                tag: "{{ trigger.to_state.attributes.tag }}"
-                actions:
-                  - action: "{{ trigger.to_state.attributes.ack_action }}"
-                    title: Acknowledge
-    default:
-      - action: notify.test_phone
-        data:
-          title: "{{ trigger.to_state.attributes.title }}"
-          message: "{{ trigger.to_state.attributes.message }}"
-          data:
-            tag: "{{ trigger.to_state.attributes.tag }}"
+                tag: "{{ event.tag }}"
 """
 
 
