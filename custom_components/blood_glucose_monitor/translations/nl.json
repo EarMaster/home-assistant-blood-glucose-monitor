@@ -72,6 +72,7 @@
           "sensor_change": "Sensorwissel",
           "reservoir_change": "Reservoirwissel",
           "report": "Rapporten",
+          "estimate": "GMI en geschatte HbA1c",
           "pause": "Pauze"
         }
       },
@@ -363,6 +364,18 @@
         "data_description": {
           "report_entity": "Schema, boolean invoer of binaire sensor. Laat leeg om de rapporten uit te schakelen.",
           "only_when_home": "De gebeurtenis \"Rapport\" wordt alleen geactiveerd terwijl de persoon thuis is. Het rapport en de sensor \"Laatste rapport\" worden toch bijgewerkt."
+        }
+      },
+      "estimate": {
+        "title": "GMI en geschatte HbA1c",
+        "description": "De sensoren \"GMI\" en \"Geschatte HbA1c\" worden berekend uit de gemiddelde glucose van de periode, afkomstig uit de langetermijnstatistieken van de glucosesensor (recorder; alleen voor sensoren met een statusklasse). Als minder dan 70% van de periode door gegevens wordt gedekt, zijn beide onbekend. Het zijn schattingen, geen HbA1c uit het laboratorium.",
+        "data": {
+          "period": "Periode",
+          "period_entity": "Entiteit periode"
+        },
+        "data_description": {
+          "period": "Aantal dagen, meestal 90. Laat beide velden leeg om de sensoren uit te schakelen.",
+          "period_entity": "Getal in dagen (of met een tijdseenheid zoals h); heeft voorrang op het veld."
         }
       },
       "pause": {
@@ -789,6 +802,58 @@
             "name": "Bericht"
           }
         }
+      },
+      "gmi": {
+        "name": "GMI",
+        "state_attributes": {
+          "mmol_mol": {
+            "name": "mmol/mol (IFCC)"
+          },
+          "glucose_mean": {
+            "name": "Gemiddelde glucose"
+          },
+          "unit": {
+            "name": "Eenheid"
+          },
+          "coverage": {
+            "name": "Gegevensdekking"
+          },
+          "period_days": {
+            "name": "Periode"
+          },
+          "start": {
+            "name": "Begin"
+          },
+          "end": {
+            "name": "Einde"
+          }
+        }
+      },
+      "estimated_a1c": {
+        "name": "Geschatte HbA1c",
+        "state_attributes": {
+          "mmol_mol": {
+            "name": "mmol/mol (IFCC)"
+          },
+          "glucose_mean": {
+            "name": "Gemiddelde glucose"
+          },
+          "unit": {
+            "name": "Eenheid"
+          },
+          "coverage": {
+            "name": "Gegevensdekking"
+          },
+          "period_days": {
+            "name": "Periode"
+          },
+          "start": {
+            "name": "Begin"
+          },
+          "end": {
+            "name": "Einde"
+          }
+        }
       }
     },
     "switch": {
@@ -818,6 +883,10 @@
     "no_reading_time": {
       "title": "Geen meettijdstip voor {name}",
       "description": "De glucosegegevens van {name} hebben geen meettijdstip. Zonder meettijdstip is de ouderdom van de gegevens onbekend en zijn er geen alarmen mogelijk.\n\nSelecteer een sensor voor het meettijdstip onder **Configureren → Glucosegegevens**."
+    },
+    "no_statistics": {
+      "title": "Geen langetermijnstatistieken voor {name}",
+      "description": "De glucosesensor {entity_id} van {name} heeft geen langetermijnstatistieken, dus GMI en geschatte HbA1c kunnen niet worden berekend. De recorder houdt ze alleen bij voor sensoren met een statusklasse (bijv. `measurement`) die niet van de recorder zijn uitgesloten.\n\nAls de glucose-integratie geen statusklasse instelt, voeg er dan een toe met een aanpassing (`state_class: measurement`), of schakel de sensoren uit onder **Configureren → GMI en geschatte HbA1c**."
     }
   },
   "selector": {

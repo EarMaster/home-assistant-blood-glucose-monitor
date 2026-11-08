@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Sensors *GMI* (glucose management indicator) and *Estimated HbA1c* (ADAG) per person, in percent with the value in mmol/mol, the mean glucose and the coverage as attributes; calculated from the long-term statistics of the glucose sensor over a period (default 90 days, number or entity), unknown below 70 % coverage, updated hourly; a repair issue tells when the glucose sensor has no long-term statistics; on for new and existing entries, switched off with an empty period under **Configure → GMI and estimated HbA1c**
+
 ## [1.2.0] - 2026-11-08
 
 ### Added

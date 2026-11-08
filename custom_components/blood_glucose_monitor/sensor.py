@@ -1,11 +1,16 @@
-"""Alarm state sensors of the Blood Glucose Monitor integration."""
+"""Sensors of the Blood Glucose Monitor integration: status, alarm states,
+due times, last report, GMI and estimated HbA1c."""
 
 from __future__ import annotations
 
 from datetime import datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
@@ -14,6 +19,7 @@ from . import BloodGlucoseMonitorConfigEntry
 from .alarm import AlarmState
 from .const import ALARMS_WITHOUT_GLUCOSE, CHANGE_ALARMS
 from .entity import BloodGlucoseMonitorEntity
+from .estimates import ESTIMATED_A1C, GMI
 from .monitor import STATUSES
 
 PARALLEL_UPDATES = 0
@@ -32,6 +38,11 @@ async def async_setup_entry(
         [
             StatusSensor(entry),
             *([LastReportSensor(entry)] if monitor.report else []),
+            *(
+                EstimateSensor(entry, kind)
+                for kind in (GMI, ESTIMATED_A1C)
+                if monitor.estimate
+            ),
             *(AlarmStateSensor(entry, alarm) for alarm in monitor.alarms),
             *(
                 DueSensor(entry, alarm)
@@ -143,3 +154,29 @@ class DueSensor(BloodGlucoseMonitorEntity, SensorEntity):
             "last_change": None if last is None else last.isoformat(),
             "wear_duration_h": None if wear is None else wear.total_seconds() / 3600,
         }
+
+
+class EstimateSensor(BloodGlucoseMonitorEntity, SensorEntity):
+    """GMI or estimated HbA1c from the mean glucose of the period."""
+
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+    _attr_suggested_display_precision = 1
+
+    def __init__(self, entry: BloodGlucoseMonitorConfigEntry, kind: str) -> None:
+        """Initialize."""
+        super().__init__(entry, kind)
+        self.kind = kind
+        self._attr_translation_key = kind
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the value in percent; unknown without enough data."""
+        assert self.monitor.estimate is not None
+        return self.monitor.estimate.value(self.kind)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return mmol/mol, mean glucose, coverage and period."""
+        assert self.monitor.estimate is not None
+        return self.monitor.estimate.attributes(self.kind)

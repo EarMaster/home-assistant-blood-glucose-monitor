@@ -889,3 +889,26 @@ async def test_report_options(
         "report_entity": "schedule.blocks",
         "only_when_home": False,
     }
+
+
+@pytest.mark.usefixtures("glucose_state")
+async def test_estimate_options(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    """90 days are suggested; without a period the estimates are off."""
+    result = await open_options_step(hass, config_entry, "estimate")
+    assert suggested_values(result) == {"period": 90}
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"period": 30}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    assert config_entry.options["estimate"] == {"period": 30}
+    assert hass.states.get("sensor.alex_gmi") is not None
+
+    result = await open_options_step(hass, config_entry, "estimate")
+    result = await hass.config_entries.options.async_configure(result["flow_id"], {})
+    await hass.async_block_till_done()
+    assert config_entry.options["estimate"] == {}
+    # Like a switched-off alarm: the entity is left unavailable.
+    assert hass.states.get("sensor.alex_gmi").state == "unavailable"

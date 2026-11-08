@@ -33,6 +33,7 @@ be notified.
 - **Reminders:** charging the phone, changing cannula, CGM sensor and insulin
   reservoir
 - **Reports:** a summary per period of a schedule, for example the night
+- **GMI and estimated HbA1c:** from the mean glucose of the last 90 days
 - **Your notifications:** one event entity per alarm; the
   [automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)
   prepares the automations
@@ -312,6 +313,35 @@ The statistics come from the history of the glucose sensor (recorder). A
 period that ends while Home Assistant is restarting is reported afterwards.
 With **only when the person is at home**, the event only fires while the
 person is at home; the report and the *Last report* sensor are updated anyway.
+
+### GMI and estimated HbA1c
+
+Two sensors per entry estimate the HbA1c from the mean glucose of a period
+(default 90 days):
+
+| Sensor | Formula |
+| --- | --- |
+| *GMI* (`sensor.<name>_gmi`) | glucose management indicator: 3.31 + 0.02392 × mean in mg/dL (Bergenstal 2018) |
+| *Estimated HbA1c* (`sensor.<name>_estimated_hba1c`) | ADAG: (mean in mg/dL + 46.7) / 28.7 (Nathan 2008) |
+
+Both are in percent; their attributes are `mmol_mol` (IFCC), `glucose_mean`
+and `unit` (unit of the glucose sensor), `coverage` (share of the period with
+data in percent), `period_days`, `start` and `end`. They are estimates from
+the glucose data, not a laboratory HbA1c.
+
+- **Source:** the long-term statistics of the recorder (hourly means) of the
+  glucose sensor. The recorder keeps them only for sensors with a state class
+  (for example `measurement`); without them a repair issue says so and the
+  sensors are unknown. A source integration without a state class can be
+  given one with a customization (`state_class: measurement`).
+- **Period:** under **Configure → GMI and estimated HbA1c**, a number of days
+  or an entity (days, or with a time unit such as `h`); the entity wins.
+  Leave both empty to switch the sensors off. New and existing entries start
+  with 90 days.
+- With less than 70 % of the period covered by data, both sensors are
+  unknown; `coverage` shows why.
+- Updated every hour (at minute 15, after the recorder has compiled the
+  hour) and when the period entity changes.
 
 Every entry has a *Status* sensor with the most important current state:
 `no_data` (data loss or no reading time), `urgent_low`, `low`,

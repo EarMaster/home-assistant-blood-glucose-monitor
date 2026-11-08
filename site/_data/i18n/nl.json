@@ -30,8 +30,8 @@
         "text": "Oplaadherinnering voor de telefoon in de avond, en wisselherinneringen voor canule, CGM-sensor en insulinereservoir met een optionele waarschuwing vooraf."
       },
       {
-        "title": "Rapporten",
-        "text": "Een samenvatting per periode van een schema (bijvoorbeeld nacht of school): minimum, maximum, gemiddelde, tijd binnen bereik en de alarmen van de periode."
+        "title": "Rapporten en schattingen",
+        "text": "Een samenvatting per periode van een schema (bijvoorbeeld nacht of school): minimum, maximum, gemiddelde, tijd binnen bereik en de alarmen van de periode. En GMI en geschatte HbA1c uit de gemiddelde glucose van de laatste 90 dagen."
       },
       {
         "title": "Jouw meldingen",
@@ -39,7 +39,7 @@
       }
     ],
     "shot_device_alt": "Apparaatpagina van de persoon Alex met status, alarmsensoren, gebeurtenisentiteiten en knoppen",
-    "shot_device": "Eén apparaat per persoon: status, per alarm een statussensor, een gebeurtenisentiteit en een bevestigknop, de wisselherinneringen en het laatste rapport.",
+    "shot_device": "Eén apparaat per persoon: status, per alarm een statussensor, een gebeurtenisentiteit en een bevestigknop, de wisselherinneringen, het laatste rapport en de HbA1c-schattingen.",
     "shot_notifications_alt": "Meldingen van een alarm laag en een rapport met de kant-en-klare teksten",
     "shot_notifications": "Meldingen van een automatisering uit de bouwer, met de kant-en-klare teksten van de integratie (hier als Home Assistant-meldingen).",
     "secondary_title": "Bewust aanvullend",
@@ -61,7 +61,7 @@
     "shot_setup_alt": "Installatievenster met de mededeling dat de integratie geen medisch hulpmiddel is",
     "shot_setup": "De installatie begint met de mededeling, die bevestigd moet worden.",
     "shot_options_alt": "Menu Configureren met één onderdeel per alarm en de link naar de automatiseringsbouwer",
-    "shot_options": "Configureren: één onderdeel per alarm, de herinneringen, rapporten en pauze, en de link naar de automatiseringsbouwer.",
+    "shot_options": "Configureren: één onderdeel per alarm, de herinneringen, rapporten, GMI en geschatte HbA1c, pauze, en de link naar de automatiseringsbouwer.",
     "entities_title": "Entiteiten per persoon",
     "entities_head": [
       "Entiteit",
@@ -95,6 +95,10 @@
       [
         "Gebeurtenis <i>Rapport</i>, sensor <i>Laatste rapport</i>",
         "Het rapport van elke periode; de sensor bevat de tijd binnen bereik van het laatste rapport."
+      ],
+      [
+        "Sensoren <i>GMI</i>, <i>Geschatte HbA1c</i>",
+        "Schattingen in procent uit de gemiddelde glucose van de periode (standaard 90 dagen), met de waarde in mmol/mol als attribuut. Geen HbA1c uit het laboratorium."
       ]
     ],
     "shot_status_alt": "Statussensor van Alex met een lage glucose",
@@ -174,6 +178,15 @@
     "report_text": "Entiteit <i>Rapport</i>, gebeurtenistype <code>report</code>.",
     "when_title": "Wanneer het wordt geactiveerd",
     "values_title": "Waarden",
+    "estimate_title": "GMI en geschatte HbA1c",
+    "estimate_text": "De sensoren <i>GMI</i> en <i>Geschatte HbA1c</i> schatten de HbA1c in procent uit de gemiddelde glucose van een periode. Ze hebben geen gebeurtenis; gebruik ze in dashboards of als trigger van je eigen automatiseringen. Het zijn schattingen uit de glucosegegevens, geen HbA1c uit het laboratorium.",
+    "estimate_points": [
+      "<b>GMI</b> (glucose management indicator, Bergenstal 2018): 3,31 + 0,02392 × gemiddelde in mg/dL. <b>Geschatte HbA1c</b> (ADAG, Nathan 2008): (gemiddelde in mg/dL + 46,7) / 28,7.",
+      "<b>Periode</b>: in {menu} een aantal dagen (standaard 90) of een entiteit (dagen, of met een tijdseenheid zoals <code>h</code>); de entiteit heeft voorrang. Beide leeg: de sensoren zijn uitgeschakeld.",
+      "<b>Bron</b>: de langetermijnstatistieken van de recorder (uurgemiddelden) van de glucosesensor. Die bestaan alleen voor sensoren met een statusklasse (bijvoorbeeld <code>measurement</code>); zonder die statistieken meldt een reparatie dat en zijn de sensoren onbekend.",
+      "Als minder dan 70% van de periode door gegevens wordt gedekt, zijn beide sensoren onbekend. Ze worden elk uur bijgewerkt en wanneer de entiteit van de periode verandert.",
+      "<b>Attributen</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> en <code>unit</code> (eenheid van de glucosesensor), <code>coverage</code> (deel van de periode met gegevens in procent), <code>period_days</code>, <code>start</code> en <code>end</code> (ISO 8601)."
+    ],
     "ack_title": "Bevestigen en pauzeren",
     "ack_points": [
       "<b>Bevestigen</b> dempt een alarm voor de duur van het sluimeren; daarna wordt het opnieuw gecontroleerd en start het meteen als het nog van toepassing is. Wie urgent laag bevestigt, dempt voor die tijd ook laag (urgent hoog ook hoog); wie laag bevestigt, dempt urgent laag niet. Manieren: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of een meldingsactie met de ID uit <code>ack_action</code>.",

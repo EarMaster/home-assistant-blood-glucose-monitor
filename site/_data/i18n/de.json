@@ -30,8 +30,8 @@
         "text": "Lade-Erinnerung für das Handy am Abend sowie Wechsel-Erinnerungen für Kanüle, CGM-Sensor und Insulinreservoir mit optionaler Vorwarnung."
       },
       {
-        "title": "Berichte",
-        "text": "Eine Zusammenfassung je Zeitraum eines Zeitplans (zum Beispiel Nacht oder Schule): Minimum, Maximum, Mittelwert, Zeit im Zielbereich und die Alarme des Zeitraums."
+        "title": "Berichte und Schätzwerte",
+        "text": "Eine Zusammenfassung je Zeitraum eines Zeitplans (zum Beispiel Nacht oder Schule): Minimum, Maximum, Mittelwert, Zeit im Zielbereich und die Alarme des Zeitraums. Dazu GMI und geschätzter HbA1c aus der mittleren Glukose der letzten 90 Tage."
       },
       {
         "title": "Deine Benachrichtigungen",
@@ -39,7 +39,7 @@
       }
     ],
     "shot_device_alt": "Geräteseite der Person Alex mit Status, Alarm-Sensoren, Ereignis-Entitäten und Buttons",
-    "shot_device": "Ein Gerät pro Person: Status, je Alarm ein Zustandssensor, eine Ereignis-Entität und ein Bestätigen-Button, die Wechsel-Erinnerungen und der letzte Bericht.",
+    "shot_device": "Ein Gerät pro Person: Status, je Alarm ein Zustandssensor, eine Ereignis-Entität und ein Bestätigen-Button, die Wechsel-Erinnerungen, der letzte Bericht und die HbA1c-Schätzwerte.",
     "shot_notifications_alt": "Benachrichtigungen eines Niedrig-Alarms und eines Berichts mit den fertigen Texten",
     "shot_notifications": "Benachrichtigungen aus einer Automation des Builders mit den fertigen Texten der Integration (hier als Home-Assistant-Benachrichtigungen).",
     "secondary_title": "Bewusst nur ergänzend",
@@ -61,7 +61,7 @@
     "shot_setup_alt": "Einrichtungsdialog mit dem Hinweis, dass die Integration kein Medizinprodukt ist",
     "shot_setup": "Die Einrichtung beginnt mit dem Hinweis, der bestätigt werden muss.",
     "shot_options_alt": "Menü Konfigurieren mit einem Eintrag pro Alarm und dem Link zum Automation-Builder",
-    "shot_options": "Konfigurieren: ein Eintrag pro Alarm, die Erinnerungen, Berichte und Pause sowie der Link zum Automation-Builder.",
+    "shot_options": "Konfigurieren: ein Eintrag pro Alarm, die Erinnerungen, Berichte, GMI und geschätzter HbA1c, Pause sowie der Link zum Automation-Builder.",
     "entities_title": "Entitäten pro Person",
     "entities_head": [
       "Entität",
@@ -95,6 +95,10 @@
       [
         "Ereignis <i>Bericht</i>, Sensor <i>Letzter Bericht</i>",
         "Der Bericht jedes Zeitraums; der Sensor enthält die Zeit im Zielbereich des letzten."
+      ],
+      [
+        "Sensoren <i>GMI</i>, <i>Geschätzter HbA1c</i>",
+        "Schätzwerte in Prozent aus der mittleren Glukose des Zeitraums (Standard 90 Tage), mit dem Wert in mmol/mol als Attribut. Kein im Labor bestimmter HbA1c."
       ]
     ],
     "shot_status_alt": "Status-Sensor von Alex mit niedrigem Glukosewert",
@@ -174,6 +178,15 @@
     "report_text": "Entität <i>Bericht</i>, Ereignistyp <code>report</code>.",
     "when_title": "Wann es auslöst",
     "values_title": "Werte",
+    "estimate_title": "GMI und geschätzter HbA1c",
+    "estimate_text": "Die Sensoren <i>GMI</i> und <i>Geschätzter HbA1c</i> schätzen den HbA1c in Prozent aus der mittleren Glukose eines Zeitraums. Sie haben kein Ereignis; nutze sie in Dashboards oder als Auslöser eigener Automationen. Es sind Schätzwerte aus den Glukosedaten, kein im Labor bestimmter HbA1c.",
+    "estimate_points": [
+      "<b>GMI</b> (Glukose-Management-Indikator, Bergenstal 2018): 3,31 + 0,02392 × Mittelwert in mg/dL. <b>Geschätzter HbA1c</b> (ADAG, Nathan 2008): (Mittelwert in mg/dL + 46,7) / 28,7.",
+      "<b>Zeitraum</b>: in {menu} eine Anzahl Tage (Standard 90) oder eine Entität (Tage, oder mit einer Zeiteinheit wie <code>h</code>); die Entität hat Vorrang. Beide leer: Die Sensoren sind ausgeschaltet.",
+      "<b>Quelle</b>: die Langzeitstatistiken des Recorders (Stundenmittelwerte) des Glukosesensors. Es gibt sie nur für Sensoren mit einer Zustandsklasse (zum Beispiel <code>measurement</code>); ohne sie weist ein Reparaturhinweis darauf hin und die Sensoren sind unbekannt.",
+      "Sind weniger als 70 % des Zeitraums durch Daten abgedeckt, sind beide Sensoren unbekannt. Sie werden jede Stunde aktualisiert und wenn sich die Entität des Zeitraums ändert.",
+      "<b>Attribute</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> und <code>unit</code> (Einheit des Glukosesensors), <code>coverage</code> (Anteil des Zeitraums mit Daten in Prozent), <code>period_days</code>, <code>start</code> und <code>end</code> (ISO 8601)."
+    ],
     "ack_title": "Bestätigen und pausieren",
     "ack_points": [
       "<b>Bestätigen</b> schaltet einen Alarm für seine Schlummerzeit stumm; danach wird er erneut geprüft und startet sofort, wenn er noch zutrifft. Wer dringend niedrig bestätigt, schaltet für diese Zeit auch niedrig stumm (dringend hoch auch hoch); wer niedrig bestätigt, schaltet dringend niedrig nicht stumm. Wege: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder eine Benachrichtigungsaktion mit der ID aus <code>ack_action</code>.",

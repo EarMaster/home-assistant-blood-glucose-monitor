@@ -140,6 +140,12 @@
       },
       "last_report": {
         "default": "mdi:clipboard-text-clock"
+      },
+      "gmi": {
+        "default": "mdi:water-percent"
+      },
+      "estimated_a1c": {
+        "default": "mdi:water-percent"
       }
     },
     "switch": {
