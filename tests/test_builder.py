@@ -20,33 +20,38 @@ description: "Created with the Blood Glucose Monitor automation builder."
 mode: queued
 triggers:
   - trigger: event.received
+    id: alert
     target:
       entity_id:
         - event.alex_urgent_low_alarm
         - event.alex_low_alarm
-        - event.alex_report
     options:
       event_type:
         - urgent_low_alert
-        - urgent_low_ended
         - low_alert
+  - trigger: event.received
+    id: ended
+    target:
+      entity_id:
+        - event.alex_urgent_low_alarm
+    options:
+      event_type:
+        - urgent_low_ended
+  - trigger: event.received
+    id: notify
+    target:
+      entity_id:
+        - event.alex_report
+    options:
+      event_type:
         - report
 variables:
   event: "{{ trigger.to_state.attributes }}"
 actions:
   - choose:
       - conditions:
-          - condition: template
-            value_template: "{{ event.event_type.endswith('_ended') }}"
-        sequence:
-          - action: notify.test_phone
-            data:
-              message: clear_notification
-              data:
-                tag: "{{ event.tag }}"
-      - conditions:
-          - condition: template
-            value_template: "{{ event.event_type.endswith('_alert') }}"
+          - condition: trigger
+            id: alert
         sequence:
           - action: notify.test_phone
             data:
@@ -56,14 +61,26 @@ actions:
                 tag: "{{ event.tag }}"
                 actions:
                   - action: "{{ event.ack_action }}"
-                    title: Acknowledge
-    default:
-      - action: notify.test_phone
-        data:
-          title: "{{ event.title }}"
-          message: "{{ event.message }}"
-          data:
-            tag: "{{ event.tag }}"
+                    title: "Acknowledge"
+      - conditions:
+          - condition: trigger
+            id: ended
+        sequence:
+          - action: notify.test_phone
+            data:
+              message: clear_notification
+              data:
+                tag: "{{ event.tag }}"
+      - conditions:
+          - condition: trigger
+            id: notify
+        sequence:
+          - action: notify.test_phone
+            data:
+              title: "{{ event.title }}"
+              message: "{{ event.message }}"
+              data:
+                tag: "{{ event.tag }}"
 """
 
 

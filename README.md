@@ -189,34 +189,45 @@ Example for the Home Assistant Companion app:
 ```yaml
 triggers:
   - trigger: event.received
+    id: alert
     target:
       entity_id: event.alex_low_alarm
     options:
       event_type:
         - low_alert
+  - trigger: event.received
+    id: ended
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
         - low_ended
 variables:
   event: "{{ trigger.to_state.attributes }}"
 actions:
-  - if:
-      - condition: template
-        value_template: "{{ event.event_type.endswith('_alert') }}"
-    then:
-      - action: notify.mobile_app_your_phone
-        data:
-          title: "{{ event.title }}"
-          message: "{{ event.message }}"
-          data:
-            tag: "{{ event.tag }}"
-            actions:
-              - action: "{{ event.ack_action }}"
-                title: Acknowledge
-    else:
-      - action: notify.mobile_app_your_phone
-        data:
-          message: clear_notification
-          data:
-            tag: "{{ event.tag }}"
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: alert
+        sequence:
+          - action: notify.mobile_app_your_phone
+            data:
+              title: "{{ event.title }}"
+              message: "{{ event.message }}"
+              data:
+                tag: "{{ event.tag }}"
+                actions:
+                  - action: "{{ event.ack_action }}"
+                    title: Acknowledge
+      - conditions:
+          - condition: trigger
+            id: ended
+        sequence:
+          - action: notify.mobile_app_your_phone
+            data:
+              message: clear_notification
+              data:
+                tag: "{{ event.tag }}"
 ```
 
 ### Charging reminder
