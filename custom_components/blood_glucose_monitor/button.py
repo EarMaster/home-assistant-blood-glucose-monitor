@@ -1,4 +1,4 @@
-"""Acknowledge buttons of the Blood Glucose Monitor integration."""
+"""Buttons of the Blood Glucose Monitor integration: acknowledge, changed."""
 
 from __future__ import annotations
 
@@ -17,9 +17,19 @@ async def async_setup_entry(
     entry: BloodGlucoseMonitorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add one acknowledge button per enabled alarm."""
+    """Add one acknowledge button per enabled alarm, one changed button per
+    change reminder whose changes the integration records.
+    """
+    monitor = entry.runtime_data.monitor
     async_add_entities(
-        AcknowledgeButton(entry, alarm) for alarm in entry.runtime_data.monitor.alarms
+        [
+            *(AcknowledgeButton(entry, alarm) for alarm in monitor.alarms),
+            *(
+                ChangedButton(entry, alarm)
+                for alarm in monitor.alarms
+                if monitor.records_changes(alarm)
+            ),
+        ]
     )
 
 
@@ -38,3 +48,20 @@ class AcknowledgeButton(BloodGlucoseMonitorEntity, ButtonEntity):
     async def async_press(self) -> None:
         """Acknowledge the alarm."""
         self.monitor.async_acknowledge(self.alarm)
+
+
+class ChangedButton(BloodGlucoseMonitorEntity, ButtonEntity):
+    """Record a change (cannula, sensor or reservoir) now."""
+
+    def __init__(self, entry: BloodGlucoseMonitorConfigEntry, alarm: str) -> None:
+        """Initialize."""
+        super().__init__(entry, f"{alarm}_changed")
+        self.alarm = alarm
+        self._attr_translation_key = f"{alarm}_changed"
+
+    async def async_added_to_hass(self) -> None:
+        """Buttons have no state to follow."""
+
+    async def async_press(self) -> None:
+        """Record the change."""
+        self.monitor.async_record_change(self.alarm)

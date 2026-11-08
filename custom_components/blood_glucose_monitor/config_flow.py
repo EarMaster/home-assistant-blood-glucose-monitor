@@ -16,6 +16,8 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
     BooleanSelector,
+    DurationSelector,
+    DurationSelectorConfig,
     EntitySelector,
     EntitySelectorConfig,
     NumberSelector,
@@ -31,6 +33,7 @@ from homeassistant.util.unit_conversion import BloodGlucoseConcentrationConverte
 import probatio as vol
 
 from .const import (
+    ALARM_CANNULA_CHANGE,
     ALARM_CHARGING,
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
@@ -38,9 +41,12 @@ from .const import (
     ALARM_LOW,
     ALARM_RAPID_FALL,
     ALARM_RAPID_RISE,
+    ALARM_RESERVOIR_CHANGE,
+    ALARM_SENSOR_CHANGE,
     ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
+    CHANGE_ALARMS,
     CONF_BATTERY_ENTITY,
     CONF_BATTERY_LIMIT,
     CONF_BATTERY_LIMIT_ENTITY,
@@ -50,9 +56,11 @@ from .const import (
     CONF_DELAY,
     CONF_DETECTION,
     CONF_DISCLAIMER_ACCEPTED,
+    CONF_DUE_TIME,
     CONF_DURATION,
     CONF_GLUCOSE_ENTITY,
     CONF_GLUCOSE_UNIT,
+    CONF_LAST_CHANGE_ENTITY,
     CONF_MAX_AGE,
     CONF_NAME,
     CONF_ONLY_WHEN_HOME,
@@ -70,12 +78,16 @@ from .const import (
     CONF_TIME_ENTITY,
     CONF_TREND_ENTITY,
     CONF_TREND_LEVEL,
+    CONF_WARNING,
+    CONF_WEAR_DURATION,
+    CONF_WEAR_DURATION_ENTITY,
     DEFAULT_CLEAR_OFFSET,
     DEFAULT_PAUSE_DURATION,
     DEFAULT_RATE_LIMIT,
     DETECTION_RATE,
     DETECTIONS,
     DOMAIN,
+    DURATION_UNITS,
     RATE_ALARMS,
     RATE_UNITS,
     THRESHOLD_ALARMS,
@@ -83,7 +95,7 @@ from .const import (
     TREND_LEVELS,
 )
 from .glucose import parse_number, parse_timestamp, parse_trend
-from .monitor import AlarmMonitor
+from .monitor import AlarmMonitor, duration
 from .source import (
     MG_DL,
     async_suggest_related,
@@ -181,6 +193,25 @@ REPORT_SCHEMA = vol.Schema(
         )
     }
 )
+TIME_ENTITY_SELECTOR = EntitySelector(
+    EntitySelectorConfig(domain=["input_datetime", "time", "sensor"])
+)
+DURATION_SELECTOR = DurationSelector(DurationSelectorConfig(enable_day=True))
+CHANGE_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_WEAR_DURATION): DURATION_SELECTOR,
+        vol.Optional(CONF_WEAR_DURATION_ENTITY): THRESHOLD_SELECTOR,
+        vol.Optional(CONF_LAST_CHANGE_ENTITY): EntitySelector(
+            EntitySelectorConfig(domain=["sensor", "input_datetime", "datetime"])
+        ),
+        vol.Optional(CONF_DUE_TIME): TimeSelector(),
+        vol.Optional(CONF_TIME_ENTITY): TIME_ENTITY_SELECTOR,
+        vol.Optional(CONF_WARNING): DURATION_SELECTOR,
+        vol.Required(CONF_REPEAT): _minutes(),
+        vol.Required(CONF_SNOOZE): _minutes(1),
+        vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
+    }
+)
 CHARGING_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_BATTERY_ENTITY): SENSOR_SELECTOR,
@@ -188,9 +219,7 @@ CHARGING_SCHEMA = vol.Schema(
             EntitySelectorConfig(domain=["binary_sensor", "sensor"])
         ),
         vol.Required(CONF_REMINDER_TIME): TimeSelector(),
-        vol.Optional(CONF_TIME_ENTITY): EntitySelector(
-            EntitySelectorConfig(domain=["input_datetime", "time", "sensor"])
-        ),
+        vol.Optional(CONF_TIME_ENTITY): TIME_ENTITY_SELECTOR,
         vol.Required(CONF_BATTERY_LIMIT): NumberSelector(
             NumberSelectorConfig(
                 min=0,
@@ -239,6 +268,9 @@ ALARM_SCHEMAS = {
     ALARM_RAPID_RISE: RATE_ALARM_SCHEMA,
     ALARM_DATA_LOSS: DATA_LOSS_SCHEMA,
     ALARM_CHARGING: CHARGING_SCHEMA,
+    ALARM_CANNULA_CHANGE: CHANGE_SCHEMA,
+    ALARM_SENSOR_CHANGE: CHANGE_SCHEMA,
+    ALARM_RESERVOIR_CHANGE: CHANGE_SCHEMA,
 }
 
 OPTION_KEYS = (
@@ -463,6 +495,29 @@ def _validate_charging(
     return errors
 
 
+def _validate_change(hass: HomeAssistant, values: Mapping[str, Any]) -> dict[str, str]:
+    """Return form errors of a change reminder."""
+    errors: dict[str, str] = {}
+    wear_entity = values.get(CONF_WEAR_DURATION_ENTITY)
+    if wear_entity:
+        if _unparsable(hass, wear_entity, parse_number):
+            errors[CONF_WEAR_DURATION_ENTITY] = "not_numeric"
+        # Nothing is guessed: the entity has to report a time unit.
+        elif sensor_unit(hass, wear_entity) not in DURATION_UNITS:
+            errors[CONF_WEAR_DURATION_ENTITY] = "duration_unit_required"
+    if (last_change := values.get(CONF_LAST_CHANGE_ENTITY)) and _unparsable(
+        hass, last_change, AlarmMonitor.datetime_from_state
+    ):
+        errors[CONF_LAST_CHANGE_ENTITY] = "invalid_datetime"
+    if last_change and not wear_entity and not duration(values.get(CONF_WEAR_DURATION)):
+        errors[CONF_WEAR_DURATION] = "wear_duration_required"
+    if (time_entity := values.get(CONF_TIME_ENTITY)) and _unparsable(
+        hass, time_entity, AlarmMonitor.time_from_state
+    ):
+        errors[CONF_TIME_ENTITY] = "invalid_time"
+    return errors
+
+
 def _suggest_phone(hass: HomeAssistant, person: str | None) -> dict[str, str]:
     """Suggest battery and charging sensors of the person's phone.
 
@@ -618,6 +673,24 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Configure the charging reminder."""
         return await self._async_alarm_step(ALARM_CHARGING, user_input)
 
+    async def async_step_cannula_change(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the cannula change reminder."""
+        return await self._async_alarm_step(ALARM_CANNULA_CHANGE, user_input)
+
+    async def async_step_sensor_change(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the sensor change reminder."""
+        return await self._async_alarm_step(ALARM_SENSOR_CHANGE, user_input)
+
+    async def async_step_reservoir_change(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the reservoir change reminder."""
+        return await self._async_alarm_step(ALARM_RESERVOIR_CHANGE, user_input)
+
     async def async_step_report(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -674,6 +747,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                 )
             if alarm == ALARM_CHARGING:
                 errors |= _validate_charging(self.hass, values)
+            if alarm in CHANGE_ALARMS:
+                errors |= _validate_change(self.hass, values)
             if values.get(CONF_DETECTION) == DETECTION_RATE:
                 errors |= _validate_rate(self.hass, values)
             if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):

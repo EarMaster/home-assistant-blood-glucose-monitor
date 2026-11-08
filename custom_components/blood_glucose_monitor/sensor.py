@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
@@ -11,6 +12,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import BloodGlucoseMonitorConfigEntry
 from .alarm import AlarmState
+from .const import ALARMS_WITHOUT_GLUCOSE, CHANGE_ALARMS
 from .entity import BloodGlucoseMonitorEntity
 from .monitor import STATUSES
 
@@ -22,14 +24,19 @@ async def async_setup_entry(
     entry: BloodGlucoseMonitorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add the status sensor and one state sensor per active alarm."""
+    """Add the status sensor, one state sensor per active alarm and one due
+    sensor per active change reminder.
+    """
+    monitor = entry.runtime_data.monitor
     async_add_entities(
         [
             StatusSensor(entry),
-            *([LastReportSensor(entry)] if entry.runtime_data.monitor.report else []),
+            *([LastReportSensor(entry)] if monitor.report else []),
+            *(AlarmStateSensor(entry, alarm) for alarm in monitor.alarms),
             *(
-                AlarmStateSensor(entry, alarm)
-                for alarm in entry.runtime_data.monitor.alarms
+                DueSensor(entry, alarm)
+                for alarm in monitor.alarms
+                if alarm in CHANGE_ALARMS
             ),
         ]
     )
@@ -102,10 +109,37 @@ class AlarmStateSensor(BloodGlucoseMonitorEntity, SensorEntity):
 
     @property
     def available(self) -> bool:
-        """Without a reading time no alarms are possible."""
-        return self.monitor.reading_time_known
+        """Without a reading time no glucose alarms are possible."""
+        return self.alarm in ALARMS_WITHOUT_GLUCOSE or self.monitor.reading_time_known
 
     @property
     def native_value(self) -> str:
         """Return the alarm state."""
         return self.monitor.state(self.alarm).value
+
+
+class DueSensor(BloodGlucoseMonitorEntity, SensorEntity):
+    """When a change (cannula, sensor or reservoir) is due."""
+
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+
+    def __init__(self, entry: BloodGlucoseMonitorConfigEntry, alarm: str) -> None:
+        """Initialize."""
+        super().__init__(entry, f"{alarm}_due")
+        self.alarm = alarm
+        self._attr_translation_key = f"{alarm}_due"
+
+    @property
+    def native_value(self) -> datetime | None:
+        """Return the due time."""
+        return self.monitor.due(self.alarm)
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the last change and the wear duration."""
+        last = self.monitor.last_change(self.alarm)
+        wear = self.monitor.wear_duration(self.alarm)
+        return {
+            "last_change": None if last is None else last.isoformat(),
+            "wear_duration_h": None if wear is None else wear.total_seconds() / 3600,
+        }

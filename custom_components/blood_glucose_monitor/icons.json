@@ -24,6 +24,24 @@
       },
       "acknowledge_charging": {
         "default": "mdi:bell-check"
+      },
+      "acknowledge_cannula_change": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_sensor_change": {
+        "default": "mdi:bell-check"
+      },
+      "acknowledge_reservoir_change": {
+        "default": "mdi:bell-check"
+      },
+      "cannula_change_changed": {
+        "default": "mdi:check-circle-outline"
+      },
+      "sensor_change_changed": {
+        "default": "mdi:check-circle-outline"
+      },
+      "reservoir_change_changed": {
+        "default": "mdi:check-circle-outline"
       }
     },
     "event": {
@@ -101,6 +119,36 @@
           "snoozed": "mdi:bell-sleep"
         }
       },
+      "cannula_change_alarm": {
+        "default": "mdi:needle",
+        "state": {
+          "idle": "mdi:check-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "sensor_change_alarm": {
+        "default": "mdi:access-point",
+        "state": {
+          "idle": "mdi:check-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "reservoir_change_alarm": {
+        "default": "mdi:test-tube",
+        "state": {
+          "idle": "mdi:check-circle-outline",
+          "snoozed": "mdi:bell-sleep"
+        }
+      },
+      "cannula_change_due": {
+        "default": "mdi:calendar-clock"
+      },
+      "sensor_change_due": {
+        "default": "mdi:calendar-clock"
+      },
+      "reservoir_change_due": {
+        "default": "mdi:calendar-clock"
+      },
       "last_report": {
         "default": "mdi:clipboard-text-clock"
       }
@@ -117,6 +165,9 @@
   "services": {
     "acknowledge": {
       "service": "mdi:bell-check"
+    },
+    "record_change": {
+      "service": "mdi:calendar-check"
     }
   }
 }

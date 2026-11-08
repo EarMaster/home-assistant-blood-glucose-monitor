@@ -56,6 +56,33 @@ async def test_triggers_of_enabled_alarms(
     assert await device_trigger.async_get_triggers(hass, "unknown") == []
 
 
+async def test_change_triggers(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """Change reminders with a warning also offer the "due soon" trigger."""
+    wear = {"days": 3}
+    _, device_id = await setup_scenario(
+        hass,
+        freezer,
+        cannula_change={"wear_duration": wear, "warning": {"hours": 12}},
+        sensor_change={"wear_duration": wear},
+        reservoir_change={"wear_duration": {"days": 0}},
+    )
+    triggers = await async_get_device_automations(
+        hass, DeviceAutomationType.TRIGGER, [device_id]
+    )
+    types = {trigger["type"] for trigger in triggers[device_id]}
+    assert {
+        "cannula_change_alert",
+        "cannula_change_ended",
+        "cannula_change_soon",
+        "sensor_change_alert",
+        "sensor_change_ended",
+    } <= types
+    assert "sensor_change_soon" not in types
+    assert not any(t.startswith("reservoir_change") for t in types)
+
+
 async def test_automation_with_triggers(
     hass: HomeAssistant, freezer: FrozenDateTimeFactory
 ) -> None:

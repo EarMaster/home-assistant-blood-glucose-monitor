@@ -765,6 +765,104 @@ async def test_charging_options(
         assert config_entry.options["charging"] == user_input
 
 
+CHANGE_INPUT = {
+    "wear_duration": {"days": 3, "hours": 0, "minutes": 0, "seconds": 0},
+    "repeat": 0,
+    "snooze": 60,
+    "only_when_home": False,
+}
+CHANGE_TIMING = {"repeat": 0, "snooze": 60, "only_when_home": False}
+
+
+@pytest.mark.parametrize(
+    ("user_input", "states", "errors"),
+    [
+        (CHANGE_INPUT, {}, {}),
+        (
+            {**CHANGE_TIMING, "last_change_entity": "sensor.last"},
+            {"sensor.last": ("2026-11-06T08:00:00+00:00", None)},
+            {"wear_duration": "wear_duration_required"},
+        ),
+        (
+            {
+                **CHANGE_TIMING,
+                "wear_duration_entity": "input_number.wear",
+                "last_change_entity": "sensor.last",
+                "time_entity": "input_datetime.time",
+            },
+            {
+                "input_number.wear": ("3", None),
+                "sensor.last": ("yesterday", None),
+                "input_datetime.time": ("evening", None),
+            },
+            {
+                "wear_duration_entity": "duration_unit_required",
+                "last_change_entity": "invalid_datetime",
+                "time_entity": "invalid_time",
+            },
+        ),
+        (
+            {**CHANGE_TIMING, "wear_duration_entity": "input_number.wear"},
+            {"input_number.wear": ("many", "d")},
+            {"wear_duration_entity": "not_numeric"},
+        ),
+        (
+            {
+                **CHANGE_INPUT,
+                "wear_duration_entity": "input_number.wear",
+                "last_change_entity": "input_datetime.last",
+                "due_time": "18:00:00",
+                "time_entity": "input_datetime.time",
+                "warning": {"hours": 12},
+            },
+            {
+                "input_number.wear": ("72", "h"),
+                "input_datetime.last": ("2026-11-06 08:00:00", None),
+                "input_datetime.time": ("18:00:00", None),
+            },
+            {},
+        ),
+    ],
+)
+@pytest.mark.usefixtures("glucose_state")
+async def test_change_options(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    user_input: dict[str, Any],
+    states: dict[str, tuple[str, str | None]],
+    errors: dict[str, str],
+) -> None:
+    """The change reminder settings are checked."""
+    for entity_id, (state, unit) in states.items():
+        hass.states.async_set(
+            entity_id, state, {"unit_of_measurement": unit} if unit else {}
+        )
+    result = await open_options_step(hass, config_entry, "cannula_change")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
+    )
+    if errors:
+        assert result["errors"] == errors
+    else:
+        assert result["type"] is FlowResultType.CREATE_ENTRY
+        await hass.async_block_till_done()
+        assert config_entry.options["cannula_change"] == user_input
+
+
+@pytest.mark.parametrize(
+    "step", ["cannula_change", "sensor_change", "reservoir_change"]
+)
+@pytest.mark.usefixtures("glucose_state")
+async def test_change_steps_open(
+    hass: HomeAssistant, config_entry: MockConfigEntry, step: str
+) -> None:
+    """The change reminder steps open without a wear duration (off)."""
+    result = await open_options_step(hass, config_entry, step)
+    suggested = suggested_values(result)
+    assert suggested["snooze"] == 60
+    assert "wear_duration" not in suggested
+
+
 @pytest.mark.usefixtures("glucose_state")
 async def test_report_options(
     hass: HomeAssistant, config_entry: MockConfigEntry

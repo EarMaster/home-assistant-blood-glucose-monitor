@@ -68,6 +68,9 @@
           "rapid_rise": "Alarm schnell steigend",
           "data_loss": "Alarm Datenausfall",
           "charging": "Lade-Erinnerung",
+          "cannula_change": "Kanülenwechsel",
+          "sensor_change": "Sensorwechsel",
+          "reservoir_change": "Reservoirwechsel",
           "report": "Berichte",
           "pause": "Pause"
         }
@@ -264,6 +267,84 @@
           "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter."
         }
       },
+      "cannula_change": {
+        "title": "Kanülenwechsel",
+        "description": "Erinnerung, wenn der Kanülenwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Kanüle gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase`.",
+        "data": {
+          "wear_duration": "Tragedauer",
+          "wear_duration_entity": "Entität mit der Tragedauer",
+          "last_change_entity": "Entität mit dem letzten Wechsel",
+          "due_time": "Feste Uhrzeit",
+          "time_entity": "Entität mit der festen Uhrzeit",
+          "warning": "Vorwarnung",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist"
+        },
+        "data_description": {
+          "wear_duration": "Wie lange die Kanüle getragen wird. Leer lassen, um die Erinnerung auszuschalten.",
+          "wear_duration_entity": "Optional. Entität mit der Tragedauer in d, h oder min; hat Vorrang vor dem Feld.",
+          "last_change_entity": "Optional. Entität mit dem Zeitpunkt des letzten Wechsels. Ohne sie werden Wechsel mit dem Button oder der Aktion erfasst.",
+          "due_time": "Optional. Am Tag der Fälligkeit zu dieser Uhrzeit erinnern statt genau am Ende der Tragedauer.",
+          "time_entity": "Optional. Entität mit der festen Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
+          "warning": "Optional. Löst so lange vor der Erinnerung den Auslöser „bald fällig“ aus.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange eine bestätigte Erinnerung still bleibt. Danach startet sie erneut, wenn der Wechsel noch fällig ist.",
+          "only_when_home": "Neue Erinnerungen und Vorwarnungen starten nur, während die Person zu Hause ist. Eine laufende Erinnerung läuft weiter."
+        }
+      },
+      "sensor_change": {
+        "title": "Sensorwechsel",
+        "description": "Erinnerung, wenn der Sensorwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Sensor gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase`.",
+        "data": {
+          "wear_duration": "Tragedauer",
+          "wear_duration_entity": "Entität mit der Tragedauer",
+          "last_change_entity": "Entität mit dem letzten Wechsel",
+          "due_time": "Feste Uhrzeit",
+          "time_entity": "Entität mit der festen Uhrzeit",
+          "warning": "Vorwarnung",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist"
+        },
+        "data_description": {
+          "wear_duration": "Wie lange der Sensor getragen wird. Leer lassen, um die Erinnerung auszuschalten.",
+          "wear_duration_entity": "Optional. Entität mit der Tragedauer in d, h oder min; hat Vorrang vor dem Feld.",
+          "last_change_entity": "Optional. Entität mit dem Zeitpunkt des letzten Wechsels. Ohne sie werden Wechsel mit dem Button oder der Aktion erfasst.",
+          "due_time": "Optional. Am Tag der Fälligkeit zu dieser Uhrzeit erinnern statt genau am Ende der Tragedauer.",
+          "time_entity": "Optional. Entität mit der festen Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
+          "warning": "Optional. Löst so lange vor der Erinnerung den Auslöser „bald fällig“ aus.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange eine bestätigte Erinnerung still bleibt. Danach startet sie erneut, wenn der Wechsel noch fällig ist.",
+          "only_when_home": "Neue Erinnerungen und Vorwarnungen starten nur, während die Person zu Hause ist. Eine laufende Erinnerung läuft weiter."
+        }
+      },
+      "reservoir_change": {
+        "title": "Reservoirwechsel",
+        "description": "Erinnerung, wenn der Reservoirwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Reservoir gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase`.",
+        "data": {
+          "wear_duration": "Tragedauer",
+          "wear_duration_entity": "Entität mit der Tragedauer",
+          "last_change_entity": "Entität mit dem letzten Wechsel",
+          "due_time": "Feste Uhrzeit",
+          "time_entity": "Entität mit der festen Uhrzeit",
+          "warning": "Vorwarnung",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist"
+        },
+        "data_description": {
+          "wear_duration": "Wie lange das Reservoir getragen wird. Leer lassen, um die Erinnerung auszuschalten.",
+          "wear_duration_entity": "Optional. Entität mit der Tragedauer in d, h oder min; hat Vorrang vor dem Feld.",
+          "last_change_entity": "Optional. Entität mit dem Zeitpunkt des letzten Wechsels. Ohne sie werden Wechsel mit dem Button oder der Aktion erfasst.",
+          "due_time": "Optional. Am Tag der Fälligkeit zu dieser Uhrzeit erinnern statt genau am Ende der Tragedauer.",
+          "time_entity": "Optional. Entität mit der festen Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
+          "warning": "Optional. Löst so lange vor der Erinnerung den Auslöser „bald fällig“ aus.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange eine bestätigte Erinnerung still bleibt. Danach startet sie erneut, wenn der Wechsel noch fällig ist.",
+          "only_when_home": "Neue Erinnerungen und Vorwarnungen starten nur, während die Person zu Hause ist. Eine laufende Erinnerung läuft weiter."
+        }
+      },
       "report": {
         "title": "Berichte",
         "description": "Ein Bericht je Zeitraum, in dem die gewählte Entität an ist, zum Beispiel je Abschnitt eines Zeitplans. Endet ein Zeitraum, feuert der Auslöser „Bericht“ am Gerät dieser Person mit der Statistik, dem Beginn und dem Ende des Zeitraums, und der Sensor „Letzter Bericht“ wird aktualisiert. Die Statistik stammt aus dem Verlauf (Recorder).",
@@ -295,7 +376,10 @@
       "charging_entities_required": "Wähle den Akku- und den Lade-Sensor oder keinen von beiden.",
       "unknown_charging_state": "Der aktuelle Zustand dieser Entität gibt nicht an, ob das Handy lädt.",
       "invalid_time": "Der aktuelle Wert dieser Entität ist keine Uhrzeit.",
-      "not_on_off": "Diese Entität muss an oder aus sein."
+      "not_on_off": "Diese Entität muss an oder aus sein.",
+      "invalid_datetime": "Der aktuelle Wert dieser Entität ist kein Datum mit Uhrzeit.",
+      "duration_unit_required": "Diese Entität muss die Einheit d, h oder min haben.",
+      "wear_duration_required": "Gib eine Tragedauer ein oder wähle eine Entität."
     }
   },
   "entity": {
@@ -323,6 +407,24 @@
       },
       "acknowledge_charging": {
         "name": "Lade-Erinnerung bestätigen"
+      },
+      "acknowledge_cannula_change": {
+        "name": "Erinnerung Kanülenwechsel bestätigen"
+      },
+      "acknowledge_sensor_change": {
+        "name": "Erinnerung Sensorwechsel bestätigen"
+      },
+      "acknowledge_reservoir_change": {
+        "name": "Erinnerung Reservoirwechsel bestätigen"
+      },
+      "cannula_change_changed": {
+        "name": "Kanüle gewechselt"
+      },
+      "sensor_change_changed": {
+        "name": "Sensor gewechselt"
+      },
+      "reservoir_change_changed": {
+        "name": "Reservoir gewechselt"
       }
     },
     "event": {
@@ -362,7 +464,19 @@
               "charging_triggered": "Laden: Alarm",
               "charging_repeat": "Laden: Wiederholung",
               "charging_acknowledged": "Laden: bestätigt",
-              "charging_resolved": "Laden: vorbei"
+              "charging_resolved": "Laden: vorbei",
+              "cannula_change_triggered": "Kanülenwechsel: Erinnerung",
+              "cannula_change_repeat": "Kanülenwechsel: Wiederholung",
+              "cannula_change_acknowledged": "Kanülenwechsel: bestätigt",
+              "cannula_change_resolved": "Kanülenwechsel: erledigt",
+              "sensor_change_triggered": "Sensorwechsel: Erinnerung",
+              "sensor_change_repeat": "Sensorwechsel: Wiederholung",
+              "sensor_change_acknowledged": "Sensorwechsel: bestätigt",
+              "sensor_change_resolved": "Sensorwechsel: erledigt",
+              "reservoir_change_triggered": "Reservoirwechsel: Erinnerung",
+              "reservoir_change_repeat": "Reservoirwechsel: Wiederholung",
+              "reservoir_change_acknowledged": "Reservoirwechsel: bestätigt",
+              "reservoir_change_resolved": "Reservoirwechsel: erledigt"
             }
           }
         }
@@ -478,6 +592,66 @@
           "snoozed": "Schlummert"
         }
       },
+      "cannula_change_alarm": {
+        "name": "Erinnerung Kanülenwechsel",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Erinnerung Sensorwechsel",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Erinnerung Reservoirwechsel",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      },
+      "cannula_change_due": {
+        "name": "Kanülenwechsel fällig",
+        "state_attributes": {
+          "last_change": {
+            "name": "Letzter Wechsel"
+          },
+          "wear_duration_h": {
+            "name": "Tragedauer"
+          }
+        }
+      },
+      "sensor_change_due": {
+        "name": "Sensorwechsel fällig",
+        "state_attributes": {
+          "last_change": {
+            "name": "Letzter Wechsel"
+          },
+          "wear_duration_h": {
+            "name": "Tragedauer"
+          }
+        }
+      },
+      "reservoir_change_due": {
+        "name": "Reservoirwechsel fällig",
+        "state_attributes": {
+          "last_change": {
+            "name": "Letzter Wechsel"
+          },
+          "wear_duration_h": {
+            "name": "Tragedauer"
+          }
+        }
+      },
       "last_report": {
         "name": "Letzter Bericht",
         "state_attributes": {
@@ -538,6 +712,15 @@
     },
     "entry_not_loaded": {
       "message": "Der Eintrag {name} ist nicht geladen."
+    },
+    "change_not_enabled": {
+      "message": "Diese Wechsel-Erinnerung von {name} hat keine Tragedauer."
+    },
+    "change_from_entity": {
+      "message": "Der letzte Wechsel dieser Erinnerung von {name} kommt aus einer Entität und kann nicht erfasst werden."
+    },
+    "change_in_future": {
+      "message": "Der Wechsel kann nicht in der Zukunft liegen."
     }
   },
   "issues": {
@@ -556,7 +739,17 @@
         "urgent_high": "Sehr hoch",
         "rapid_fall": "Schnell fallend",
         "rapid_rise": "Schnell steigend",
-        "charging": "Lade-Erinnerung"
+        "charging": "Lade-Erinnerung",
+        "cannula_change": "Kanülenwechsel",
+        "sensor_change": "Sensorwechsel",
+        "reservoir_change": "Reservoirwechsel"
+      }
+    },
+    "change": {
+      "options": {
+        "cannula_change": "Kanüle",
+        "sensor_change": "Sensor",
+        "reservoir_change": "Reservoir"
       }
     },
     "alarm_text": {
@@ -576,7 +769,15 @@
         "report": "{name}: Bericht",
         "report_message": "{period}: {in_range} % im Zielbereich, {below} % darunter, {above} % darüber. Mittelwert {mean} {unit} ({min}–{max}). Unterzucker-Alarme: {low_alarms}.",
         "report_message_no_range": "{period}: Mittelwert {mean} {unit} ({min}–{max}). Unterzucker-Alarme: {low_alarms}.",
-        "report_no_data": "{period}: keine Glukosedaten."
+        "report_no_data": "{period}: keine Glukosedaten.",
+        "cannula_change": "{name}: Kanüle wechseln",
+        "cannula_change_soon": "{name}: Kanülenwechsel bald fällig",
+        "sensor_change": "{name}: Sensor wechseln",
+        "sensor_change_soon": "{name}: Sensorwechsel bald fällig",
+        "reservoir_change": "{name}: Reservoir wechseln",
+        "reservoir_change_soon": "{name}: Reservoirwechsel bald fällig",
+        "change_message": "Seit {duration} getragen.",
+        "change_soon_message": "Fällig in {duration}."
       }
     },
     "detection": {
@@ -607,6 +808,24 @@
           "description": "Leer lassen, um alle Alarme der Person zu bestätigen."
         }
       }
+    },
+    "record_change": {
+      "name": "Wechsel erfassen",
+      "description": "Erfasst einen Wechsel von Kanüle, Sensor oder Reservoir einer Person, jetzt oder zum angegebenen Zeitpunkt. Nicht möglich, wenn der letzte Wechsel aus einer Entität kommt.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Person",
+          "description": "Der Eintrag der Person."
+        },
+        "change": {
+          "name": "Wechsel",
+          "description": "Was gewechselt wurde."
+        },
+        "time": {
+          "name": "Zeitpunkt",
+          "description": "Optional. Leer lassen für jetzt."
+        }
+      }
     }
   },
   "device_automation": {
@@ -627,6 +846,15 @@
       "rapid_rise_ended": "Alarm schnell steigend bestätigt oder vorbei",
       "charging_alert": "Lade-Erinnerung ausgelöst oder wiederholt",
       "charging_ended": "Lade-Erinnerung bestätigt oder vorbei",
+      "cannula_change_alert": "Erinnerung Kanülenwechsel ausgelöst oder wiederholt",
+      "cannula_change_ended": "Erinnerung Kanülenwechsel bestätigt oder vorbei",
+      "cannula_change_soon": "Kanülenwechsel bald fällig",
+      "sensor_change_alert": "Erinnerung Sensorwechsel ausgelöst oder wiederholt",
+      "sensor_change_ended": "Erinnerung Sensorwechsel bestätigt oder vorbei",
+      "sensor_change_soon": "Sensorwechsel bald fällig",
+      "reservoir_change_alert": "Erinnerung Reservoirwechsel ausgelöst oder wiederholt",
+      "reservoir_change_ended": "Erinnerung Reservoirwechsel bestätigt oder vorbei",
+      "reservoir_change_soon": "Reservoirwechsel bald fällig",
       "report": "Bericht"
     }
   }

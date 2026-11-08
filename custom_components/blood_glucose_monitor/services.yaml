@@ -19,3 +19,26 @@ acknowledge:
             - rapid_rise
             - data_loss
             - charging
+            - cannula_change
+            - sensor_change
+            - reservoir_change
+record_change:
+  fields:
+    config_entry_id:
+      required: true
+      selector:
+        config_entry:
+          integration: blood_glucose_monitor
+    change:
+      required: true
+      selector:
+        select:
+          translation_key: change
+          options:
+            - cannula_change
+            - sensor_change
+            - reservoir_change
+    time:
+      required: false
+      selector:
+        datetime:

@@ -51,6 +51,15 @@ ALARM_RAPID_RISE: Final = "rapid_rise"
 ALARM_DATA_LOSS: Final = "data_loss"
 # Reminder to charge the phone, built on the alarm engine.
 ALARM_CHARGING: Final = "charging"
+# Reminders to change the cannula, the CGM sensor and the insulin reservoir.
+ALARM_CANNULA_CHANGE: Final = "cannula_change"
+ALARM_SENSOR_CHANGE: Final = "sensor_change"
+ALARM_RESERVOIR_CHANGE: Final = "reservoir_change"
+CHANGE_ALARMS: Final = (
+    ALARM_CANNULA_CHANGE,
+    ALARM_SENSOR_CHANGE,
+    ALARM_RESERVOIR_CHANGE,
+)
 ALARMS: Final = (
     ALARM_URGENT_LOW,
     ALARM_LOW,
@@ -60,7 +69,10 @@ ALARMS: Final = (
     ALARM_RAPID_RISE,
     ALARM_DATA_LOSS,
     ALARM_CHARGING,
+    *CHANGE_ALARMS,
 )
+# Alarms that do not depend on the glucose data (and its reading time).
+ALARMS_WITHOUT_GLUCOSE: Final = (ALARM_CHARGING, *CHANGE_ALARMS)
 # Alarm below / above a threshold entity.
 LOW_ALARMS: Final = (ALARM_URGENT_LOW, ALARM_LOW)
 HIGH_ALARMS: Final = (ALARM_HIGH, ALARM_URGENT_HIGH)
@@ -113,6 +125,22 @@ NOT_CHARGING_STATES: Final = (
     "unplugged",
 )
 
+# Change reminders: due at the last change plus the wear duration, or at a
+# fixed time on that day. The last change comes from an entity or is
+# recorded by the integration (button, action).
+CONF_WEAR_DURATION: Final = "wear_duration"
+CONF_WEAR_DURATION_ENTITY: Final = "wear_duration_entity"
+CONF_LAST_CHANGE_ENTITY: Final = "last_change_entity"
+CONF_DUE_TIME: Final = "due_time"
+CONF_WARNING: Final = "warning"
+# Units of a wear duration entity in minutes.
+DURATION_UNITS: Final = {"d": 1440, "h": 60, "min": 1}
+TRIGGER_SOON: Final = "soon"
+"""Change due soon (warning before the reminder)."""
+SERVICE_RECORD_CHANGE: Final = "record_change"
+ATTR_CHANGE: Final = "change"
+ATTR_TIME: Final = "time"
+
 # Reports: one report per period in which the report entity (e.g. a schedule)
 # is on. Options dict under this key.
 CONF_REPORT: Final = "report"
@@ -150,6 +178,7 @@ ALARM_DEFAULTS: Final[dict[str, dict[str, int | str]]] = {
         CONF_REPEAT: 0,
         CONF_SNOOZE: 30,
     },
+    **{alarm: {CONF_REPEAT: 0, CONF_SNOOZE: 60} for alarm in CHANGE_ALARMS},
 }
 DEFAULT_PAUSE_DURATION: Final = 60
 # Clear offset suggested per glucose unit.
