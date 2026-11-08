@@ -33,7 +33,7 @@ jobs:
       - name: Start Home Assistant
         run: |
           mkdir -p "$RUNNER_TEMP/ha/custom_components"
-          cp scripts/screenshots/configuration.yaml "$RUNNER_TEMP/ha/"
+          cp scripts/screenshots/configuration.yaml scripts/screenshots/automations.yaml "$RUNNER_TEMP/ha/"
           cp -r custom_components/blood_glucose_monitor "$RUNNER_TEMP/ha/custom_components/"
           docker run -d --name homeassistant -p 8123:8123 -e TZ=Europe/Berlin \
             -v "$RUNNER_TEMP/ha:/config" ghcr.io/home-assistant/home-assistant:stable

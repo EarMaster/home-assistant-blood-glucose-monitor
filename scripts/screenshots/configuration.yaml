@@ -12,6 +12,8 @@ homeassistant:
 
 default_config:
 
+automation: !include automations.yaml
+
 logger:
   default: warning
   logs:

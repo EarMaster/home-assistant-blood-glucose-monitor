@@ -43,7 +43,9 @@ def async_update_device_link(
 ) -> None:
     """Link the device page of the person to the automation builder."""
     registry = dr.async_get(hass)
-    device = registry.async_get_device(identifiers={(DOMAIN, entry.entry_id)})
+    device = registry.async_get_device_by_identifier(
+        (DOMAIN, entry.entry_id), entry.entry_id
+    )
     if device is not None:
         registry.async_update_device(
             device.id, configuration_url=builder_url(hass, entry)

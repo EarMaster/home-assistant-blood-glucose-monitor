@@ -331,6 +331,10 @@ async def set_up(ha: HomeAssistant) -> dict[str, str]:
     await ha.call("input_boolean", "turn_off", entity_id="input_boolean.alex_night")
     await asyncio.sleep(5)
 
+    triggered = await ha.template(
+        "{{ state_attr('automation.blood_glucose_notifications_alex', 'last_triggered') }}"
+    )
+    print(f"Automation last triggered: {triggered}")
     device_id = await ha.template("{{ device_id('sensor.alex_status') }}")
     return {"entry_id": entry_id, "device_id": device_id.strip()}
 
@@ -386,20 +390,25 @@ async def screenshots(
         await log_in(page, ha)
 
         async def device() -> None:
+            # Taller, so the sensors and events of the device are visible.
+            await page.set_viewport_size({"width": 1280, "height": 1500})
             await page.goto(f"{URL}/config/devices/device/{ids['device_id']}")
             await page.get_by_text("Low alarm").first.wait_for()
             await settle(page)
             await shoot(page, out, "device")
+            await page.set_viewport_size({"width": 1280, "height": 860})
 
         async def status() -> None:
-            await page.goto(f"{URL}/lovelace/0?more-info-entity-id=sensor.alex_status")
+            await page.goto(f"{URL}/?more-info-entity-id=sensor.alex_status")
+            await page.locator("ha-more-info-dialog").first.wait_for()
             await settle(page)
             await shoot(page, out, "status")
+            await page.keyboard.press("Escape")
 
         async def automation() -> None:
             await page.goto(f"{URL}/config/automation/edit/{AUTOMATION_ID}")
-            await page.get_by_text("Blood glucose notifications: Alex").first.wait_for()
-            await settle(page)
+            await page.get_by_text("Event received").first.click()
+            await settle(page, 2)
             await shoot(page, out, "automation")
 
         async def options() -> None:
@@ -413,6 +422,8 @@ async def screenshots(
 
         async def setup() -> None:
             await page.goto(f"{URL}/config/integrations/dashboard/add?domain={DOMAIN}")
+            # Confirm "Do you want to set up …?", then the notice step opens.
+            await page.get_by_role("button", name="OK").first.click()
             await page.get_by_text("not a medical device").first.wait_for()
             await settle(page, 2)
             await shoot(page, out, "setup")
@@ -421,7 +432,7 @@ async def screenshots(
         async def notifications() -> None:
             await page.goto(f"{URL}/config/dashboard")
             await settle(page)
-            await page.get_by_role("button", name="Notifications").first.click()
+            await page.get_by_text("Notifications", exact=True).first.click()
             await settle(page, 2)
             await shoot(page, out, "notifications")
             await page.keyboard.press("Escape")
