@@ -122,7 +122,9 @@
     "manual_note": "Tip: open the builder from Home Assistant (device page of the person → <b>Visit</b>, or <b>Configure</b> of the entry) to get the right entity IDs. Here they are guessed from the name; check them under <b>Settings → Devices &amp; services → Entities</b>.",
     "person": "Person",
     "notify": "Notify action",
-    "notify_hint": "The notify action of the phone, for example <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools → Actions</b>). Several, separated by commas.",
+    "notify_hint": "The notify action of the phone, for example <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools → Actions</b>). Several, separated by commas. Empty: <code>notify.notify</code>.",
+    "channel": "Notification channel",
+    "channel_hint": "Android notification channel, so the sound and importance can be set per channel in the Companion app. Empty: the name of the person.",
     "ack": "Acknowledge button in alarm notifications",
     "events_title": "Events",
     "events_hint": "Started or repeated → notification. Acknowledged or over → the notification is removed again.",
@@ -130,7 +132,7 @@
     "copy": "Copy YAML",
     "paste_hint": "In Home Assistant: <b>Settings → Automations &amp; scenes → Create automation → Create new automation</b>, then <b>⋮ → Edit in YAML</b>, paste and save.",
     "shot_automation_alt": "Automation editor with the trigger Event received on the low alarm and the report",
-    "shot_automation": "The result in the automation editor: the trigger <i>Event received</i> with the selected event types.",
+    "shot_automation": "The result in the automation editor: one trigger <i>Event received</i> per selected event.",
     "requirements_title": "When it fires"
   },
   "docs": {
@@ -257,6 +259,7 @@
       "person_name": "Name of the entry (the person).",
       "entry_id": "ID of the config entry, for the actions of the integration.",
       "tag": "Notification tag, unique per person and alarm. Use it to replace and clear the notification.",
+      "icon": "Icon of the alarm (Material Design Icons), for example <code>mdi:arrow-down-circle</code>; the builder uses it as notification icon.",
       "ack_action": "Mobile app notification action that acknowledges this alarm.",
       "battery": "Battery level of the phone in percent.",
       "last_change": "Time of the last change (ISO 8601).",
@@ -279,6 +282,7 @@
       "alarms": "Number of alarms that started in the period, per alarm.",
       "low_alarms": "Number of low and urgent low alarms in the period.",
       "tag": "Notification tag, unique per person, so a new report replaces the last one.",
+      "icon": "Icon of the report: <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Name of the entry (the person).",
       "entry_id": "ID of the config entry."
     }

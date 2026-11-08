@@ -15,6 +15,8 @@
 <p>{{ d.values_text }}</p>
 {% raw %}<pre><code>triggers:
   - trigger: event.received
+    alias: Low alarm started or repeated
+    id: low_alert
     target:
       entity_id: event.alex_low_alarm
     options:
@@ -23,10 +25,14 @@
 variables:
   event: "{{ trigger.to_state.attributes }}"
 actions:
-  - action: notify.mobile_app_your_phone
+  - action: notify.notify
     data:
       title: "{{ event.title }}"
-      message: "{{ event.message }}"</code></pre>{% endraw %}
+      message: "{{ event.message }}"
+      data:
+        tag: "{{ event.tag }}"
+        notification_icon: "{{ event.icon }}"
+        importance: high</code></pre>{% endraw %}
 {% include screenshot.html file="automation.png" alt=d.shot_automation_alt caption=d.shot_automation %}
 <p>{{ d.sensors_text }}</p>
 

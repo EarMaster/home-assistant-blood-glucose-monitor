@@ -122,7 +122,9 @@
     "manual_note": "Tip: open de bouwer vanuit Home Assistant (apparaatpagina van de persoon → <b>Bezoeken</b>, of <b>Configureren</b> van het item), dan kloppen de entiteit-ID's. Hier worden ze afgeleid uit de naam; controleer ze onder <b>Instellingen → Apparaten &amp; diensten → Entiteiten</b>.",
     "person": "Persoon",
     "notify": "Meldingsactie",
-    "notify_hint": "De notify-actie van de telefoon, bijvoorbeeld <code>notify.mobile_app_pixel_8</code> (zie <b>Ontwikkelhulpmiddelen → Acties</b>). Meerdere gescheiden door komma's.",
+    "notify_hint": "De notify-actie van de telefoon, bijvoorbeeld <code>notify.mobile_app_pixel_8</code> (zie <b>Ontwikkelhulpmiddelen → Acties</b>). Meerdere gescheiden door komma's. Leeg: <code>notify.notify</code>.",
+    "channel": "Meldingskanaal",
+    "channel_hint": "Android-meldingskanaal, zodat je geluid en prioriteit per kanaal in de Companion-app kunt instellen. Leeg: de naam van de persoon.",
     "ack": "Bevestigknop in alarmmeldingen",
     "events_title": "Gebeurtenissen",
     "events_hint": "Gestart of herhaald → melding. Bevestigd of voorbij → de melding wordt weer verwijderd.",
@@ -130,7 +132,7 @@
     "copy": "YAML kopiëren",
     "paste_hint": "In Home Assistant: <b>Instellingen → Automatiseringen &amp; scènes → Automatisering maken → Nieuwe automatisering maken</b>, dan <b>⋮ → Bewerken in YAML</b>, plakken en opslaan.",
     "shot_automation_alt": "Automatiseringseditor met de trigger Gebeurtenis ontvangen op het alarm laag en het rapport",
-    "shot_automation": "Het resultaat in de automatiseringseditor: de trigger <i>Gebeurtenis ontvangen</i> met de geselecteerde gebeurtenistypes.",
+    "shot_automation": "Het resultaat in de automatiseringseditor: één trigger <i>Gebeurtenis ontvangen</i> per geselecteerde gebeurtenis.",
     "requirements_title": "Wanneer het wordt geactiveerd"
   },
   "docs": {
@@ -257,6 +259,7 @@
       "person_name": "Naam van het item (de persoon).",
       "entry_id": "ID van het configuratie-item, voor de acties van de integratie.",
       "tag": "Meldingstag, uniek per persoon en alarm. Gebruik deze om de melding te vervangen en te verwijderen.",
+      "icon": "Pictogram van het alarm (Material Design Icons), bijvoorbeeld <code>mdi:arrow-down-circle</code>; de bouwer gebruikt het als pictogram van de melding.",
       "ack_action": "Meldingsactie van de mobiele app die dit alarm bevestigt.",
       "battery": "Batterijniveau van de telefoon in procent.",
       "last_change": "Tijdstip van de laatste wissel (ISO 8601).",
@@ -279,6 +282,7 @@
       "alarms": "Aantal alarmen dat in de periode is gestart, per alarm.",
       "low_alarms": "Aantal alarmen laag en urgent laag in de periode.",
       "tag": "Meldingstag, uniek per persoon, zodat een nieuw rapport het vorige vervangt.",
+      "icon": "Pictogram van het rapport: <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Naam van het item (de persoon).",
       "entry_id": "ID van het configuratie-item."
     }

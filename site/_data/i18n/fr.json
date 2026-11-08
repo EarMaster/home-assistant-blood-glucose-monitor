@@ -122,7 +122,9 @@
     "manual_note": "Astuce : ouvrez le générateur depuis Home Assistant (page de l'appareil de la personne → <b>Visiter</b>, ou <b>Configurer</b> de l'entrée) pour obtenir les bons ID d'entité. Ici, ils sont devinés à partir du nom ; vérifiez-les sous <b>Paramètres → Appareils et services → Entités</b>.",
     "person": "Personne",
     "notify": "Action de notification",
-    "notify_hint": "L'action de notification du téléphone, par exemple <code>notify.mobile_app_pixel_8</code> (voir <b>Outils de développement → Actions</b>). Plusieurs possibles, séparées par des virgules.",
+    "notify_hint": "L'action de notification du téléphone, par exemple <code>notify.mobile_app_pixel_8</code> (voir <b>Outils de développement → Actions</b>). Plusieurs possibles, séparées par des virgules. Vide : <code>notify.notify</code>.",
+    "channel": "Canal de notification",
+    "channel_hint": "Canal de notification Android, pour régler le son et l'importance par canal dans l'application Companion. Vide : le nom de la personne.",
     "ack": "Bouton d'acquittement dans les notifications d'alarme",
     "events_title": "Événements",
     "events_hint": "Déclenchée ou répétée → notification. Acquittée ou terminée → la notification est retirée.",
@@ -130,7 +132,7 @@
     "copy": "Copier le YAML",
     "paste_hint": "Dans Home Assistant : <b>Paramètres → Automatisations et scènes → Créer une automatisation → Créer une nouvelle automatisation</b>, puis <b>⋮ → Modifier en YAML</b>, collez et enregistrez.",
     "shot_automation_alt": "Éditeur d'automatisation avec le déclencheur Un événement a été reçu sur l'alarme de glucose bas et le rapport",
-    "shot_automation": "Le résultat dans l'éditeur d'automatisation : le déclencheur <i>Un événement a été reçu</i> avec les types d'événements sélectionnés.",
+    "shot_automation": "Le résultat dans l'éditeur d'automatisation : un déclencheur <i>Un événement a été reçu</i> par événement sélectionné.",
     "requirements_title": "Quand il se déclenche"
   },
   "docs": {
@@ -257,6 +259,7 @@
       "person_name": "Nom de l'entrée (la personne).",
       "entry_id": "ID de l'entrée de configuration, pour les actions de l'intégration.",
       "tag": "Tag de notification, unique par personne et par alarme. Il permet de remplacer et d'effacer la notification.",
+      "icon": "Icône de l'alarme (Material Design Icons), par exemple <code>mdi:arrow-down-circle</code> ; le générateur l'utilise comme icône de notification.",
       "ack_action": "Action de notification de l'application mobile qui acquitte cette alarme.",
       "battery": "Niveau de batterie du téléphone en pourcentage.",
       "last_change": "Heure du dernier changement (ISO 8601).",
@@ -279,6 +282,7 @@
       "alarms": "Nombre d'alarmes déclenchées pendant la période, par alarme.",
       "low_alarms": "Nombre d'alarmes de glucose bas et d'urgence glucose bas pendant la période.",
       "tag": "Tag de notification, unique par personne, afin qu'un nouveau rapport remplace le précédent.",
+      "icon": "Icône du rapport : <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Nom de l'entrée (la personne).",
       "entry_id": "ID de l'entrée de configuration."
     }

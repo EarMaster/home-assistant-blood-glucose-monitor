@@ -43,6 +43,7 @@ window.BGM = (() => {
       "person_name",
       "entry_id",
       "tag",
+      "icon",
       "ack_action",
     ],
     T.attributes,

@@ -20,28 +20,34 @@ description: "Created with the Blood Glucose Monitor automation builder."
 mode: queued
 triggers:
   - trigger: event.received
-    id: alert
+    alias: "Urgent low alarm started or repeated"
+    id: urgent_low_alert
     target:
-      entity_id:
-        - event.alex_urgent_low_alarm
-        - event.alex_low_alarm
+      entity_id: event.alex_urgent_low_alarm
     options:
       event_type:
         - urgent_low_alert
+  - trigger: event.received
+    alias: "Low alarm started or repeated"
+    id: low_alert
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
         - low_alert
   - trigger: event.received
-    id: ended
+    alias: "Urgent low alarm acknowledged or over"
+    id: urgent_low_ended
     target:
-      entity_id:
-        - event.alex_urgent_low_alarm
+      entity_id: event.alex_urgent_low_alarm
     options:
       event_type:
         - urgent_low_ended
   - trigger: event.received
-    id: notify
+    alias: "Report created"
+    id: report
     target:
-      entity_id:
-        - event.alex_report
+      entity_id: event.alex_report
     options:
       event_type:
         - report
@@ -51,7 +57,9 @@ actions:
   - choose:
       - conditions:
           - condition: trigger
-            id: alert
+            id:
+              - urgent_low_alert
+              - low_alert
         sequence:
           - action: notify.test_phone
             data:
@@ -59,12 +67,16 @@ actions:
               message: "{{ event.message }}"
               data:
                 tag: "{{ event.tag }}"
+                notification_icon: "{{ event.icon }}"
+                channel: "Alex"
+                importance: high
                 actions:
                   - action: "{{ event.ack_action }}"
                     title: "Acknowledge"
       - conditions:
           - condition: trigger
-            id: ended
+            id:
+              - urgent_low_ended
         sequence:
           - action: notify.test_phone
             data:
@@ -73,7 +85,8 @@ actions:
                 tag: "{{ event.tag }}"
       - conditions:
           - condition: trigger
-            id: notify
+            id:
+              - report
         sequence:
           - action: notify.test_phone
             data:
@@ -81,6 +94,8 @@ actions:
               message: "{{ event.message }}"
               data:
                 tag: "{{ event.tag }}"
+                notification_icon: "{{ event.icon }}"
+                channel: "Alex"
 """
 
 
@@ -100,6 +115,7 @@ async def test_builder_automation(
     await scenario.reading(50)
     entry_id = scenario.entry.entry_id
     assert calls[-1].data["title"] == "Alex: urgent low glucose"
+    assert calls[-1].data["data"]["importance"] == "high"
     assert calls[-1].data["data"]["actions"][0]["action"] == (
         f"BLOOD_GLUCOSE_MONITOR_ACK_{entry_id}_urgent_low"
     )
@@ -125,4 +141,8 @@ async def test_builder_automation(
     await hass.async_block_till_done(wait_background_tasks=True)
     assert len(calls) == count + 1
     assert calls[-1].data["title"] == "Alex: report"
-    assert calls[-1].data["data"] == {"tag": f"blood_glucose_monitor_{entry_id}_report"}
+    assert calls[-1].data["data"] == {
+        "tag": f"blood_glucose_monitor_{entry_id}_report",
+        "notification_icon": "mdi:clipboard-text-clock",
+        "channel": "Alex",
+    }
