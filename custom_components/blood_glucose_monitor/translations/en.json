@@ -64,8 +64,8 @@
           "low": "Low alarm",
           "high": "High alarm",
           "urgent_high": "Urgent high alarm",
-          "rapid_fall": "Rapid fall alarm",
-          "rapid_rise": "Rapid rise alarm",
+          "rapid_fall": "Falling fast alarm",
+          "rapid_rise": "Rising fast alarm",
           "data_loss": "Data loss alarm",
           "charging": "Charging reminder",
           "cannula_change": "Cannula change",
@@ -180,7 +180,7 @@
         }
       },
       "rapid_fall": {
-        "title": "Rapid fall alarm",
+        "title": "Falling fast alarm",
         "description": "Alarm when the glucose falls fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "detection": "Detection",
@@ -204,7 +204,7 @@
         }
       },
       "rapid_rise": {
-        "title": "Rapid rise alarm",
+        "title": "Rising fast alarm",
         "description": "Alarm when the glucose rises fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "detection": "Detection",
@@ -269,7 +269,7 @@
       },
       "cannula_change": {
         "title": "Cannula change",
-        "description": "Reminder when the cannula is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Cannula changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
+        "description": "Reminder when the cannula (infusion set, also called site change; with a patch pump the pod) is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Cannula changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
         "data": {
           "wear_duration": "Wear duration",
           "wear_duration_entity": "Wear duration entity",
@@ -321,7 +321,7 @@
       },
       "reservoir_change": {
         "title": "Reservoir change",
-        "description": "Reminder when the reservoir is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Reservoir changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
+        "description": "Reminder when the reservoir (also called cartridge) is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Reservoir changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
         "data": {
           "wear_duration": "Wear duration",
           "wear_duration_entity": "Wear duration entity",
@@ -402,10 +402,10 @@
         "name": "Acknowledge urgent high alarm"
       },
       "acknowledge_rapid_fall": {
-        "name": "Acknowledge rapid fall alarm"
+        "name": "Acknowledge falling fast alarm"
       },
       "acknowledge_rapid_rise": {
-        "name": "Acknowledge rapid rise alarm"
+        "name": "Acknowledge rising fast alarm"
       },
       "acknowledge_charging": {
         "name": "Acknowledge charging reminder"
@@ -475,23 +475,23 @@
         }
       },
       "rapid_fall_alarm": {
-        "name": "Rapid fall alarm",
+        "name": "Falling fast alarm",
         "state_attributes": {
           "event_type": {
             "state": {
-              "rapid_fall_alert": "Rapid fall alarm started or repeated",
-              "rapid_fall_ended": "Rapid fall alarm acknowledged or over"
+              "rapid_fall_alert": "Falling fast alarm started or repeated",
+              "rapid_fall_ended": "Falling fast alarm acknowledged or over"
             }
           }
         }
       },
       "rapid_rise_alarm": {
-        "name": "Rapid rise alarm",
+        "name": "Rising fast alarm",
         "state_attributes": {
           "event_type": {
             "state": {
-              "rapid_rise_alert": "Rapid rise alarm started or repeated",
-              "rapid_rise_ended": "Rapid rise alarm acknowledged or over"
+              "rapid_rise_alert": "Rising fast alarm started or repeated",
+              "rapid_rise_ended": "Rising fast alarm acknowledged or over"
             }
           }
         }
@@ -649,7 +649,7 @@
         }
       },
       "rapid_fall_alarm": {
-        "name": "Rapid fall alarm",
+        "name": "Falling fast alarm",
         "state": {
           "idle": "Idle",
           "pending": "Pending",
@@ -658,7 +658,7 @@
         }
       },
       "rapid_rise_alarm": {
-        "name": "Rapid rise alarm",
+        "name": "Rising fast alarm",
         "state": {
           "idle": "Idle",
           "pending": "Pending",
@@ -820,8 +820,8 @@
         "data_loss": "Data loss",
         "high": "High",
         "urgent_high": "Urgent high",
-        "rapid_fall": "Rapid fall",
-        "rapid_rise": "Rapid rise",
+        "rapid_fall": "Falling fast",
+        "rapid_rise": "Rising fast",
         "charging": "Charging reminder",
         "cannula_change": "Cannula change",
         "sensor_change": "Sensor change",

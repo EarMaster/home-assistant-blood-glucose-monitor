@@ -60,10 +60,10 @@
         "description": "Zur Erinnerung: Diese Integration ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.\n\n[Automation-Builder öffnen]({builder_url}), um Benachrichtigungen für diese Person zu erstellen.",
         "menu_options": {
           "sources": "Glukosedaten",
-          "urgent_low": "Alarm sehr niedrig",
+          "urgent_low": "Alarm dringend niedrig",
           "low": "Alarm niedrig",
           "high": "Alarm hoch",
-          "urgent_high": "Alarm sehr hoch",
+          "urgent_high": "Alarm dringend hoch",
           "rapid_fall": "Alarm schnell fallend",
           "rapid_rise": "Alarm schnell steigend",
           "data_loss": "Alarm Datenausfall",
@@ -100,7 +100,7 @@
         "description": "`{entity_id}` wird bereits überwacht von: {entries}.\n\nBeide Einträge arbeiten unabhängig voneinander.\n\nSende das Formular ab, um zu speichern, oder schließe den Dialog, um abzubrechen."
       },
       "urgent_low": {
-        "title": "Alarm sehr niedrig",
+        "title": "Alarm dringend niedrig",
         "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}). Die Pause gilt für diesen Alarm nicht.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "threshold_entity": "Schwellwert",
@@ -160,7 +160,7 @@
         }
       },
       "urgent_high": {
-        "title": "Alarm sehr hoch",
+        "title": "Alarm dringend hoch",
         "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung über dem Schwellwert bleibt. Er endet, wenn die Glukose auf den Schwellwert minus den Abstand zum Beenden fällt (in {unit}).\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "threshold_entity": "Schwellwert",
@@ -269,7 +269,7 @@
       },
       "cannula_change": {
         "title": "Kanülenwechsel",
-        "description": "Erinnerung, wenn der Kanülenwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Kanüle gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
+        "description": "Erinnerung, wenn der Kanülenwechsel (auch Katheter- oder Infusionssetwechsel, bei Patch-Pumpen der Pod) fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Kanüle gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
         "data": {
           "wear_duration": "Tragedauer",
           "wear_duration_entity": "Entität mit der Tragedauer",
@@ -321,7 +321,7 @@
       },
       "reservoir_change": {
         "title": "Reservoirwechsel",
-        "description": "Erinnerung, wenn der Reservoirwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Reservoir gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
+        "description": "Erinnerung, wenn der Reservoirwechsel (auch Ampulle, Patrone oder Kartusche) fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Reservoir gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
         "data": {
           "wear_duration": "Tragedauer",
           "wear_duration_entity": "Entität mit der Tragedauer",
@@ -359,7 +359,7 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "Der Pause-Schalter schaltet alle Alarme außer sehr niedrig für diese Dauer stumm. Der Alarm sehr niedrig wird nie pausiert. Endet die Pause, werden die Alarme sofort neu geprüft.",
+        "description": "Der Pause-Schalter schaltet alle Alarme außer dringend niedrig für diese Dauer stumm. Der Alarm dringend niedrig wird nie pausiert. Endet die Pause, werden die Alarme sofort neu geprüft.",
         "data": {
           "duration": "Dauer der Pause"
         }
@@ -387,7 +387,7 @@
   "entity": {
     "button": {
       "acknowledge_urgent_low": {
-        "name": "Alarm sehr niedrig bestätigen"
+        "name": "Alarm dringend niedrig bestätigen"
       },
       "acknowledge_low": {
         "name": "Alarm niedrig bestätigen"
@@ -399,7 +399,7 @@
         "name": "Alarm hoch bestätigen"
       },
       "acknowledge_urgent_high": {
-        "name": "Alarm sehr hoch bestätigen"
+        "name": "Alarm dringend hoch bestätigen"
       },
       "acknowledge_rapid_fall": {
         "name": "Alarm schnell fallend bestätigen"
@@ -411,13 +411,13 @@
         "name": "Lade-Erinnerung bestätigen"
       },
       "acknowledge_cannula_change": {
-        "name": "Erinnerung Kanülenwechsel bestätigen"
+        "name": "Kanülenwechsel-Erinnerung bestätigen"
       },
       "acknowledge_sensor_change": {
-        "name": "Erinnerung Sensorwechsel bestätigen"
+        "name": "Sensorwechsel-Erinnerung bestätigen"
       },
       "acknowledge_reservoir_change": {
-        "name": "Erinnerung Reservoirwechsel bestätigen"
+        "name": "Reservoirwechsel-Erinnerung bestätigen"
       },
       "cannula_change_changed": {
         "name": "Kanüle gewechselt"
@@ -431,12 +431,12 @@
     },
     "event": {
       "urgent_low_alarm": {
-        "name": "Alarm sehr niedrig",
+        "name": "Alarm dringend niedrig",
         "state_attributes": {
           "event_type": {
             "state": {
-              "urgent_low_alert": "Alarm sehr niedrig ausgelöst oder wiederholt",
-              "urgent_low_ended": "Alarm sehr niedrig bestätigt oder vorbei"
+              "urgent_low_alert": "Alarm dringend niedrig ausgelöst oder wiederholt",
+              "urgent_low_ended": "Alarm dringend niedrig bestätigt oder vorbei"
             }
           }
         }
@@ -464,12 +464,12 @@
         }
       },
       "urgent_high_alarm": {
-        "name": "Alarm sehr hoch",
+        "name": "Alarm dringend hoch",
         "state_attributes": {
           "event_type": {
             "state": {
-              "urgent_high_alert": "Alarm sehr hoch ausgelöst oder wiederholt",
-              "urgent_high_ended": "Alarm sehr hoch bestätigt oder vorbei"
+              "urgent_high_alert": "Alarm dringend hoch ausgelöst oder wiederholt",
+              "urgent_high_ended": "Alarm dringend hoch bestätigt oder vorbei"
             }
           }
         }
@@ -519,36 +519,36 @@
         }
       },
       "cannula_change_alarm": {
-        "name": "Erinnerung Kanülenwechsel",
+        "name": "Kanülenwechsel-Erinnerung",
         "state_attributes": {
           "event_type": {
             "state": {
-              "cannula_change_alert": "Erinnerung Kanülenwechsel ausgelöst oder wiederholt",
-              "cannula_change_ended": "Erinnerung Kanülenwechsel bestätigt oder vorbei",
+              "cannula_change_alert": "Kanülenwechsel-Erinnerung ausgelöst oder wiederholt",
+              "cannula_change_ended": "Kanülenwechsel-Erinnerung bestätigt oder vorbei",
               "cannula_change_soon": "Kanülenwechsel bald fällig"
             }
           }
         }
       },
       "sensor_change_alarm": {
-        "name": "Erinnerung Sensorwechsel",
+        "name": "Sensorwechsel-Erinnerung",
         "state_attributes": {
           "event_type": {
             "state": {
-              "sensor_change_alert": "Erinnerung Sensorwechsel ausgelöst oder wiederholt",
-              "sensor_change_ended": "Erinnerung Sensorwechsel bestätigt oder vorbei",
+              "sensor_change_alert": "Sensorwechsel-Erinnerung ausgelöst oder wiederholt",
+              "sensor_change_ended": "Sensorwechsel-Erinnerung bestätigt oder vorbei",
               "sensor_change_soon": "Sensorwechsel bald fällig"
             }
           }
         }
       },
       "reservoir_change_alarm": {
-        "name": "Erinnerung Reservoirwechsel",
+        "name": "Reservoirwechsel-Erinnerung",
         "state_attributes": {
           "event_type": {
             "state": {
-              "reservoir_change_alert": "Erinnerung Reservoirwechsel ausgelöst oder wiederholt",
-              "reservoir_change_ended": "Erinnerung Reservoirwechsel bestätigt oder vorbei",
+              "reservoir_change_alert": "Reservoirwechsel-Erinnerung ausgelöst oder wiederholt",
+              "reservoir_change_ended": "Reservoirwechsel-Erinnerung bestätigt oder vorbei",
               "reservoir_change_soon": "Reservoirwechsel bald fällig"
             }
           }
@@ -570,10 +570,10 @@
         "name": "Status",
         "state": {
           "no_data": "Keine Daten",
-          "urgent_low": "Sehr niedrig",
+          "urgent_low": "Dringend niedrig",
           "low": "Niedrig",
           "rapid_fall": "Fällt schnell",
-          "urgent_high": "Sehr hoch",
+          "urgent_high": "Dringend hoch",
           "high": "Hoch",
           "rapid_rise": "Steigt schnell",
           "paused": "Pausiert",
@@ -604,7 +604,7 @@
         }
       },
       "urgent_low_alarm": {
-        "name": "Alarm sehr niedrig",
+        "name": "Alarm dringend niedrig",
         "state": {
           "idle": "Ruhig",
           "pending": "Ausstehend",
@@ -640,7 +640,7 @@
         }
       },
       "urgent_high_alarm": {
-        "name": "Alarm sehr hoch",
+        "name": "Alarm dringend hoch",
         "state": {
           "idle": "Ruhig",
           "pending": "Ausstehend",
@@ -676,7 +676,7 @@
         }
       },
       "cannula_change_alarm": {
-        "name": "Erinnerung Kanülenwechsel",
+        "name": "Kanülenwechsel-Erinnerung",
         "state": {
           "idle": "Ruhig",
           "pending": "Ausstehend",
@@ -685,7 +685,7 @@
         }
       },
       "sensor_change_alarm": {
-        "name": "Erinnerung Sensorwechsel",
+        "name": "Sensorwechsel-Erinnerung",
         "state": {
           "idle": "Ruhig",
           "pending": "Ausstehend",
@@ -694,7 +694,7 @@
         }
       },
       "reservoir_change_alarm": {
-        "name": "Erinnerung Reservoirwechsel",
+        "name": "Reservoirwechsel-Erinnerung",
         "state": {
           "idle": "Ruhig",
           "pending": "Ausstehend",
@@ -815,11 +815,11 @@
   "selector": {
     "alarm": {
       "options": {
-        "urgent_low": "Sehr niedrig",
+        "urgent_low": "Dringend niedrig",
         "low": "Niedrig",
         "data_loss": "Datenausfall",
         "high": "Hoch",
-        "urgent_high": "Sehr hoch",
+        "urgent_high": "Dringend hoch",
         "rapid_fall": "Schnell fallend",
         "rapid_rise": "Schnell steigend",
         "charging": "Lade-Erinnerung",
@@ -838,10 +838,10 @@
     "alarm_text": {
       "options": {
         "high": "{name}: Glukose hoch",
-        "urgent_high": "{name}: Glukose sehr hoch",
+        "urgent_high": "{name}: Glukose dringend hoch",
         "rapid_fall": "{name}: Glukose fällt schnell",
         "rapid_rise": "{name}: Glukose steigt schnell",
-        "urgent_low": "{name}: Glukose sehr niedrig",
+        "urgent_low": "{name}: Glukose dringend niedrig",
         "low": "{name}: Glukose niedrig",
         "data_loss": "{name}: keine Glukosedaten",
         "data_loss_message": "Seit {minutes} min kein neuer Messwert.",

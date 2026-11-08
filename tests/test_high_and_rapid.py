@@ -18,8 +18,8 @@ HIGH_THRESHOLD = "input_number.high_threshold"
 URGENT_HIGH_THRESHOLD = "input_number.urgent_high_threshold"
 RATE_ENTITY = "input_number.rate_limit"
 HIGH_SENSOR = "sensor.alex_high_alarm"
-RAPID_FALL_SENSOR = "sensor.alex_rapid_fall_alarm"
-RAPID_RISE_SENSOR = "sensor.alex_rapid_rise_alarm"
+RAPID_FALL_SENSOR = "sensor.alex_falling_fast_alarm"
+RAPID_RISE_SENSOR = "sensor.alex_rising_fast_alarm"
 
 
 def high_options(**overrides: Any) -> dict[str, Any]:

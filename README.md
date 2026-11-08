@@ -28,8 +28,8 @@ configurable hints for everyday life: one entry per person, every feature can
 be switched off, and you decide with any Home Assistant action how you want to
 be notified.
 
-- **Glucose alarms:** urgent low, low, high, urgent high, rapid fall, rapid
-  rise and data loss, with delay, repeat, acknowledge, snooze and pause
+- **Glucose alarms:** urgent low, low, high, urgent high, falling fast, rising
+  fast and data loss, with delay, repeat, acknowledge, snooze and pause
 - **Reminders:** charging the phone, changing cannula, CGM sensor and insulin
   reservoir
 - **Reports:** a summary per period of a schedule, for example the night
@@ -109,8 +109,8 @@ entities.
 | Low | glucose below its threshold for the delay | glucose at threshold plus clear offset |
 | High | glucose above its threshold for the delay | glucose at threshold minus clear offset |
 | Urgent high | glucose above its threshold for the delay | glucose at threshold minus clear offset |
-| Rapid fall | fast fall for the delay (see below) | no longer a fast fall |
-| Rapid rise | fast rise for the delay (see below) | no longer a fast rise |
+| Falling fast | fast fall for the delay (see below) | no longer a fast fall |
+| Rising fast | fast rise for the delay (see below) | no longer a fast rise |
 | Data loss | no new reading within the maximum data age | a new reading |
 
 - **Thresholds** are entities: for example the threshold sensors of the
@@ -233,9 +233,11 @@ for charging; no new one starts before the next reminder time.
 
 ### Change reminders
 
-Cannula, CGM sensor and insulin reservoir each have their own reminder. A
-reminder is on once it has a **wear duration** (a field with days and hours,
-or an entity with the unit `d`, `h` or `min`, which takes precedence) and
+Cannula (infusion set, also called site change; with a patch pump the pod),
+CGM sensor and insulin reservoir (also called cartridge) each have their own
+reminder. A reminder is on once it has a **wear duration** (a field with
+days and hours, or an entity with the unit `d`, `h` or `min`, which takes
+precedence) and
 starts when the change is due:
 
 - **Due:** the last change plus the wear duration, or, with a **fixed time**,
