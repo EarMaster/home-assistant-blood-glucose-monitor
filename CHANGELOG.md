@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-11-08
+
+### Changed
+- Names follow the terms of CGM apps and Nightscout: "Falling fast" and "Rising fast" instead of "Rapid fall/rise" alarm; German "dringend niedrig/hoch" instead of "sehr niedrig/hoch" and "Kanülenwechsel-Erinnerung" etc. Existing entity IDs stay the same
+- The settings of the cannula and reservoir change reminders also name other common terms (for example infusion set, site change, pod; cartridge)
+
 ## [1.0.0] - 2026-11-08
 
 ### Added
