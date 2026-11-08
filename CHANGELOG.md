@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-08
+
+### Fixed
+- Documentation site: the introduction of the builder and documentation pages no longer ends with a stray "#readme"
+
 ## [1.1.0] - 2026-11-08
 
 ### Added
