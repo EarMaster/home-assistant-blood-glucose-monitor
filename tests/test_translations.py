@@ -12,7 +12,6 @@ import pytest
 from custom_components.blood_glucose_monitor import (
     config_flow,
     const,
-    device_trigger,
     monitor,
 )
 
@@ -156,12 +155,11 @@ def test_entities_translated() -> None:
             "snoozed",
         }
         assert entity["button"][f"acknowledge_{alarm}"]["name"]
-        event_types = entity["event"]["alarm"]["state_attributes"]["event_type"]
-        for phase in ("triggered", "repeat", "acknowledged", "resolved"):
-            assert event_types["state"][f"{alarm}_{phase}"]
-
-
-def test_device_triggers_translated() -> None:
-    """Every device trigger type has a text."""
-    triggers = load("en")["device_automation"]["trigger_type"]
-    assert set(triggers) == set(device_trigger.TRIGGER_TYPES)
+        event = entity["event"][f"{alarm}_alarm"]
+        assert event["name"] == entity["sensor"][f"{alarm}_alarm"]["name"]
+        kinds = ["alert", "ended"] + (["soon"] if alarm in const.CHANGE_ALARMS else [])
+        assert set(event["state_attributes"]["event_type"]["state"]) == {
+            f"{alarm}_{kind}" for kind in kinds
+        }
+    report = entity["event"]["report"]["state_attributes"]["event_type"]["state"]
+    assert set(report) == {"report"}

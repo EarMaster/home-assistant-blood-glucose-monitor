@@ -6,15 +6,14 @@ from datetime import timedelta
 from typing import Any
 
 from freezegun.api import FrozenDateTimeFactory
-from homeassistant.const import STATE_UNAVAILABLE
-from homeassistant.core import Event, HomeAssistant
+from homeassistant.const import EVENT_STATE_CHANGED, STATE_UNAVAILABLE
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import dt as dt_util
 import pytest
 from pytest_homeassistant_custom_component.common import (
     MockConfigEntry,
-    async_capture_events,
     async_fire_time_changed,
 )
 
@@ -38,9 +37,37 @@ URGENT_SENSOR = "sensor.alex_urgent_low_alarm"
 DATA_LOSS_SENSOR = "sensor.alex_data_loss_alarm"
 LOW_BUTTON = "button.alex_acknowledge_low_alarm"
 PAUSE_SWITCH = "switch.alex_pause_alarms"
-EVENT_ENTITY = "event.alex_alarm"
+LOW_EVENT = "event.alex_low_alarm"
+DATA_LOSS_EVENT = "event.alex_data_loss_alarm"
 
-ALARM_EVENT = "blood_glucose_monitor_alarm"
+
+class Fired:
+    """An event of an event entity of the integration."""
+
+    def __init__(self, data: dict[str, Any]) -> None:
+        """Initialize with the event type as "type" and the attributes."""
+        self.data = data
+
+
+def capture_fired(hass: HomeAssistant) -> list[Fired]:
+    """Record the events of all event entities (not restored states)."""
+    fired: list[Fired] = []
+
+    @callback
+    def listener(event: Event[EventStateChangedData]) -> None:
+        new, old = event.data["new_state"], event.data["old_state"]
+        if (
+            new is None
+            or new.domain != "event"
+            or old is None
+            or old.state == STATE_UNAVAILABLE
+            or (event_type := new.attributes.get("event_type")) is None
+        ):
+            return
+        fired.append(Fired({"type": event_type, **new.attributes}))
+
+    hass.bus.async_listen(EVENT_STATE_CHANGED, listener)
+    return fired
 
 
 def alarm(**overrides: Any) -> dict[str, Any]:
@@ -81,15 +108,15 @@ class Scenario:
         """Initialize."""
         self.hass = hass
         self.freezer = freezer
-        self.events = async_capture_events(hass, ALARM_EVENT)
+        self.events = capture_fired(hass)
 
     @property
-    def actions(self) -> list[Event]:
+    def actions(self) -> list[Fired]:
         """Return the alarm events of the "started or repeated" triggers."""
         return [e for e in self.events if e.data["type"].endswith("_alert")]
 
     @property
-    def ends(self) -> list[Event]:
+    def ends(self) -> list[Fired]:
         """Return the alarm events of the "acknowledged or over" triggers."""
         return [e for e in self.events if e.data["type"].endswith("_ended")]
 
@@ -129,7 +156,7 @@ class Scenario:
                 await self.reading(value)
             remaining -= step
 
-    def phases(self, events: list[Event] | None = None) -> list[tuple[str, str]]:
+    def phases(self, events: list[Fired] | None = None) -> list[tuple[str, str]]:
         """Return (alarm, phase) of the recorded action runs."""
         return [
             (event.data["alarm"], event.data["phase"])
@@ -177,9 +204,10 @@ async def test_low_alarm_acknowledge_and_recheck(scenario: Scenario) -> None:
     assert data["glucose"] == 65
     assert data["tag"] == f"blood_glucose_monitor_{entry_id}_low"
     assert data["ack_action"] == f"BLOOD_GLUCOSE_MONITOR_ACK_{entry_id}_low"
-    assert scenario.hass.states.get(EVENT_ENTITY).attributes["event_type"] == (
-        "low_triggered"
-    )
+    state = scenario.hass.states.get(LOW_EVENT)
+    assert state.attributes["event_type"] == "low_alert"
+    assert state.attributes["phase"] == "triggered"
+    assert state.attributes["title"] == "Alex: low glucose"
 
     await scenario.wait(5, 64)
     assert scenario.phases()[-1] == ("low", "repeat")
@@ -440,7 +468,8 @@ async def test_alarms_without_threshold_are_off(scenario: Scenario) -> None:
     assert hass.states.get(LOW_SENSOR) is None
     assert hass.states.get(URGENT_SENSOR) is None
     assert scenario.state(DATA_LOSS_SENSOR) == "idle"
-    assert scenario.state(EVENT_ENTITY) is not None
+    assert hass.states.get(LOW_EVENT) is None
+    assert scenario.state(DATA_LOSS_EVENT) == "unknown"
     assert scenario.state(PAUSE_SWITCH) == "off"
     await scenario.reading(40)
     assert scenario.events == []

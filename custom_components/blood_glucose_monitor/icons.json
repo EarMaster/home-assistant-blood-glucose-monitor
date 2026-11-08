@@ -45,8 +45,41 @@
       }
     },
     "event": {
-      "alarm": {
+      "urgent_low_alarm": {
         "default": "mdi:bell-ring"
+      },
+      "low_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "high_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "urgent_high_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "rapid_fall_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "rapid_rise_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "data_loss_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "charging_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "cannula_change_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "sensor_change_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "reservoir_change_alarm": {
+        "default": "mdi:bell-ring"
+      },
+      "report": {
+        "default": "mdi:clipboard-text-clock"
       }
     },
     "sensor": {

@@ -7,12 +7,11 @@ from typing import Any
 from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
 import pytest
-from pytest_homeassistant_custom_component.common import async_capture_events
 from pytest_homeassistant_custom_component.components.recorder.common import (
     async_wait_recording_done,
 )
 
-from .test_alarms import ALARM_EVENT, Scenario, alarm, options
+from .test_alarms import Scenario, alarm, capture_fired, options
 from .test_charging_and_reports import LAST_REPORT, REPORT_ENTITY, local
 
 
@@ -28,7 +27,7 @@ async def test_report_statistics(
 ) -> None:
     """With the recorder, the report has the statistics of the period."""
 
-    events = async_capture_events(hass, ALARM_EVENT)
+    events = capture_fired(hass)
     freezer.move_to(local(22))
     hass.states.async_set(
         "input_number.low_threshold", "70", {"unit_of_measurement": "mg/dL"}

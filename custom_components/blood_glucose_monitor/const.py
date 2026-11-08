@@ -6,6 +6,10 @@ from typing import Final
 
 DOMAIN: Final = "blood_glucose_monitor"
 
+# Documentation site with the automation builder.
+DOCS_URL: Final = "https://earmaster.github.io/home-assistant-blood-glucose-monitor/"
+BUILDER_URL: Final = f"{DOCS_URL}builder.html"
+
 # Config entry data
 CONF_NAME: Final = "name"
 
@@ -195,9 +199,7 @@ THRESHOLD_TRANSLATION_KEYS: Final = {
 }
 
 EVENT_MOBILE_APP_NOTIFICATION_ACTION: Final = "mobile_app_notification_action"
-# Fired for every alarm event; the device triggers listen to it. The data
-# contains "type" (f"{alarm}_{TRIGGER_ALERT|TRIGGER_ENDED}") and "device_id".
-EVENT_ALARM: Final = f"{DOMAIN}_alarm"
+# Event types of the event entities: f"{alarm}_{TRIGGER_ALERT|TRIGGER_ENDED}".
 TRIGGER_ALERT: Final = "alert"
 """Alarm started or repeated."""
 TRIGGER_ENDED: Final = "ended"

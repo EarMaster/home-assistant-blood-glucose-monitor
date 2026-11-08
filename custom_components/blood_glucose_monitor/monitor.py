@@ -2,7 +2,7 @@
 
 Connects the alarm state machines (``alarm.py``) to Home Assistant: reads the
 glucose data and threshold entities, schedules the time based checks, fires
-the events of the device triggers (``device_trigger.py``) and keeps the alarm
+the events of the event entities (``event.py``) and keeps the alarm
 states across restarts.
 
 Every config entry has its own monitor. Alarms of different entries, and
@@ -31,7 +31,7 @@ from homeassistant.core import (
     HomeAssistant,
     callback,
 )
-from homeassistant.helpers import device_registry as dr, issue_registry as ir
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.event import (
     async_track_point_in_utc_time,
     async_track_state_change_event,
@@ -86,7 +86,6 @@ from .const import (
     DETECTION_TREND,
     DOMAIN,
     DURATION_UNITS,
-    EVENT_ALARM,
     EVENT_MOBILE_APP_NOTIFICATION_ACTION,
     HIGH_ALARMS,
     LOW_ALARMS,
@@ -115,11 +114,11 @@ from .source import (
 _LOGGER = logging.getLogger(__name__)
 
 STORAGE_VERSION = 1
-# Phases of the alert trigger; the others are the ended trigger.
+# Phases of the alert event; the others are the ended event.
 ALERT_PHASES = (Phase.TRIGGERED, Phase.REPEAT)
 TEXT_PREFIX = f"component.{DOMAIN}.selector.alarm_text.options."
 
-type AlarmEventListener = Callable[[str, Phase, dict[str, Any]], None]
+type EventListener = Callable[[str, dict[str, Any]], None]
 
 STATUS_OK = "ok"
 STATUS_PAUSED = "paused"
@@ -270,7 +269,7 @@ class AlarmMonitor:
         )
         self._texts: dict[str, str] = {}
         self._listeners: list[CALLBACK_TYPE] = []
-        self._event_listeners: list[AlarmEventListener] = []
+        self._event_listeners: list[EventListener] = []
         self._cancel_timer: CALLBACK_TYPE | None = None
         self._issue = False
         # After a (re)start the source gets max_age to deliver data.
@@ -403,20 +402,10 @@ class AlarmMonitor:
             update_callback()
 
     @callback
-    def async_fire(self, trigger_type: str, data: dict[str, Any]) -> None:
-        """Fire the event of the device triggers of this entry."""
-        entry_id = self.entry.entry_id
-        device = dr.async_get(self.hass).async_get_device_by_identifier(
-            (DOMAIN, entry_id), entry_id
-        )
-        self.hass.bus.async_fire(
-            EVENT_ALARM,
-            {
-                "device_id": None if device is None else device.id,
-                "type": trigger_type,
-                **data,
-            },
-        )
+    def async_fire(self, event_type: str, data: dict[str, Any]) -> None:
+        """Pass an event to the event entities."""
+        for listener in list(self._event_listeners):
+            listener(event_type, data)
 
     async def async_start(self) -> None:
         """Restore the states and start tracking."""
@@ -478,8 +467,8 @@ class AlarmMonitor:
         return lambda: self._listeners.remove(update_callback)
 
     @callback
-    def async_add_event_listener(self, listener: AlarmEventListener) -> CALLBACK_TYPE:
-        """Call ``listener(alarm, phase, variables)`` for every alarm event."""
+    def async_add_event_listener(self, listener: EventListener) -> CALLBACK_TYPE:
+        """Call ``listener(event_type, data)`` for every event."""
         self._event_listeners.append(listener)
         return lambda: self._event_listeners.remove(listener)
 
@@ -708,7 +697,7 @@ class AlarmMonitor:
 
     @callback
     def _async_check_warning(self, alarm: str, now: datetime) -> None:
-        """Fire the "due soon" trigger once per due time, within the warning.
+        """Fire the "due soon" event once per due time, within the warning.
 
         A warning that may not start (paused, away) is sent later, as long as
         the change is not due yet.
@@ -930,11 +919,9 @@ class AlarmMonitor:
 
     @callback
     def _async_notify(self, alarm: str, phase: Phase, now: datetime) -> None:
-        """Tell the event listeners and fire the event of the device triggers."""
+        """Fire the alert or ended event of an alarm."""
         variables = self._variables(alarm, phase, now)
         _LOGGER.debug("%s: %s alarm %s", self.entry.title, alarm, phase)
-        for listener in list(self._event_listeners):
-            listener(alarm, phase, variables)
         kind = TRIGGER_ALERT if phase in ALERT_PHASES else TRIGGER_ENDED
         if phase is Phase.TRIGGERED and self.report is not None:
             self.report.count(alarm)

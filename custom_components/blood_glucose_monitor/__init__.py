@@ -31,6 +31,7 @@ from .const import (
     SERVICE_ACKNOWLEDGE,
     SERVICE_RECORD_CHANGE,
 )
+from .links import async_update_device_link
 from .monitor import AlarmMonitor
 from .source import GlucoseSource, SourceEntities
 
@@ -144,8 +145,11 @@ async def async_setup_entry(
     entry.async_on_unload(source.async_start())
     monitor = AlarmMonitor(hass, entry, source)
     entry.runtime_data = BloodGlucoseMonitorData(source, monitor)
-    await monitor.async_start()
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+    # Started after the entities exist, so the event entities get the events
+    # of alarms that start right away.
+    await monitor.async_start()
+    async_update_device_link(hass, entry)
     return True
 
 
