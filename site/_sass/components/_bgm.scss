@@ -239,3 +239,11 @@ button.button {
 .prefilled {
   border-left: 4px solid $ok;
 }
+
+// Less space between the intro and the content than the theme default.
+.page-home .intro {
+  @include media-breakpoint-up(md) {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+}
