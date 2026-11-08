@@ -1,7 +1,8 @@
 """Device triggers of the Blood Glucose Monitor integration.
 
 Notifications are automations: each enabled alarm offers two triggers on the
-device of the person, "started or repeated" and "acknowledged or over". The
+device of the person, "started or repeated" and "acknowledged or over";
+change reminders with a warning also "due soon". The
 automation gets the alarm data as ``trigger.event.data`` (``title``,
 ``message``, ``tag``, ``ack_action``, ``glucose``, ...).
 """
@@ -21,6 +22,7 @@ import probatio as vol
 
 from .const import (
     ALARMS,
+    CHANGE_ALARMS,
     CONF_REPORT,
     CONF_REPORT_ENTITY,
     DOMAIN,
@@ -28,11 +30,13 @@ from .const import (
     TRIGGER_ALERT,
     TRIGGER_ENDED,
     TRIGGER_REPORT,
+    TRIGGER_SOON,
 )
-from .monitor import enabled_alarms
+from .monitor import enabled_alarms, warning_alarms
 
 TRIGGER_TYPES = [
     *(f"{alarm}_{kind}" for alarm in ALARMS for kind in (TRIGGER_ALERT, TRIGGER_ENDED)),
+    *(f"{alarm}_{TRIGGER_SOON}" for alarm in CHANGE_ALARMS),
     TRIGGER_REPORT,
 ]
 
@@ -49,11 +53,13 @@ async def async_get_triggers(
     if device is None:
         return []
     alarms: set[str] = set()
+    warnings: set[str] = set()
     report = False
     for entry_id in device.config_entries:
         entry = hass.config_entries.async_get_entry(entry_id)
         if entry is not None and entry.domain == DOMAIN:
             alarms.update(enabled_alarms(entry.options))
+            warnings.update(warning_alarms(entry.options))
             report |= bool(entry.options.get(CONF_REPORT, {}).get(CONF_REPORT_ENTITY))
     types = [
         f"{alarm}_{kind}"
@@ -61,6 +67,7 @@ async def async_get_triggers(
         if alarm in alarms
         for kind in (TRIGGER_ALERT, TRIGGER_ENDED)
     ]
+    types += [f"{alarm}_{TRIGGER_SOON}" for alarm in CHANGE_ALARMS if alarm in warnings]
     if report:
         types.append(TRIGGER_REPORT)
     return [

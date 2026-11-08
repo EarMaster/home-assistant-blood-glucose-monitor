@@ -46,6 +46,8 @@ Work in progress. The current version (0.1) contains:
 - Status sensor per person
 - Charging reminder for the phone, as alarm with the same acknowledge,
   snooze and pause
+- Change reminders for cannula, CGM sensor and insulin reservoir, with due
+  sensor, "changed" button and optional warning
 - Reports per period of a schedule (for example night, school): statistics
   of the period as trigger and sensor
 - Diagnostics download showing how the glucose data and alarms are read
@@ -148,7 +150,8 @@ their triggers, alarms only change their state sensors.
 - **Stale data:** readings older than the maximum data age neither start nor
   end the glucose alarms; the data loss alarm covers this.
 - **Restart:** alarm states survive a restart of Home Assistant.
-- Without a reading time no alarms are possible; a repair issue tells you so.
+- Without a reading time no glucose alarms are possible; a repair issue tells
+  you so. The charging and change reminders do not need glucose data.
 
 ### Notifications
 
@@ -166,8 +169,8 @@ The automation gets the alarm data as `trigger.event.data`:
 | Field | Content |
 | --- | --- |
 | `title`, `message` | ready-made texts in the language of Home Assistant |
-| `alarm` | `urgent_low`, `low`, `high`, `urgent_high`, `rapid_fall`, `rapid_rise` or `data_loss` |
-| `phase` | `triggered`, `repeat`, `acknowledged` or `resolved` |
+| `alarm` | `urgent_low`, `low`, `high`, `urgent_high`, `rapid_fall`, `rapid_rise`, `data_loss`, `charging`, `cannula_change`, `sensor_change` or `reservoir_change` |
+| `phase` | `triggered`, `repeat`, `acknowledged` or `resolved` (`soon` for the warning of a change reminder) |
 | `glucose`, `unit`, `delta` | latest value and change in the unit of the glucose sensor |
 | `rate` | own rate of change per minute in that unit |
 | `trend`, `trend_arrow` | trend key and arrow |
@@ -176,6 +179,7 @@ The automation gets the alarm data as `trigger.event.data`:
 | `tag` | notification tag, unique per entry and alarm |
 | `ack_action` | mobile app action id that acknowledges this alarm |
 | `battery` | battery level of the phone (charging reminder only) |
+| `last_change`, `due` | last change and due time (change reminders only) |
 
 Example for the Home Assistant Companion app (select the device and the
 trigger in the editor, then switch the action to YAML):
@@ -224,6 +228,28 @@ for charging; no new one starts before the next reminder time.
 - **Reminder time** and **battery limit** are fields; an entity (for example
   an `input_datetime` or `input_number`) takes precedence.
 - Leave the battery and charging sensors empty to switch the reminder off.
+
+### Change reminders
+
+Cannula, CGM sensor and insulin reservoir each have their own reminder. A
+reminder is on once it has a **wear duration** (a field with days and hours,
+or an entity with the unit `d`, `h` or `min`, which takes precedence) and
+starts when the change is due:
+
+- **Due:** the last change plus the wear duration, or, with a **fixed time**,
+  at that time on the due day (a field or a time entity, which takes
+  precedence). The *… change due* sensor shows the due time.
+- **Last change:** select an entity with the time of the last change, for
+  example from the glucose integration, and only that entity counts.
+  Without one, record a change with the *… changed* button or the
+  `blood_glucose_monitor.record_change` action (optionally with a time in the
+  past). The button can be pressed by an automation, for example from a
+  physical button.
+- The reminder ends with the next change. Acknowledge, snooze, repeat, pause
+  and "only when home" work as for the alarms.
+- **Warning:** optionally the *… change due soon* trigger fires once this long
+  before the reminder; while the person is away or alarms are paused it is
+  sent as soon as possible before the due time.
 
 ### Reports
 

@@ -40,6 +40,9 @@ FORMS = {
     ("options", "rapid_rise"): config_flow.RATE_ALARM_SCHEMA,
     ("options", "data_loss"): config_flow.DATA_LOSS_SCHEMA,
     ("options", "charging"): config_flow.CHARGING_SCHEMA,
+    ("options", "cannula_change"): config_flow.CHANGE_SCHEMA,
+    ("options", "sensor_change"): config_flow.CHANGE_SCHEMA,
+    ("options", "reservoir_change"): config_flow.CHANGE_SCHEMA,
     ("options", "report"): config_flow.REPORT_SCHEMA,
     ("options", "pause"): config_flow.PAUSE_SCHEMA,
 }
@@ -63,6 +66,9 @@ FLOW_ERRORS = {
         "unknown_charging_state",
         "invalid_time",
         "not_on_off",
+        "invalid_datetime",
+        "duration_unit_required",
+        "wear_duration_required",
     },
 }
 

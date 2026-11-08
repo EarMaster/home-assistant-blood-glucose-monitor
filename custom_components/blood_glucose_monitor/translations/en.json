@@ -68,6 +68,9 @@
           "rapid_rise": "Rapid rise alarm",
           "data_loss": "Data loss alarm",
           "charging": "Charging reminder",
+          "cannula_change": "Cannula change",
+          "sensor_change": "Sensor change",
+          "reservoir_change": "Reservoir change",
           "report": "Reports",
           "pause": "Pause"
         }
@@ -264,6 +267,84 @@
           "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
         }
       },
+      "cannula_change": {
+        "title": "Cannula change",
+        "description": "Reminder when the cannula is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Cannula changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The trigger provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase`, among others.",
+        "data": {
+          "wear_duration": "Wear duration",
+          "wear_duration_entity": "Wear duration entity",
+          "last_change_entity": "Last change entity",
+          "due_time": "Fixed time",
+          "time_entity": "Fixed time entity",
+          "warning": "Warning before",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "wear_duration": "How long the cannula is worn. Leave empty to switch the reminder off.",
+          "wear_duration_entity": "Optional. Entity with the wear duration in d, h or min; takes precedence over the field.",
+          "last_change_entity": "Optional. Entity with the time of the last change. Without it, changes are recorded with the button or the action.",
+          "due_time": "Optional. Remind at this time on the due day instead of exactly at the end of the wear duration.",
+          "time_entity": "Optional. Entity with the fixed time, for example an input datetime; takes precedence over the field.",
+          "warning": "Optional. Fires the trigger \"due soon\" this long before the reminder.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged reminder stays silent. Afterwards it starts again if the change is still due.",
+          "only_when_home": "New reminders and warnings only start while the person is at home. A running reminder continues."
+        }
+      },
+      "sensor_change": {
+        "title": "Sensor change",
+        "description": "Reminder when the sensor is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Sensor changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The trigger provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase`, among others.",
+        "data": {
+          "wear_duration": "Wear duration",
+          "wear_duration_entity": "Wear duration entity",
+          "last_change_entity": "Last change entity",
+          "due_time": "Fixed time",
+          "time_entity": "Fixed time entity",
+          "warning": "Warning before",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "wear_duration": "How long the sensor is worn. Leave empty to switch the reminder off.",
+          "wear_duration_entity": "Optional. Entity with the wear duration in d, h or min; takes precedence over the field.",
+          "last_change_entity": "Optional. Entity with the time of the last change. Without it, changes are recorded with the button or the action.",
+          "due_time": "Optional. Remind at this time on the due day instead of exactly at the end of the wear duration.",
+          "time_entity": "Optional. Entity with the fixed time, for example an input datetime; takes precedence over the field.",
+          "warning": "Optional. Fires the trigger \"due soon\" this long before the reminder.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged reminder stays silent. Afterwards it starts again if the change is still due.",
+          "only_when_home": "New reminders and warnings only start while the person is at home. A running reminder continues."
+        }
+      },
+      "reservoir_change": {
+        "title": "Reservoir change",
+        "description": "Reminder when the reservoir is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Reservoir changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The trigger provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase`, among others.",
+        "data": {
+          "wear_duration": "Wear duration",
+          "wear_duration_entity": "Wear duration entity",
+          "last_change_entity": "Last change entity",
+          "due_time": "Fixed time",
+          "time_entity": "Fixed time entity",
+          "warning": "Warning before",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "wear_duration": "How long the reservoir is worn. Leave empty to switch the reminder off.",
+          "wear_duration_entity": "Optional. Entity with the wear duration in d, h or min; takes precedence over the field.",
+          "last_change_entity": "Optional. Entity with the time of the last change. Without it, changes are recorded with the button or the action.",
+          "due_time": "Optional. Remind at this time on the due day instead of exactly at the end of the wear duration.",
+          "time_entity": "Optional. Entity with the fixed time, for example an input datetime; takes precedence over the field.",
+          "warning": "Optional. Fires the trigger \"due soon\" this long before the reminder.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged reminder stays silent. Afterwards it starts again if the change is still due.",
+          "only_when_home": "New reminders and warnings only start while the person is at home. A running reminder continues."
+        }
+      },
       "report": {
         "title": "Reports",
         "description": "One report per period in which the selected entity is on, for example per block of a schedule. When a period ends, the trigger \"Report\" of this person's device fires with the statistics, the start and the end of the period, and the sensor \"Last report\" is updated. The statistics come from the history (recorder).",
@@ -295,7 +376,10 @@
       "charging_entities_required": "Select both the battery and the charging sensor, or neither.",
       "unknown_charging_state": "The current state of this entity does not tell whether the phone charges.",
       "invalid_time": "The current value of this entity is not a time.",
-      "not_on_off": "This entity has to be on or off."
+      "not_on_off": "This entity has to be on or off.",
+      "invalid_datetime": "The current value of this entity is not a date and time.",
+      "duration_unit_required": "This entity has to report the unit d, h or min.",
+      "wear_duration_required": "Enter a wear duration or select an entity."
     }
   },
   "entity": {
@@ -323,6 +407,24 @@
       },
       "acknowledge_charging": {
         "name": "Acknowledge charging reminder"
+      },
+      "acknowledge_cannula_change": {
+        "name": "Acknowledge cannula change reminder"
+      },
+      "acknowledge_sensor_change": {
+        "name": "Acknowledge sensor change reminder"
+      },
+      "acknowledge_reservoir_change": {
+        "name": "Acknowledge reservoir change reminder"
+      },
+      "cannula_change_changed": {
+        "name": "Cannula changed"
+      },
+      "sensor_change_changed": {
+        "name": "Sensor changed"
+      },
+      "reservoir_change_changed": {
+        "name": "Reservoir changed"
       }
     },
     "event": {
@@ -362,7 +464,19 @@
               "charging_triggered": "Charging: alarm",
               "charging_repeat": "Charging: repeat",
               "charging_acknowledged": "Charging: acknowledged",
-              "charging_resolved": "Charging: over"
+              "charging_resolved": "Charging: over",
+              "cannula_change_triggered": "Cannula change: reminder",
+              "cannula_change_repeat": "Cannula change: repeat",
+              "cannula_change_acknowledged": "Cannula change: acknowledged",
+              "cannula_change_resolved": "Cannula change: done",
+              "sensor_change_triggered": "Sensor change: reminder",
+              "sensor_change_repeat": "Sensor change: repeat",
+              "sensor_change_acknowledged": "Sensor change: acknowledged",
+              "sensor_change_resolved": "Sensor change: done",
+              "reservoir_change_triggered": "Reservoir change: reminder",
+              "reservoir_change_repeat": "Reservoir change: repeat",
+              "reservoir_change_acknowledged": "Reservoir change: acknowledged",
+              "reservoir_change_resolved": "Reservoir change: done"
             }
           }
         }
@@ -478,6 +592,66 @@
           "snoozed": "Snoozed"
         }
       },
+      "cannula_change_alarm": {
+        "name": "Cannula change reminder",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Sensor change reminder",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Reservoir change reminder",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "cannula_change_due": {
+        "name": "Cannula change due",
+        "state_attributes": {
+          "last_change": {
+            "name": "Last change"
+          },
+          "wear_duration_h": {
+            "name": "Wear duration"
+          }
+        }
+      },
+      "sensor_change_due": {
+        "name": "Sensor change due",
+        "state_attributes": {
+          "last_change": {
+            "name": "Last change"
+          },
+          "wear_duration_h": {
+            "name": "Wear duration"
+          }
+        }
+      },
+      "reservoir_change_due": {
+        "name": "Reservoir change due",
+        "state_attributes": {
+          "last_change": {
+            "name": "Last change"
+          },
+          "wear_duration_h": {
+            "name": "Wear duration"
+          }
+        }
+      },
       "last_report": {
         "name": "Last report",
         "state_attributes": {
@@ -538,6 +712,15 @@
     },
     "entry_not_loaded": {
       "message": "The entry {name} is not loaded."
+    },
+    "change_not_enabled": {
+      "message": "This change reminder of {name} has no wear duration."
+    },
+    "change_from_entity": {
+      "message": "The last change of this reminder of {name} comes from an entity and cannot be recorded."
+    },
+    "change_in_future": {
+      "message": "The change cannot be in the future."
     }
   },
   "issues": {
@@ -556,7 +739,17 @@
         "urgent_high": "Urgent high",
         "rapid_fall": "Rapid fall",
         "rapid_rise": "Rapid rise",
-        "charging": "Charging reminder"
+        "charging": "Charging reminder",
+        "cannula_change": "Cannula change",
+        "sensor_change": "Sensor change",
+        "reservoir_change": "Reservoir change"
+      }
+    },
+    "change": {
+      "options": {
+        "cannula_change": "Cannula",
+        "sensor_change": "Sensor",
+        "reservoir_change": "Reservoir"
       }
     },
     "alarm_text": {
@@ -576,7 +769,15 @@
         "report": "{name}: report",
         "report_message": "{period}: {in_range} % in range, {below} % below, {above} % above. Mean {mean} {unit} ({min}–{max}). Low alarms: {low_alarms}.",
         "report_message_no_range": "{period}: mean {mean} {unit} ({min}–{max}). Low alarms: {low_alarms}.",
-        "report_no_data": "{period}: no glucose data."
+        "report_no_data": "{period}: no glucose data.",
+        "cannula_change": "{name}: change the cannula",
+        "cannula_change_soon": "{name}: cannula change due soon",
+        "sensor_change": "{name}: change the sensor",
+        "sensor_change_soon": "{name}: sensor change due soon",
+        "reservoir_change": "{name}: change the reservoir",
+        "reservoir_change_soon": "{name}: reservoir change due soon",
+        "change_message": "Worn for {duration}.",
+        "change_soon_message": "Due in {duration}."
       }
     },
     "detection": {
@@ -607,6 +808,24 @@
           "description": "Leave empty to acknowledge all alarms of the person."
         }
       }
+    },
+    "record_change": {
+      "name": "Record change",
+      "description": "Records a change of the cannula, the sensor or the reservoir of a person, now or at the given time. Not possible when the last change comes from an entity.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Person",
+          "description": "The entry of the person."
+        },
+        "change": {
+          "name": "Change",
+          "description": "What was changed."
+        },
+        "time": {
+          "name": "Time",
+          "description": "Optional. Leave empty for now."
+        }
+      }
     }
   },
   "device_automation": {
@@ -627,6 +846,15 @@
       "rapid_rise_ended": "Rapid rise alarm acknowledged or over",
       "charging_alert": "Charging reminder started or repeated",
       "charging_ended": "Charging reminder acknowledged or over",
+      "cannula_change_alert": "Cannula change reminder started or repeated",
+      "cannula_change_ended": "Cannula change reminder acknowledged or over",
+      "cannula_change_soon": "Cannula change due soon",
+      "sensor_change_alert": "Sensor change reminder started or repeated",
+      "sensor_change_ended": "Sensor change reminder acknowledged or over",
+      "sensor_change_soon": "Sensor change due soon",
+      "reservoir_change_alert": "Reservoir change reminder started or repeated",
+      "reservoir_change_ended": "Reservoir change reminder acknowledged or over",
+      "reservoir_change_soon": "Reservoir change due soon",
       "report": "Report"
     }
   }

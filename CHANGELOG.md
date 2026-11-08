@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-08
+
+### Added
+- Change reminders for cannula, CGM sensor and insulin reservoir: due at the last change plus the wear duration (field or entity) or at a fixed time on the due day; the last change comes from an entity or is recorded with a "changed" button or the new action `blood_glucose_monitor.record_change`; due sensor, optional "due soon" warning trigger, and acknowledge, snooze, repeat, pause and "only when home" like the other alarms
+
+### Fixed
+- The state sensor of the charging reminder is no longer unavailable when the glucose data has no reading time
+
 ## [0.4.0] - 2026-11-08
 
 ### Added

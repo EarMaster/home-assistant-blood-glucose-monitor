@@ -52,6 +52,7 @@ from .const import (
     ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
+    CHANGE_ALARMS,
     CHARGING_STATES,
     CONF_BATTERY_ENTITY,
     CONF_BATTERY_LIMIT,
@@ -60,7 +61,9 @@ from .const import (
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
     CONF_DETECTION,
+    CONF_DUE_TIME,
     CONF_DURATION,
+    CONF_LAST_CHANGE_ENTITY,
     CONF_MAX_AGE,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
@@ -75,10 +78,14 @@ from .const import (
     CONF_THRESHOLD_ENTITY,
     CONF_TIME_ENTITY,
     CONF_TREND_LEVEL,
+    CONF_WARNING,
+    CONF_WEAR_DURATION,
+    CONF_WEAR_DURATION_ENTITY,
     DEFAULT_PAUSE_DURATION,
     DETECTION_OFF,
     DETECTION_TREND,
     DOMAIN,
+    DURATION_UNITS,
     EVENT_ALARM,
     EVENT_MOBILE_APP_NOTIFICATION_ACTION,
     HIGH_ALARMS,
@@ -91,6 +98,7 @@ from .const import (
     TREND_LEVEL_VERY_QUICKLY,
     TRIGGER_ALERT,
     TRIGGER_ENDED,
+    TRIGGER_SOON,
 )
 from .glucose import GlucoseReading, Trend, parse_number
 from .reports import ReportTracker
@@ -154,8 +162,9 @@ def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
     """Return the active alarms.
 
     A threshold alarm is active once it has a threshold entity, a rapid
-    change alarm once a detection is selected; the data loss alarm is always
-    active. Notifications are the user's automations.
+    change alarm once a detection is selected, a change reminder once it has
+    a wear duration; the data loss alarm is always active. Notifications are
+    the user's automations.
     """
     return [
         alarm
@@ -168,7 +177,40 @@ def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
             and options.get(alarm, {}).get(CONF_BATTERY_ENTITY)
             and options.get(alarm, {}).get(CONF_CHARGING_ENTITY)
         )
+        or (
+            alarm in CHANGE_ALARMS
+            and (
+                options.get(alarm, {}).get(CONF_WEAR_DURATION_ENTITY)
+                or duration(options.get(alarm, {}).get(CONF_WEAR_DURATION))
+            )
+        )
     ]
+
+
+def warning_alarms(options: Mapping[str, Any]) -> list[str]:
+    """Return the enabled change reminders with a warning before."""
+    return [
+        alarm
+        for alarm in enabled_alarms(options)
+        if alarm in CHANGE_ALARMS and duration(options[alarm].get(CONF_WARNING))
+    ]
+
+
+def duration(value: object) -> timedelta | None:
+    """Return a positive duration from a duration selector value."""
+    if not isinstance(value, Mapping):
+        return None
+    try:
+        delta = timedelta(
+            **{
+                key: float(value[key])
+                for key in ("days", "hours", "minutes", "seconds")
+                if value.get(key)
+            }
+        )
+    except TypeError, ValueError:
+        return None
+    return delta if delta > timedelta(0) else None
 
 
 def alarm_settings(alarm: str, options: Mapping[str, Any]) -> AlarmSettings:
@@ -235,6 +277,10 @@ class AlarmMonitor:
         self._started = dt_util.utcnow()
         report_entity = options.get(CONF_REPORT, {}).get(CONF_REPORT_ENTITY)
         self.report = None if not report_entity else ReportTracker(self, report_entity)
+        # Changes recorded by the integration, and the due time per change
+        # reminder whose warning was sent.
+        self.changes: dict[str, datetime] = {}
+        self._warned: dict[str, str] = {}
 
     @property
     def reading_time_known(self) -> bool:
@@ -381,6 +427,8 @@ class AlarmMonitor:
                 CONF_CHARGING_ENTITY,
                 CONF_TIME_ENTITY,
                 CONF_BATTERY_LIMIT_ENTITY,
+                CONF_LAST_CHANGE_ENTITY,
+                CONF_WEAR_DURATION_ENTITY,
             )
             if (entity_id := self._options[alarm].get(key))
         ]
@@ -455,6 +503,71 @@ class AlarmMonitor:
                     status.snoozed_until = now
         self._async_update()
 
+    def records_changes(self, alarm: str) -> bool:
+        """Return True if the integration records the changes of a reminder.
+
+        Without a last change entity the change is recorded with the button
+        or the action; with one, only the entity counts.
+        """
+        return alarm in CHANGE_ALARMS and not self._options[alarm].get(
+            CONF_LAST_CHANGE_ENTITY
+        )
+
+    def last_change(self, alarm: str) -> datetime | None:
+        """Return the time of the last change of a change reminder."""
+        if entity_id := self._options[alarm].get(CONF_LAST_CHANGE_ENTITY):
+            value = state_value(self.hass.states.get(entity_id))
+            return None if value is None else self.datetime_from_state(value)
+        return self.changes.get(alarm)
+
+    @staticmethod
+    def datetime_from_state(value: str) -> datetime | None:
+        """Return the moment of a datetime or date state (date: local midnight)."""
+        if (moment := dt_util.parse_datetime(value)) is None:
+            return None
+        if moment.tzinfo is None:
+            moment = moment.replace(tzinfo=dt_util.get_default_time_zone())
+        return dt_util.as_utc(moment)
+
+    def wear_duration(self, alarm: str) -> timedelta | None:
+        """Return the wear duration of a change reminder; an entity wins."""
+        options = self._options[alarm]
+        if entity_id := options.get(CONF_WEAR_DURATION_ENTITY):
+            # Without a known time unit nothing is guessed.
+            factor = DURATION_UNITS.get(sensor_unit(self.hass, entity_id) or "")
+            value = parse_number(state_value(self.hass.states.get(entity_id)))
+            if factor is None or value is None or value <= 0:
+                return None
+            return minutes(value * factor)
+        return duration(options.get(CONF_WEAR_DURATION))
+
+    def due(self, alarm: str) -> datetime | None:
+        """Return when a change reminder starts.
+
+        The last change plus the wear duration, or the fixed time on that day.
+        """
+        last = self.last_change(alarm)
+        wear = self.wear_duration(alarm)
+        if last is None or wear is None:
+            return None
+        due = last + wear
+        options = self._options[alarm]
+        if not options.get(CONF_DUE_TIME) and not options.get(CONF_TIME_ENTITY):
+            return due
+        if (time := self._time_option(options, CONF_DUE_TIME)) is None:
+            return None
+        return dt_util.as_utc(
+            dt_util.as_local(due).replace(
+                hour=time.hour, minute=time.minute, second=time.second, microsecond=0
+            )
+        )
+
+    @callback
+    def async_record_change(self, alarm: str, when: datetime | None = None) -> None:
+        """Record a change (now or at ``when``); ends the reminder."""
+        self.changes[alarm] = dt_util.as_utc(when or dt_util.utcnow())
+        self._async_update()
+
     @callback
     def _async_state_changed(self, event: Event[EventStateChangedData]) -> None:
         """Check the alarms when a threshold or the person changes."""
@@ -492,12 +605,17 @@ class AlarmMonitor:
         for alarm, engine in self.engines.items():
             if alarm == ALARM_CHARGING:
                 condition = self._charging_condition(now)
+            elif alarm in CHANGE_ALARMS:
+                condition = self._change_condition(alarm, now)
             elif self.reading_time_known:
                 condition = self._condition(alarm, reading, now)
             else:
                 continue
             phases = engine.update(now, condition, self._may_start(alarm))
             self._async_notify_all(alarm, phases, now)
+        for alarm in self.engines:
+            if alarm in CHANGE_ALARMS:
+                self._async_check_warning(alarm, now)
 
         self._async_schedule(now)
         self.async_save()
@@ -569,6 +687,42 @@ class AlarmMonitor:
             return Condition.UNKNOWN
         return Condition.ALARM if battery <= limit else Condition.CLEAR
 
+    def _change_condition(self, alarm: str, now: datetime) -> Condition:
+        """Return the condition of a change reminder: alarm from the due time."""
+        if (due := self.due(alarm)) is None:
+            return Condition.UNKNOWN
+        return Condition.ALARM if now >= due else Condition.CLEAR
+
+    def _warning(self, alarm: str) -> timedelta | None:
+        return duration(self._options[alarm].get(CONF_WARNING))
+
+    @callback
+    def _async_check_warning(self, alarm: str, now: datetime) -> None:
+        """Fire the "due soon" trigger once per due time, within the warning.
+
+        A warning that may not start (paused, away) is sent later, as long as
+        the change is not due yet.
+        """
+        if (
+            (lead := self._warning(alarm)) is None
+            or (due := self.due(alarm)) is None
+            or not due - lead <= now < due
+            or self._warned.get(alarm) == due.isoformat()
+            or not self._may_start(alarm)
+        ):
+            return
+        self._warned[alarm] = due.isoformat()
+        variables = self._variables(alarm, Phase.TRIGGERED, now)
+        name = self.entry.title
+        variables |= {
+            "phase": TRIGGER_SOON,
+            "title": self._text(f"{alarm}_{TRIGGER_SOON}", name=name),
+            "message": self._text(
+                "change_soon_message", duration=_format_duration(due - now)
+            ),
+        }
+        self.async_fire(f"{alarm}_{TRIGGER_SOON}", variables)
+
     def _is_charging(self, entity_id: str) -> bool | None:
         """Return whether the phone charges, ``None`` if unknown."""
         if (value := state_value(self.hass.states.get(entity_id))) is None:
@@ -602,15 +756,19 @@ class AlarmMonitor:
 
     def _reminder_start(self, now: datetime) -> datetime | None:
         """Return today's reminder time (local day of ``now``)."""
-        options = self._options[ALARM_CHARGING]
-        value: str | None = options.get(CONF_REMINDER_TIME)
-        if entity_id := options.get(CONF_TIME_ENTITY):
-            value = state_value(self.hass.states.get(entity_id))
-        if value is None or (time := self.time_from_state(value)) is None:
+        time = self._time_option(self._options[ALARM_CHARGING], CONF_REMINDER_TIME)
+        if time is None:
             return None
         return dt_util.as_local(now).replace(
             hour=time.hour, minute=time.minute, second=time.second, microsecond=0
         )
+
+    def _time_option(self, options: Mapping[str, Any], key: str) -> dt_time | None:
+        """Return a time of day from a field; the time entity takes precedence."""
+        value: str | None = options.get(key)
+        if entity_id := options.get(CONF_TIME_ENTITY):
+            value = state_value(self.hass.states.get(entity_id))
+        return None if value is None else self.time_from_state(value)
 
     def _rate_condition(
         self, alarm: str, reading: GlucoseReading, options: Mapping[str, Any]
@@ -707,6 +865,11 @@ class AlarmMonitor:
             and (start := self._reminder_start(now)) is not None
         ):
             times.extend((start, start + timedelta(days=1)))
+        for alarm in self.engines:
+            if alarm in CHANGE_ALARMS and (due := self.due(alarm)) is not None:
+                times.append(due)
+                if (lead := self._warning(alarm)) is not None:
+                    times.append(due - lead)
         # Times in the past wait for new data instead (e.g. a snooze that
         # ended without usable data).
         if future := [time for time in times if time is not None and time > now]:
@@ -788,6 +951,12 @@ class AlarmMonitor:
             message = self._text("data_loss_message", minutes=age)
         elif alarm == ALARM_CHARGING:
             message = self._text("charging_message", battery=_format(battery, 0))
+        elif alarm in CHANGE_ALARMS:
+            last = self.last_change(alarm)
+            message = self._text(
+                "change_message",
+                duration=_format_duration(None if last is None else now - last),
+            )
         else:
             message = " ".join(
                 part
@@ -807,6 +976,10 @@ class AlarmMonitor:
             "rate": self._display_rate(unit),
             "data_age_min": age,
             "battery": battery,
+            "last_change": _iso(self.last_change(alarm))
+            if alarm in CHANGE_ALARMS
+            else None,
+            "due": _iso(self.due(alarm)) if alarm in CHANGE_ALARMS else None,
             "title": self._text(alarm, name=name),
             "message": message,
             "tag": notification_tag(self.entry.entry_id, alarm),
@@ -831,6 +1004,12 @@ class AlarmMonitor:
         self.pause_until = _parse_time(data.get("pause_until"))
         if self.report is not None:
             self.report.restore(data.get("report") or {})
+        self.changes = {
+            alarm: moment
+            for alarm, value in (data.get("changes") or {}).items()
+            if (moment := _parse_time(value)) is not None
+        }
+        self._warned = dict(data.get("warned") or {})
 
     def _data_to_store(self) -> dict[str, Any]:
         return {
@@ -840,6 +1019,9 @@ class AlarmMonitor:
             "last_reading_time": _iso(self.last_reading_time),
             "pause_until": _iso(self.pause_until),
             "report": None if self.report is None else self.report.as_dict(),
+            # Kept for all reminders: switching one off keeps its last change.
+            "changes": {alarm: _iso(moment) for alarm, moment in self.changes.items()},
+            "warned": self._warned,
         }
 
 
@@ -847,6 +1029,14 @@ def _format(value: float | None, digits: int) -> str:
     if value is None:
         return ""
     return f"{value:.{digits}f}"
+
+
+def _format_duration(value: timedelta | None) -> str:
+    """Return a duration as whole hours, or minutes below one hour."""
+    if value is None:
+        return "–"
+    total = max(int(value.total_seconds() // 60), 0)
+    return f"{total // 60} h" if total >= 60 else f"{total} min"
 
 
 def _iso(value: datetime | None) -> str | None:
