@@ -33,7 +33,7 @@ Work through the steps in order.
 ## 2. Check the documentation
 
 Run the `docs-sync` agent on the commits since the newest tag; it compares
-`README.md`, the documentation site (`site/`, especially `site/data.js`) and
+`README.md`, the documentation site (`site/`, especially `site/assets/js/data.js`) and
 the translations with the changes. Ask the user:
 
 ```

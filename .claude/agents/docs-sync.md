@@ -23,12 +23,14 @@ sync with its code. Read `AGENTS.md` first for the principles of the project.
 - `README.md`: feature overview, configuration, alarms, notifications (event
   types and attribute table), charging and change reminders, reports,
   development notes.
-- `site/data.js`: alarms, event types, the requirements under which each
+- `site/assets/js/data.js`: alarms, event types, the requirements under which each
   event fires, and the attributes of each event. The automation builder
-  (`site/builder.js`) and the documentation page (`site/docs.js`) render from
+  (`site/assets/js/builder.js`) and the documentation page (`site/assets/js/docs.js`) render from
   it.
 - `site/index.html` (Information), `site/docs.html` (Documentation),
   `site/builder.html` (Automation builder): texts that describe behaviour.
+- `scripts/screenshots/demo.py`: the demo setup for the screenshots (options
+  and entity names must match the integration).
 - `CHANGELOG.md` `## [Unreleased]`: one user-facing entry per change, if the
   change is user-visible and not yet listed.
 
@@ -43,7 +45,9 @@ sync with its code. Read `AGENTS.md` first for the principles of the project.
    texts that patronize users, the term "Marketplace" (not HACS), and the
    prominent "not a medical device" notice untouched.
 4. Never add real health data, real names (use Alex/Sam) or personal setups.
-5. If you changed `site/`, check that the pages still parse: run
-   `node --check site/*.js` when Node is available.
+5. If you changed `site/`, check that the scripts still parse: run
+   `node --check site/assets/js/*.js` when Node is available. Liquid processes
+   pages with front matter: wrap `{{ … }}` of Home Assistant templates in
+   `{% raw %}…{% endraw %}`.
 6. Do not commit. Report which files you changed and any statement you could
    not verify from the code.

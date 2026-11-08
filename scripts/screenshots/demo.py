@@ -120,7 +120,7 @@ class HomeAssistant:
         return str(await self.post("/api/template", {"template": template}))
 
     async def flow(self, kind: str, handler: str, *steps: dict[str, Any]) -> Any:
-        """Run a config or options flow through its steps."""
+        """Run a config flow ("flow") or options flow ("options/flow")."""
         base = f"/api/config/config_entries/{kind}"
         result = await self.post(base, {"handler": handler})
         for data in steps:
@@ -135,7 +135,7 @@ class HomeAssistant:
 
     async def options(self, entry_id: str, step: str, data: dict[str, Any]) -> None:
         """Set the options of one menu item."""
-        await self.flow("options", entry_id, {"next_step_id": step}, data)
+        await self.flow("options/flow", entry_id, {"next_step_id": step}, data)
 
 
 async def reading(ha: HomeAssistant, glucose: float, trend: str, change: float) -> None:

@@ -1,133 +1,123 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Blood Glucose Monitor for Home Assistant</title>
-    <meta name="description" content="Extra glucose hints for Home Assistant: alarms, reminders and reports as building blocks for your own notifications. Not a medical device.">
-    <link rel="icon" href="icon.png">
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <header class="site">
-      <div class="inner">
-        <a class="brand" href="./"><img src="icon.png" alt="">Blood Glucose Monitor</a>
-        <nav class="site" aria-label="Pages">
-          <a href="./" aria-current="page">Information</a>
-          <a href="builder.html">Automation builder</a>
-          <a href="docs.html">Documentation</a>
-        </nav>
-      </div>
-    </header>
+---
+layout: home
+title: Information
+headline: Extra glucose hints for Home Assistant
+lead: >-
+  Blood Glucose Monitor turns the glucose data of another integration (for
+  example Nightscout or Dexcom) into optional alarms, reminders and reports,
+  one entry per person. The integration decides when; you decide how you are
+  notified.
+description: >-
+  Extra glucose hints for Home Assistant: alarms, reminders and reports as
+  building blocks for your own notifications. Not a medical device.
+---
 
-    <main>
-      <h1>Blood Glucose Monitor for Home Assistant</h1>
-      <p class="lead">
-        A custom integration that turns the glucose data of another integration
-        (for example Nightscout or Dexcom) into optional hints for everyday life:
-        alarms, reminders and reports, one entry per person. The integration
-        decides <em>when</em>; you decide <em>how</em> you are notified.
-      </p>
+<div class="caution" role="note">
+  <strong>Not a medical device. Not a replacement for real alarms.</strong>
+  Blood Glucose Monitor only adds <em>extra</em> hints to Home Assistant. It
+  does <b>not</b> replace the alarms of your CGM, insulin pump or medical app
+  (for example Dexcom, LibreLink, CamAPS FX or xDrip+). Keep those alarms
+  switched on at all times. Notifications from Home Assistant can be delayed
+  or not arrive at all, for example when Home Assistant, your network or the
+  glucose data source is down. Never rely on them alone. Use at your own risk;
+  there is no warranty of any kind.
+</div>
 
-      <div class="caution" role="note">
-        <strong>Not a medical device. Not a replacement for real alarms.</strong>
-        Blood Glucose Monitor only adds <em>extra</em> hints to Home Assistant. It
-        does <b>not</b> replace the alarms of your CGM, insulin pump or medical app
-        (for example Dexcom, LibreLink, CamAPS FX or xDrip+). Keep those alarms
-        switched on at all times. Notifications from Home Assistant can be delayed
-        or not arrive at all, for example when Home Assistant, your network or the
-        glucose data source is down. Never rely on them alone. Use at your own
-        risk; there is no warranty of any kind.
-      </div>
+<h2>What it does</h2>
+<div class="cards">
+  <section class="card">
+    <h3>Glucose alarms</h3>
+    <p>Urgent low, low, high, urgent high, rapid fall, rapid rise and data
+      loss, each with delay, repeat, acknowledge, snooze and re-check. Urgent
+      low is never paused.</p>
+  </section>
+  <section class="card">
+    <h3>Reminders</h3>
+    <p>Charging reminder for the phone in the evening, and change reminders
+      for cannula, CGM sensor and insulin reservoir with an optional warning
+      before they are due.</p>
+  </section>
+  <section class="card">
+    <h3>Reports</h3>
+    <p>A summary per period of a schedule (for example night or school):
+      minimum, maximum, mean, time in range and the alarms of the period.</p>
+  </section>
+  <section class="card">
+    <h3>Your notifications</h3>
+    <p>Every alarm and the report has an event entity. Your own automations
+      decide how to notify: phone, speaker, light. The
+      <a href="{{ '/builder.html' | relative_url }}">automation builder</a>
+      prepares them.</p>
+  </section>
+</div>
 
-      <h2>What it does</h2>
-      <div class="grid">
-        <section class="card">
-          <h3>Glucose alarms</h3>
-          <p>Urgent low, low, high, urgent high, rapid fall, rapid rise and data
-            loss, each with delay, repeat, acknowledge, snooze and re-check. Urgent
-            low is never paused.</p>
-        </section>
-        <section class="card">
-          <h3>Reminders</h3>
-          <p>Charging reminder for the phone in the evening, and change reminders
-            for cannula, CGM sensor and insulin reservoir with an optional warning
-            before they are due.</p>
-        </section>
-        <section class="card">
-          <h3>Reports</h3>
-          <p>A summary per period of a schedule (for example night or school):
-            minimum, maximum, mean, time in range and the alarms of the period.</p>
-        </section>
-        <section class="card">
-          <h3>Your notifications</h3>
-          <p>Every alarm and the report has an event entity. Your own automations
-            decide how to notify: phone, speaker, light. The
-            <a href="builder.html">automation builder</a> prepares them.</p>
-        </section>
-      </div>
+<figure class="screenshot">
+  <img src="{{ '/img/device.png' | relative_url }}" alt="Device page of the person Alex with status, alarm sensors, event entities and buttons" loading="lazy" onerror="this.closest('figure').remove()">
+  <figcaption>One device per person: status, a state sensor, an event entity and an acknowledge button per alarm, the change reminders and the last report.</figcaption>
+</figure>
 
-      <h2>Secondary by design</h2>
-      <p>
-        The integration is meant as a second line: extra information for the
-        household, a hint on the speaker at night, a reminder that the phone
-        needs charging. It depends on Home Assistant, the network, the glucose
-        integration and the phone, and any of these can fail without warning.
-        The primary alarms belong to the CGM, the pump or the medical app.
-      </p>
-      <ul>
-        <li>Without a reading time of the glucose data there are no glucose
-          alarms; a repair issue tells you so. Nothing is guessed.</li>
-        <li>Stale data neither starts nor ends a glucose alarm; the data loss
-          alarm covers missing data.</li>
-        <li>Alarm states survive a restart of Home Assistant.</li>
-      </ul>
+<h2>Secondary by design</h2>
+<p>
+  The integration is meant as a second line: extra information for the
+  household, a hint on the speaker at night, a reminder that the phone needs
+  charging. It depends on Home Assistant, the network, the glucose integration
+  and the phone, and any of these can fail without warning. The primary alarms
+  belong to the CGM, the pump or the medical app.
+</p>
+<ul>
+  <li>Without a reading time of the glucose data there are no glucose alarms;
+    a repair issue tells you so. Nothing is guessed.</li>
+  <li>Stale data neither starts nor ends a glucose alarm; the data loss alarm
+    covers missing data.</li>
+  <li>Alarm states survive a restart of Home Assistant.</li>
+</ul>
 
-      <h2>Getting started</h2>
-      <ol>
-        <li>Install <b>Blood Glucose Monitor</b> from the Marketplace: add
-          <code>EarMaster/home-assistant-blood-glucose-monitor</code> as a custom
-          repository of type <i>Integration</i>, download it and restart Home
-          Assistant.</li>
-        <li>Add the integration under <b>Settings → Devices &amp; services</b>,
-          once per person: confirm the notice, enter the name and select the
-          glucose sensor and, optionally, the person.</li>
-        <li>Under <b>Configure</b>, switch on what you need: thresholds for the
-          alarms, the charging and change reminders, the report periods.</li>
-        <li>Create the notifications: open the
-          <a href="builder.html">automation builder</a> from the device page of
-          the person (<b>Visit</b>) or from the <b>Configure</b> menu. It already
-          knows the entities of that person.</li>
-      </ol>
-      <p>
-        <a class="button" href="builder.html">Open the automation builder</a>
-        <a class="button secondary" href="docs.html">Read the documentation</a>
-      </p>
+<h2>Getting started</h2>
+<ol>
+  <li>Install <b>Blood Glucose Monitor</b> from the Marketplace: add
+    <code>EarMaster/home-assistant-blood-glucose-monitor</code> as a custom
+    repository of type <i>Integration</i>, download it and restart Home
+    Assistant.</li>
+  <li>Add the integration under <b>Settings → Devices &amp; services</b>, once
+    per person: confirm the notice, enter the name and select the glucose
+    sensor and, optionally, the person.</li>
+  <li>Under <b>Configure</b>, switch on what you need: thresholds for the
+    alarms, the charging and change reminders, the report periods.</li>
+  <li>Create the notifications: open the
+    <a href="{{ '/builder.html' | relative_url }}">automation builder</a> from
+    the device page of the person (<b>Visit</b>) or from the <b>Configure</b>
+    menu. It already knows the entities of that person.</li>
+</ol>
 
-      <h2>Entities per person</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Entity</th><th>Purpose</th></tr>
-          </thead>
-          <tbody>
-            <tr><td><i>Status</i> sensor</td><td>The most important current state, with the latest glucose value, trend and active alarms as attributes.</td></tr>
-            <tr><td><i>… alarm</i> / <i>… reminder</i> event</td><td><b>Trigger for notifications.</b> One per alarm; fires on start, repeat, acknowledge and end.</td></tr>
-            <tr><td><i>… alarm</i> / <i>… reminder</i> sensor</td><td>State of the alarm (<code>idle</code>, <code>pending</code>, <code>active</code>, <code>snoozed</code>) for dashboards and conditions. It does not change on a repeat.</td></tr>
-            <tr><td><i>Acknowledge …</i> button</td><td>Acknowledges the alarm for its snooze time.</td></tr>
-            <tr><td><i>Pause alarms</i> switch</td><td>Silences all alarms except urgent low for the configured time.</td></tr>
-            <tr><td><i>… change due</i> sensor, <i>… changed</i> button</td><td>Due time of a change reminder and recording a change.</td></tr>
-            <tr><td><i>Report</i> event, <i>Last report</i> sensor</td><td>The report of each period; the sensor holds the time in range of the last one.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </main>
+<figure class="screenshot">
+  <img src="{{ '/img/setup.png' | relative_url }}" alt="Setup dialog with the notice that the integration is not a medical device" loading="lazy" onerror="this.closest('figure').remove()">
+  <figcaption>Setup starts with the notice, which has to be confirmed.</figcaption>
+</figure>
 
-    <footer class="site">
-      <div class="inner">
-        <a href="https://github.com/EarMaster/home-assistant-blood-glucose-monitor">Source code on GitHub</a>
-        · Not a medical device.
-      </div>
-    </footer>
-  </body>
-</html>
+<figure class="screenshot">
+  <img src="{{ '/img/options.png' | relative_url }}" alt="Configure menu with one item per alarm and the link to the automation builder" loading="lazy" onerror="this.closest('figure').remove()">
+  <figcaption>Configure: one item per alarm, the reminders, reports and pause, and the link to the automation builder.</figcaption>
+</figure>
+
+<h2>Entities per person</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>Entity</th><th>Purpose</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><i>Status</i> sensor</td><td>The most important current state, with the latest glucose value, trend and active alarms as attributes.</td></tr>
+      <tr><td><i>… alarm</i> / <i>… reminder</i> event</td><td><b>Trigger for notifications.</b> One per alarm; fires on start, repeat, acknowledge and end.</td></tr>
+      <tr><td><i>… alarm</i> / <i>… reminder</i> sensor</td><td>State of the alarm (<code>idle</code>, <code>pending</code>, <code>active</code>, <code>snoozed</code>) for dashboards and conditions. It does not change on a repeat.</td></tr>
+      <tr><td><i>Acknowledge …</i> button</td><td>Acknowledges the alarm for its snooze time.</td></tr>
+      <tr><td><i>Pause alarms</i> switch</td><td>Silences all alarms except urgent low for the configured time.</td></tr>
+      <tr><td><i>… change due</i> sensor, <i>… changed</i> button</td><td>Due time of a change reminder and recording a change.</td></tr>
+      <tr><td><i>Report</i> event, <i>Last report</i> sensor</td><td>The report of each period; the sensor holds the time in range of the last one.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<figure class="screenshot">
+  <img src="{{ '/img/status.png' | relative_url }}" alt="Status sensor of Alex showing a low glucose state" loading="lazy" onerror="this.closest('figure').remove()">
+  <figcaption>The status sensor with the most important current state (synthetic data).</figcaption>
+</figure>

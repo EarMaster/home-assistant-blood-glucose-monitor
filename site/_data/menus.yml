@@ -1,0 +1,10 @@
+main:
+  - name: "Information"
+    url: "/"
+    weight: 1
+  - name: "Automation builder"
+    url: "/builder.html"
+    weight: 2
+  - name: "Documentation"
+    url: "/docs.html"
+    weight: 3

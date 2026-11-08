@@ -17,3 +17,9 @@ htmlcov/
 # Screenshot debugging output
 screenshots-debug/
 site/img/
+
+# Jekyll
+_site/
+site/.jekyll-cache/
+site/Gemfile.lock
+site/vendor/

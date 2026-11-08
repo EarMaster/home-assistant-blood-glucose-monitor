@@ -65,8 +65,9 @@ Keep it that way.
 | `config_flow.py` | Setup (disclaimer → person → sources) and options menu (one step per alarm, report, pause) |
 | `__init__.py` | Setup, actions `acknowledge` and `record_change` |
 
-`site/` is the documentation site (static HTML/JS, no build): Information,
-automation builder, documentation. `site/data.js` is the single source for
+`site/` is the documentation site (Jekyll with the vendored Serif theme,
+MIT): Information (`index.html`), automation builder (`builder.html`),
+documentation (`docs.html`); builder and documentation render from JS. `site/assets/js/data.js` is the single source for
 event types, their requirements and attributes; keep it in sync with the
 code. `scripts/screenshots/` holds the demo Home Assistant used by the Pages
 workflow to take screenshots.
@@ -75,7 +76,7 @@ workflow to take screenshots.
 
 After every change to behaviour, options, entities, events, attributes,
 actions or texts, run the `docs-sync` agent (`.claude/agents/docs-sync.md`) so
-`README.md`, `site/` (especially `site/data.js`) and the `CHANGELOG.md`
+`README.md`, `site/` (especially `site/assets/js/data.js`) and the `CHANGELOG.md`
 Unreleased section match the code. A change is not done before that.
 
 ## Conventions

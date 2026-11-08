@@ -299,10 +299,12 @@ ruff check . && ruff format --check .
 pytest --cov
 ```
 
-The documentation site with the automation builder lives in `site/` (static
-HTML, no build step; preview with `python -m http.server -d site`). The
-*Pages* workflow publishes it from `main`; the event types, requirements and
-values are in `site/data.js`.
+The documentation site with the automation builder lives in `site/`
+(Jekyll with the [Serif theme](https://github.com/zerostaticthemes/jekyll-serif-theme);
+preview with `bundle install` and `bundle exec jekyll serve` in `site/`). The
+event types, requirements and values are in `site/assets/js/data.js`. The
+*Pages* workflow takes screenshots of a demo Home Assistant with synthetic data
+(`scripts/screenshots/`), builds the site and publishes it from `main`.
 
 `scripts/test.sh` runs the same in a Docker container. GitHub Actions run the
 tests, [hassfest](https://github.com/home-assistant/actions) and the

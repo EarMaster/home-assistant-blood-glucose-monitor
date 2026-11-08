@@ -1,9 +1,10 @@
 name: Pages
 
-# Takes screenshots of a demo Home Assistant with synthetic data and publishes
-# the documentation site (site/) with them. Deployed from main only, so the
-# site matches the released version; on develop the screenshots are only an
-# artifact to review.
+# Takes screenshots of a demo Home Assistant with synthetic data, builds the
+# documentation site (site/, Jekyll with the Serif theme) with them and
+# publishes it. Deployed from main only, so the site matches the released
+# version; on develop the screenshots and the built site (github-pages) are
+# only artifacts to review.
 
 on:
   push:
@@ -61,11 +62,37 @@ jobs:
           path: screenshots-debug
           if-no-files-found: ignore
 
-  deploy:
-    name: Deploy
+  build:
+    name: Build site
     needs: screenshots
     # A failed screenshot must not block the site; the pages hide missing images.
-    if: ${{ !cancelled() && github.ref == 'refs/heads/main' }}
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: screenshots
+          path: site/img
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: site
+      - name: Build with Jekyll
+        working-directory: site
+        run: bundle exec jekyll build --destination ../_site
+        env:
+          JEKYLL_ENV: production
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -75,15 +102,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
-        continue-on-error: true
-        with:
-          name: screenshots
-          path: site/img
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v4
-        with:
-          path: site
       - id: deployment
         uses: actions/deploy-pages@v4
