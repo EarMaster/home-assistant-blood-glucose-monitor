@@ -32,11 +32,13 @@ Work through the steps in order.
 
 ## 2. Check the documentation
 
-Compare `README.md` and the translations with the changes. Ask the user:
+Run the `docs-sync` agent on the commits since the newest tag; it compares
+`README.md`, the documentation site (`site/`, especially `site/data.js`) and
+the translations with the changes. Ask the user:
 
 ```
-AskUserQuestion: "Does the README need updates before this release? Here is what I found: [gaps, or 'Nothing — README matches the current code']."
-Options: ["README is fine as-is", "Please update it as described"]
+AskUserQuestion: "Do README and documentation site need updates before this release? Here is what I found: [gaps, or 'Nothing — README and site match the current code']."
+Options: ["Docs are fine as-is", "Please update them as described"]
 ```
 
 Apply the updates if wanted.

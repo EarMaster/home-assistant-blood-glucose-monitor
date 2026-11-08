@@ -28,29 +28,16 @@ configurable hints for everyday life: one entry per person, every feature can
 be switched off, and you decide with any Home Assistant action how you want to
 be notified.
 
-## Status
+- **Glucose alarms:** urgent low, low, high, urgent high, rapid fall, rapid
+  rise and data loss, with delay, repeat, acknowledge, snooze and pause
+- **Reminders:** charging the phone, changing cannula, CGM sensor and insulin
+  reservoir
+- **Reports:** a summary per period of a schedule, for example the night
+- **Your notifications:** one event entity per alarm; the
+  [automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)
+  prepares the automations
 
-Work in progress. The current version (0.1) contains:
-
-- Setup with a mandatory acknowledgement of the notice above
-- One entry per person: glucose sensor and optional person
-- Optional trend, change and reading time sensors, suggested automatically
-  from the same device as the glucose sensor
-- Fallback to the `direction`, `delta` and `date` attributes of the glucose
-  sensor (as provided by Nightscout)
-- Any glucose source: every sensor can be selected, its current value is
-  checked during setup
-- Alarms for urgent low, low, high, urgent high, rapid fall, rapid rise and
-  data loss with acknowledge, snooze, re-check and pause; notifications as
-  automations on one event entity per alarm
-- Status sensor per person
-- Charging reminder for the phone, as alarm with the same acknowledge,
-  snooze and pause
-- Change reminders for cannula, CGM sensor and insulin reservoir, with due
-  sensor, "changed" button and optional warning
-- Reports per period of a schedule (for example night, school): statistics
-  of the period as event and sensor
-- Diagnostics download showing how the glucose data and alarms are read
+More on the [documentation site](https://earmaster.github.io/home-assistant-blood-glucose-monitor/).
 
 ## Requirements
 
