@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Documentation · Blood Glucose Monitor</title>
+    <meta name="description" content="Event entities, event types, requirements and attributes of Blood Glucose Monitor.">
+    <link rel="icon" href="icon.png">
+    <link rel="stylesheet" href="style.css">
+    <script src="data.js" defer></script>
+    <script src="docs.js" defer></script>
+  </head>
+  <body>
+    <header class="site">
+      <div class="inner">
+        <a class="brand" href="./"><img src="icon.png" alt="">Blood Glucose Monitor</a>
+        <nav class="site" aria-label="Pages">
+          <a href="./">Information</a>
+          <a href="builder.html">Automation builder</a>
+          <a href="docs.html" aria-current="page">Documentation</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <h1>Documentation</h1>
+      <p class="lead">
+        Which events there are, when they fire and which values they bring
+        along. For setup and options see the
+        <a href="https://github.com/EarMaster/home-assistant-blood-glucose-monitor#readme">README</a>.
+      </p>
+
+      <h2 id="events">Events and automations</h2>
+      <p>
+        Every active alarm and reminder has its own <b>event entity</b> next to
+        its state sensor and its acknowledge button, for example
+        <code>event.alex_low_alarm</code> (<i>Low alarm</i>). The report has the
+        event entity <i>Report</i>. Automations use the trigger
+        <b>Event received</b> with one or more event types:
+      </p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Event type</th><th>Fires when</th></tr></thead>
+          <tbody>
+            <tr><td><code>&lt;alarm&gt;_alert</code></td><td>the alarm starts and on every repeat</td></tr>
+            <tr><td><code>&lt;alarm&gt;_ended</code></td><td>the alarm is acknowledged or over</td></tr>
+            <tr><td><code>&lt;change&gt;_soon</code></td><td>the warning of a change reminder</td></tr>
+            <tr><td><code>report</code></td><td>a report period ends</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>
+        The event types are unique per person, so an automation can target the
+        entity or the whole device of the person. The values of an event are
+        the attributes of the entity, in templates
+        <code>trigger.to_state.attributes.&lt;name&gt;</code>; the event type is
+        <code>trigger.to_state.attributes.event_type</code>.
+      </p>
+      <pre><code>triggers:
+  - trigger: event.received
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
+        - low_alert
+actions:
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "{{ trigger.to_state.attributes.title }}"
+      message: "{{ trigger.to_state.attributes.message }}"</code></pre>
+      <p>
+        The state sensors of the alarms are for dashboards and conditions; they
+        do not change on a repeat, so they are not suited as triggers.
+      </p>
+
+      <h2 id="alarm-values">Values of the alarms</h2>
+      <p>All alarm and reminder events have these attributes; values that do
+        not apply are empty.</p>
+      <div class="table-wrap"><table id="alarm-attributes"></table></div>
+
+      <h2 id="alarms">Alarms and reminders</h2>
+      <ul class="toc" id="toc"></ul>
+      <div id="alarm-sections"></div>
+
+      <h2 id="report">Report</h2>
+      <p>Entity <i>Report</i>, event type <code>report</code>.</p>
+      <h3>When it fires</h3>
+      <ul class="requirements" id="report-requirements"></ul>
+      <h3>Values</h3>
+      <div class="table-wrap"><table id="report-attributes"></table></div>
+
+      <h2 id="acknowledge">Acknowledge and pause</h2>
+      <ul>
+        <li><b>Acknowledge</b> silences an alarm for its snooze time; then it is
+          checked again and starts at once if it still applies. Ways: the
+          <i>Acknowledge …</i> button, the action
+          <code>blood_glucose_monitor.acknowledge</code> or a notification action
+          with the id from <code>ack_action</code>.</li>
+        <li><b>Pause alarms</b> silences all alarms except urgent low for the
+          configured duration and turns off by itself.</li>
+        <li><b>Record a change</b> of cannula, sensor or reservoir with the
+          <i>… changed</i> button or the action
+          <code>blood_glucose_monitor.record_change</code> (optionally with a time
+          in the past).</li>
+      </ul>
+    </main>
+
+    <footer class="site">
+      <div class="inner">
+        <a href="https://github.com/EarMaster/home-assistant-blood-glucose-monitor">Source code on GitHub</a>
+        · Not a medical device.
+      </div>
+    </footer>
+  </body>
+</html>
