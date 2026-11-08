@@ -1,0 +1,914 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Belangrijk: geen medisch hulpmiddel",
+        "description": "Blood Glucose Monitor voegt **extra** aanwijzingen en informatie toe aan Home Assistant, op basis van de glucosegegevens van een andere integratie (bijvoorbeeld Nightscout).\n\n**Het is geen medisch hulpmiddel en vervangt niet de alarmen van je CGM, insulinepomp of medische app** (bijvoorbeeld Dexcom, LibreLink, CamAPS FX of xDrip+). Laat die alarmen altijd ingeschakeld.\n\nMeldingen van Home Assistant kunnen vertraagd zijn of helemaal niet aankomen, bijvoorbeeld als Home Assistant, je netwerk of de bron van de glucosegegevens uitvalt. Vertrouw er nooit alleen op.",
+        "data": {
+          "disclaimer_accepted": "Ik begrijp dat deze integratie de alarmen van mijn CGM, pomp of medische app niet vervangt"
+        }
+      },
+      "person": {
+        "title": "Persoon en glucosesensor",
+        "description": "Maak één item aan per persoon van wie de glucose bewaakt moet worden.",
+        "data": {
+          "name": "Naam",
+          "glucose_entity": "Glucosesensor",
+          "person_entity": "Persoon"
+        },
+        "data_description": {
+          "name": "Wordt gebruikt in entiteitsnamen en berichten, bijvoorbeeld \"Alex\".",
+          "glucose_entity": "De sensor met de huidige glucosewaarde, geleverd door de integratie die de CGM uitleest (bijvoorbeeld Nightscout of Dexcom).",
+          "person_entity": "Optioneel. Nodig voor functies die alleen moeten werken als de persoon thuis is."
+        }
+      },
+      "already_monitored": {
+        "title": "Glucosesensor wordt al bewaakt",
+        "description": "`{entity_id}` wordt al bewaakt door: {entries}.\n\nBeide items werken onafhankelijk van elkaar.\n\nKies Verzenden om door te gaan, of sluit dit venster om te annuleren."
+      },
+      "sources": {
+        "title": "Aanvullende glucosegegevens voor {name}",
+        "description": "Selecteer de sensoren van de glucose-integratie die de trend, de verandering ten opzichte van de vorige meting en het tijdstip van de meting leveren. Passende sensoren van hetzelfde apparaat worden automatisch voorgesteld.\n\nAls een veld leeg blijft, worden in plaats daarvan de attributen van de glucosesensor gebruikt (`direction`, `delta` en `date`, zoals geleverd door Nightscout).\n\nZonder meettijdstip (sensor of attribuut `date`) is de ouderdom van de gegevens onbekend en zijn er geen alarmen mogelijk.",
+        "data": {
+          "trend_entity": "Trendsensor",
+          "change_entity": "Veranderingssensor",
+          "reading_time_entity": "Sensor meettijdstip",
+          "glucose_unit": "Eenheid"
+        },
+        "data_description": {
+          "trend_entity": "Sensor met de glucosetrend, bijvoorbeeld \"Glucosetrend\".",
+          "change_entity": "Sensor met de verandering ten opzichte van de vorige meting, bijvoorbeeld \"Glucoseverandering\".",
+          "reading_time_entity": "Sensor met het tijdstip van de laatste meting, bijvoorbeeld \"Meettijdstip glucose\".",
+          "glucose_unit": "Alleen nodig als de glucose- of veranderingssensor geen eenheid meldt."
+        }
+      }
+    },
+    "error": {
+      "disclaimer_required": "Bevestig dat je de mededeling hebt gelezen en begrepen.",
+      "name_required": "Voer een naam in.",
+      "unsupported_unit": "Deze sensor heeft een niet-ondersteunde eenheid. Ondersteund worden mg/dL en mmol/L.",
+      "not_numeric": "De huidige waarde van deze sensor is geen getal.",
+      "unknown_trend": "De huidige waarde van deze sensor is geen glucosetrend die deze integratie begrijpt.",
+      "invalid_reading_time": "De huidige waarde van deze sensor is geen tijdstip.",
+      "unit_required": "De glucose- of veranderingssensor meldt geen eenheid. Selecteer de eenheid."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Instellingen",
+        "description": "Ter herinnering: deze integratie vervangt niet de alarmen van je CGM, insulinepomp of medische app.\n\n[Open de automatiseringsbouwer]({builder_url}) om meldingen voor deze persoon te maken.",
+        "menu_options": {
+          "sources": "Glucosegegevens",
+          "urgent_low": "Alarm urgent laag",
+          "low": "Alarm laag",
+          "high": "Alarm hoog",
+          "urgent_high": "Alarm urgent hoog",
+          "rapid_fall": "Alarm snel dalend",
+          "rapid_rise": "Alarm snel stijgend",
+          "data_loss": "Alarm geen metingen",
+          "charging": "Oplaadherinnering",
+          "cannula_change": "Canulewissel",
+          "sensor_change": "Sensorwissel",
+          "reservoir_change": "Reservoirwissel",
+          "report": "Rapporten",
+          "pause": "Pauze"
+        }
+      },
+      "sources": {
+        "title": "Glucosegegevens",
+        "description": "Als een optioneel veld leeg blijft, worden in plaats daarvan de attributen van de glucosesensor gebruikt. Zonder meettijdstip zijn er geen alarmen mogelijk.",
+        "data": {
+          "glucose_entity": "Glucosesensor",
+          "person_entity": "Persoon",
+          "trend_entity": "Trendsensor",
+          "change_entity": "Veranderingssensor",
+          "reading_time_entity": "Sensor meettijdstip",
+          "glucose_unit": "Eenheid"
+        },
+        "data_description": {
+          "glucose_entity": "De sensor met de huidige glucosewaarde.",
+          "person_entity": "Optioneel. Nodig voor functies die alleen moeten werken als de persoon thuis is.",
+          "trend_entity": "Optioneel. Sensor met de glucosetrend.",
+          "change_entity": "Optioneel. Sensor met de verandering ten opzichte van de vorige meting.",
+          "reading_time_entity": "Optioneel. Sensor met het tijdstip van de laatste meting.",
+          "glucose_unit": "Optioneel. Alleen nodig als de glucose- of veranderingssensor geen eenheid meldt."
+        }
+      },
+      "already_monitored": {
+        "title": "Glucosesensor wordt al bewaakt",
+        "description": "`{entity_id}` wordt al bewaakt door: {entries}.\n\nBeide items werken onafhankelijk van elkaar.\n\nKies Verzenden om op te slaan, of sluit dit venster om te annuleren."
+      },
+      "urgent_low": {
+        "title": "Alarm urgent laag",
+        "description": "Alarm wanneer de glucose gedurende de vertraging onder de drempelwaarde blijft. Het alarm eindigt wanneer de glucose de drempelwaarde plus de eindmarge bereikt (in {unit}). De pauze geldt niet voor dit alarm.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "threshold_entity": "Drempelwaarde",
+          "clear_offset": "Eindmarge",
+          "delay": "Vertraging",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "clear_offset": "Het alarm eindigt bij de drempelwaarde plus deze waarde.",
+          "delay": "Hoe lang de glucose onder de drempelwaarde moet blijven.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "low": {
+        "title": "Alarm laag",
+        "description": "Alarm wanneer de glucose gedurende de vertraging onder de drempelwaarde blijft. Het alarm eindigt wanneer de glucose de drempelwaarde plus de eindmarge bereikt (in {unit}).\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "threshold_entity": "Drempelwaarde",
+          "clear_offset": "Eindmarge",
+          "delay": "Vertraging",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "clear_offset": "Het alarm eindigt bij de drempelwaarde plus deze waarde.",
+          "delay": "Hoe lang de glucose onder de drempelwaarde moet blijven.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "high": {
+        "title": "Alarm hoog",
+        "description": "Alarm wanneer de glucose gedurende de vertraging boven de drempelwaarde blijft. Het alarm eindigt wanneer de glucose daalt tot de drempelwaarde min de eindmarge (in {unit}).\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "threshold_entity": "Drempelwaarde",
+          "clear_offset": "Eindmarge",
+          "delay": "Vertraging",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "clear_offset": "Het alarm eindigt bij de drempelwaarde min deze waarde.",
+          "delay": "Hoe lang de glucose boven de drempelwaarde moet blijven.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "urgent_high": {
+        "title": "Alarm urgent hoog",
+        "description": "Alarm wanneer de glucose gedurende de vertraging boven de drempelwaarde blijft. Het alarm eindigt wanneer de glucose daalt tot de drempelwaarde min de eindmarge (in {unit}).\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "threshold_entity": "Drempelwaarde",
+          "clear_offset": "Eindmarge",
+          "delay": "Vertraging",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "clear_offset": "Het alarm eindigt bij de drempelwaarde min deze waarde.",
+          "delay": "Hoe lang de glucose boven de drempelwaarde moet blijven.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "rapid_fall": {
+        "title": "Alarm snel dalend",
+        "description": "Alarm wanneer de glucose snel daalt: volgens de trend van de glucosegegevens of volgens de eigen veranderingssnelheid tussen de laatste twee metingen. De snelheidsgrens is in {unit} per minuut; een entiteit met de eenheid mg/dL/min of mmol/L/min heeft voorrang op het getal.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "detection": "Detectie",
+          "trend_level": "Trend vanaf",
+          "rate_limit": "Snelheidsgrens",
+          "rate_entity": "Entiteit snelheidsgrens",
+          "delay": "Vertraging",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "detection": "Uit, de trend van de glucosegegevens of de eigen veranderingssnelheid.",
+          "trend_level": "Gebruikt bij detectie op basis van de trend.",
+          "rate_limit": "Verandering per minuut, gebruikt bij detectie op basis van de snelheid.",
+          "rate_entity": "Optioneel. Entiteit met de snelheidsgrens; heeft voorrang op het getal.",
+          "delay": "Hoe lang de snelle verandering moet aanhouden.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "rapid_rise": {
+        "title": "Alarm snel stijgend",
+        "description": "Alarm wanneer de glucose snel stijgt: volgens de trend van de glucosegegevens of volgens de eigen veranderingssnelheid tussen de laatste twee metingen. De snelheidsgrens is in {unit} per minuut; een entiteit met de eenheid mg/dL/min of mmol/L/min heeft voorrang op het getal.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "detection": "Detectie",
+          "trend_level": "Trend vanaf",
+          "rate_limit": "Snelheidsgrens",
+          "rate_entity": "Entiteit snelheidsgrens",
+          "delay": "Vertraging",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "detection": "Uit, de trend van de glucosegegevens of de eigen veranderingssnelheid.",
+          "trend_level": "Gebruikt bij detectie op basis van de trend.",
+          "rate_limit": "Verandering per minuut, gebruikt bij detectie op basis van de snelheid.",
+          "rate_entity": "Optioneel. Entiteit met de snelheidsgrens; heeft voorrang op het getal.",
+          "delay": "Hoe lang de snelle verandering moet aanhouden.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "data_loss": {
+        "title": "Alarm geen metingen",
+        "description": "Dit alarm is altijd actief. Alarm wanneer er binnen de maximale gegevensouderdom geen nieuwe meting binnenkomt. Oudere metingen worden ook door de andere alarmen genegeerd, zelfs als dit alarm is uitgeschakeld.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "max_age": "Maximale gegevensouderdom",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "max_age": "Tijd zonder nieuwe meting tot het alarm.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "charging": {
+        "title": "Oplaadherinnering",
+        "description": "Herinnering vanaf het herinneringstijdstip tot middernacht, zolang de telefoon niet oplaadt en de batterij op of onder de grens zit. De herinnering eindigt zodra de telefoon oplaadt. Een entiteit voor het tijdstip of de grens heeft voorrang op het veld.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
+        "data": {
+          "battery_entity": "Batterijniveau",
+          "charging_entity": "Oplaadstatus",
+          "reminder_time": "Herinneringstijdstip",
+          "time_entity": "Entiteit herinneringstijdstip",
+          "battery_limit": "Batterijgrens",
+          "battery_limit_entity": "Entiteit batterijgrens",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "battery_entity": "Sensor met het batterijniveau van de telefoon in procent. Laat beide sensoren leeg om de herinnering uit te schakelen.",
+          "charging_entity": "Sensor of binaire sensor die aangeeft of de telefoon oplaadt.",
+          "time_entity": "Optioneel. Entiteit met het herinneringstijdstip, bijvoorbeeld een datum-en-tijdinvoer; heeft voorrang op het veld.",
+          "battery_limit_entity": "Optioneel. Entiteit met de grens in procent; heeft voorrang op het veld.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigd alarm stil blijft. Daarna start het opnieuw als het nog van toepassing is.",
+          "only_when_home": "Nieuwe alarmen starten alleen terwijl de persoon thuis is. Een lopend alarm gaat door."
+        }
+      },
+      "cannula_change": {
+        "title": "Canulewissel",
+        "description": "Herinnering wanneer de canule (ook infusieset of wissel van de inbrengplaats genoemd; bij een patchpomp de pod) aan vervanging toe is: op de laatste wissel plus de draagduur, of op een vast tijdstip op die dag. De laatste wissel komt uit een entiteit, bijvoorbeeld van de glucose-integratie; zonder entiteit wordt hij geregistreerd met de knop \"Canule gewisseld\" of de actie \"Wissel registreren\". De herinnering eindigt met de volgende wissel. Een entiteit voor de draagduur of het tijdstip heeft voorrang op het veld.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van deze herinnering: \"gestart of herhaald\", \"bevestigd of voorbij\" en, met een waarschuwing vooraf, \"binnenkort nodig\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `due`, `last_change` en `phase` als attributen.",
+        "data": {
+          "wear_duration": "Draagduur",
+          "wear_duration_entity": "Entiteit draagduur",
+          "last_change_entity": "Entiteit laatste wissel",
+          "due_time": "Vast tijdstip",
+          "time_entity": "Entiteit vast tijdstip",
+          "warning": "Waarschuwing vooraf",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "wear_duration": "Hoe lang de canule wordt gedragen. Laat leeg om de herinnering uit te schakelen.",
+          "wear_duration_entity": "Optioneel. Entiteit met de draagduur in d, h of min; heeft voorrang op het veld.",
+          "last_change_entity": "Optioneel. Entiteit met het tijdstip van de laatste wissel. Zonder deze entiteit worden wissels geregistreerd met de knop of de actie.",
+          "due_time": "Optioneel. Op de dag van de wissel op dit tijdstip herinneren, in plaats van precies aan het einde van de draagduur.",
+          "time_entity": "Optioneel. Entiteit met het vaste tijdstip, bijvoorbeeld een datum-en-tijdinvoer; heeft voorrang op het veld.",
+          "warning": "Optioneel. Activeert de gebeurtenis \"binnenkort nodig\" zo lang vóór de herinnering.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigde herinnering stil blijft. Daarna start de herinnering opnieuw als de wissel nog steeds nodig is.",
+          "only_when_home": "Nieuwe herinneringen en waarschuwingen vooraf starten alleen terwijl de persoon thuis is. Een lopende herinnering gaat door."
+        }
+      },
+      "sensor_change": {
+        "title": "Sensorwissel",
+        "description": "Herinnering wanneer de sensor aan vervanging toe is: op de laatste wissel plus de draagduur, of op een vast tijdstip op die dag. De laatste wissel komt uit een entiteit, bijvoorbeeld van de glucose-integratie; zonder entiteit wordt hij geregistreerd met de knop \"Sensor gewisseld\" of de actie \"Wissel registreren\". De herinnering eindigt met de volgende wissel. Een entiteit voor de draagduur of het tijdstip heeft voorrang op het veld.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van deze herinnering: \"gestart of herhaald\", \"bevestigd of voorbij\" en, met een waarschuwing vooraf, \"binnenkort nodig\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `due`, `last_change` en `phase` als attributen.",
+        "data": {
+          "wear_duration": "Draagduur",
+          "wear_duration_entity": "Entiteit draagduur",
+          "last_change_entity": "Entiteit laatste wissel",
+          "due_time": "Vast tijdstip",
+          "time_entity": "Entiteit vast tijdstip",
+          "warning": "Waarschuwing vooraf",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "wear_duration": "Hoe lang de sensor wordt gedragen. Laat leeg om de herinnering uit te schakelen.",
+          "wear_duration_entity": "Optioneel. Entiteit met de draagduur in d, h of min; heeft voorrang op het veld.",
+          "last_change_entity": "Optioneel. Entiteit met het tijdstip van de laatste wissel. Zonder deze entiteit worden wissels geregistreerd met de knop of de actie.",
+          "due_time": "Optioneel. Op de dag van de wissel op dit tijdstip herinneren, in plaats van precies aan het einde van de draagduur.",
+          "time_entity": "Optioneel. Entiteit met het vaste tijdstip, bijvoorbeeld een datum-en-tijdinvoer; heeft voorrang op het veld.",
+          "warning": "Optioneel. Activeert de gebeurtenis \"binnenkort nodig\" zo lang vóór de herinnering.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigde herinnering stil blijft. Daarna start de herinnering opnieuw als de wissel nog steeds nodig is.",
+          "only_when_home": "Nieuwe herinneringen en waarschuwingen vooraf starten alleen terwijl de persoon thuis is. Een lopende herinnering gaat door."
+        }
+      },
+      "reservoir_change": {
+        "title": "Reservoirwissel",
+        "description": "Herinnering wanneer het reservoir (ook cartridge of ampul genoemd) aan vervanging toe is: op de laatste wissel plus de draagduur, of op een vast tijdstip op die dag. De laatste wissel komt uit een entiteit, bijvoorbeeld van de glucose-integratie; zonder entiteit wordt hij geregistreerd met de knop \"Reservoir gewisseld\" of de actie \"Wissel registreren\". De herinnering eindigt met de volgende wissel. Een entiteit voor de draagduur of het tijdstip heeft voorrang op het veld.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van deze herinnering: \"gestart of herhaald\", \"bevestigd of voorbij\" en, met een waarschuwing vooraf, \"binnenkort nodig\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `due`, `last_change` en `phase` als attributen.",
+        "data": {
+          "wear_duration": "Draagduur",
+          "wear_duration_entity": "Entiteit draagduur",
+          "last_change_entity": "Entiteit laatste wissel",
+          "due_time": "Vast tijdstip",
+          "time_entity": "Entiteit vast tijdstip",
+          "warning": "Waarschuwing vooraf",
+          "repeat": "Herhaalinterval",
+          "snooze": "Sluimeren",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "wear_duration": "Hoe lang het reservoir wordt gedragen. Laat leeg om de herinnering uit te schakelen.",
+          "wear_duration_entity": "Optioneel. Entiteit met de draagduur in d, h of min; heeft voorrang op het veld.",
+          "last_change_entity": "Optioneel. Entiteit met het tijdstip van de laatste wissel. Zonder deze entiteit worden wissels geregistreerd met de knop of de actie.",
+          "due_time": "Optioneel. Op de dag van de wissel op dit tijdstip herinneren, in plaats van precies aan het einde van de draagduur.",
+          "time_entity": "Optioneel. Entiteit met het vaste tijdstip, bijvoorbeeld een datum-en-tijdinvoer; heeft voorrang op het veld.",
+          "warning": "Optioneel. Activeert de gebeurtenis \"binnenkort nodig\" zo lang vóór de herinnering.",
+          "repeat": "0 meldt slechts één keer.",
+          "snooze": "Hoe lang een bevestigde herinnering stil blijft. Daarna start de herinnering opnieuw als de wissel nog steeds nodig is.",
+          "only_when_home": "Nieuwe herinneringen en waarschuwingen vooraf starten alleen terwijl de persoon thuis is. Een lopende herinnering gaat door."
+        }
+      },
+      "report": {
+        "title": "Rapporten",
+        "description": "Eén rapport per periode waarin de geselecteerde entiteit aan staat, bijvoorbeeld per blok van een schema. Wanneer een periode eindigt, ontvangt de gebeurtenisentiteit \"Rapport\" van deze persoon een gebeurtenis met de statistieken, het begin en het einde van de periode, en wordt de sensor \"Laatste rapport\" bijgewerkt. De statistieken komen uit de geschiedenis (recorder).",
+        "data": {
+          "report_entity": "Periodes",
+          "only_when_home": "Alleen als de persoon thuis is"
+        },
+        "data_description": {
+          "report_entity": "Schema, boolean invoer of binaire sensor. Laat leeg om de rapporten uit te schakelen.",
+          "only_when_home": "De gebeurtenis \"Rapport\" wordt alleen geactiveerd terwijl de persoon thuis is. Het rapport en de sensor \"Laatste rapport\" worden toch bijgewerkt."
+        }
+      },
+      "pause": {
+        "title": "Pauze",
+        "description": "De pauzeschakelaar dempt gedurende deze tijd alle alarmen behalve urgent laag. Het alarm urgent laag wordt nooit gepauzeerd. Wanneer de pauze eindigt, worden de alarmen meteen opnieuw gecontroleerd.",
+        "data": {
+          "duration": "Pauzeduur"
+        }
+      }
+    },
+    "error": {
+      "unsupported_unit": "Deze sensor heeft een niet-ondersteunde eenheid. Ondersteund worden mg/dL en mmol/L.",
+      "not_numeric": "De huidige waarde van deze sensor is geen getal.",
+      "unknown_trend": "De huidige waarde van deze sensor is geen glucosetrend die deze integratie begrijpt.",
+      "invalid_reading_time": "De huidige waarde van deze sensor is geen tijdstip.",
+      "unit_required": "De glucose- of veranderingssensor meldt geen eenheid. Selecteer de eenheid.",
+      "threshold_unit_required": "Deze entiteit meldt geen eenheid. Stel de eenheid in onder Glucosegegevens.",
+      "person_required": "Selecteer eerst een persoon onder Glucosegegevens.",
+      "rate_unit_required": "Deze entiteit moet de eenheid mg/dL/min of mmol/L/min melden.",
+      "rate_limit_required": "Voer een snelheidsgrens in of selecteer een entiteit.",
+      "charging_entities_required": "Selecteer zowel de batterij- als de oplaadsensor, of geen van beide.",
+      "unknown_charging_state": "De huidige status van deze entiteit geeft niet aan of de telefoon oplaadt.",
+      "invalid_time": "De huidige waarde van deze entiteit is geen tijd.",
+      "not_on_off": "Deze entiteit moet aan of uit zijn.",
+      "invalid_datetime": "De huidige waarde van deze entiteit is geen datum en tijd.",
+      "duration_unit_required": "Deze entiteit moet de eenheid d, h of min melden.",
+      "wear_duration_required": "Voer een draagduur in of selecteer een entiteit."
+    }
+  },
+  "entity": {
+    "button": {
+      "acknowledge_urgent_low": {
+        "name": "Alarm urgent laag bevestigen"
+      },
+      "acknowledge_low": {
+        "name": "Alarm laag bevestigen"
+      },
+      "acknowledge_data_loss": {
+        "name": "Alarm geen metingen bevestigen"
+      },
+      "acknowledge_high": {
+        "name": "Alarm hoog bevestigen"
+      },
+      "acknowledge_urgent_high": {
+        "name": "Alarm urgent hoog bevestigen"
+      },
+      "acknowledge_rapid_fall": {
+        "name": "Alarm snel dalend bevestigen"
+      },
+      "acknowledge_rapid_rise": {
+        "name": "Alarm snel stijgend bevestigen"
+      },
+      "acknowledge_charging": {
+        "name": "Oplaadherinnering bevestigen"
+      },
+      "acknowledge_cannula_change": {
+        "name": "Herinnering canulewissel bevestigen"
+      },
+      "acknowledge_sensor_change": {
+        "name": "Herinnering sensorwissel bevestigen"
+      },
+      "acknowledge_reservoir_change": {
+        "name": "Herinnering reservoirwissel bevestigen"
+      },
+      "cannula_change_changed": {
+        "name": "Canule gewisseld"
+      },
+      "sensor_change_changed": {
+        "name": "Sensor gewisseld"
+      },
+      "reservoir_change_changed": {
+        "name": "Reservoir gewisseld"
+      }
+    },
+    "event": {
+      "urgent_low_alarm": {
+        "name": "Alarm urgent laag",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_low_alert": "Alarm urgent laag gestart of herhaald",
+              "urgent_low_ended": "Alarm urgent laag bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "low_alarm": {
+        "name": "Alarm laag",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "low_alert": "Alarm laag gestart of herhaald",
+              "low_ended": "Alarm laag bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "high_alarm": {
+        "name": "Alarm hoog",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "high_alert": "Alarm hoog gestart of herhaald",
+              "high_ended": "Alarm hoog bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarm urgent hoog",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_high_alert": "Alarm urgent hoog gestart of herhaald",
+              "urgent_high_ended": "Alarm urgent hoog bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarm snel dalend",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_fall_alert": "Alarm snel dalend gestart of herhaald",
+              "rapid_fall_ended": "Alarm snel dalend bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarm snel stijgend",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_rise_alert": "Alarm snel stijgend gestart of herhaald",
+              "rapid_rise_ended": "Alarm snel stijgend bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarm geen metingen",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "data_loss_alert": "Alarm geen metingen gestart of herhaald",
+              "data_loss_ended": "Alarm geen metingen bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "charging_alarm": {
+        "name": "Oplaadherinnering",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "charging_alert": "Oplaadherinnering gestart of herhaald",
+              "charging_ended": "Oplaadherinnering bevestigd of voorbij"
+            }
+          }
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Herinnering canulewissel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "cannula_change_alert": "Herinnering canulewissel gestart of herhaald",
+              "cannula_change_ended": "Herinnering canulewissel bevestigd of voorbij",
+              "cannula_change_soon": "Canulewissel binnenkort nodig"
+            }
+          }
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Herinnering sensorwissel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "sensor_change_alert": "Herinnering sensorwissel gestart of herhaald",
+              "sensor_change_ended": "Herinnering sensorwissel bevestigd of voorbij",
+              "sensor_change_soon": "Sensorwissel binnenkort nodig"
+            }
+          }
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Herinnering reservoirwissel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "reservoir_change_alert": "Herinnering reservoirwissel gestart of herhaald",
+              "reservoir_change_ended": "Herinnering reservoirwissel bevestigd of voorbij",
+              "reservoir_change_soon": "Reservoirwissel binnenkort nodig"
+            }
+          }
+        }
+      },
+      "report": {
+        "name": "Rapport",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "report": "Rapport gemaakt"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Status",
+        "state": {
+          "no_data": "Geen gegevens",
+          "urgent_low": "Urgent laag",
+          "low": "Laag",
+          "rapid_fall": "Snel dalend",
+          "urgent_high": "Urgent hoog",
+          "high": "Hoog",
+          "rapid_rise": "Snel stijgend",
+          "paused": "Gepauzeerd",
+          "ok": "OK"
+        },
+        "state_attributes": {
+          "glucose": {
+            "name": "Glucose"
+          },
+          "unit": {
+            "name": "Eenheid"
+          },
+          "trend_arrow": {
+            "name": "Trend"
+          },
+          "reading_time": {
+            "name": "Meettijdstip"
+          },
+          "active_alarms": {
+            "name": "Actieve alarmen"
+          },
+          "snoozed_alarms": {
+            "name": "Sluimerende alarmen"
+          },
+          "rate": {
+            "name": "Veranderingssnelheid"
+          }
+        }
+      },
+      "urgent_low_alarm": {
+        "name": "Alarm urgent laag",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "low_alarm": {
+        "name": "Alarm laag",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarm geen metingen",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "high_alarm": {
+        "name": "Alarm hoog",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarm urgent hoog",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarm snel dalend",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarm snel stijgend",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "charging_alarm": {
+        "name": "Oplaadherinnering",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Herinnering canulewissel",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Herinnering sensorwissel",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Herinnering reservoirwissel",
+        "state": {
+          "idle": "Inactief",
+          "pending": "In afwachting",
+          "active": "Actief",
+          "snoozed": "Sluimert"
+        }
+      },
+      "cannula_change_due": {
+        "name": "Canulewissel nodig",
+        "state_attributes": {
+          "last_change": {
+            "name": "Laatste wissel"
+          },
+          "wear_duration_h": {
+            "name": "Draagduur"
+          }
+        }
+      },
+      "sensor_change_due": {
+        "name": "Sensorwissel nodig",
+        "state_attributes": {
+          "last_change": {
+            "name": "Laatste wissel"
+          },
+          "wear_duration_h": {
+            "name": "Draagduur"
+          }
+        }
+      },
+      "reservoir_change_due": {
+        "name": "Reservoirwissel nodig",
+        "state_attributes": {
+          "last_change": {
+            "name": "Laatste wissel"
+          },
+          "wear_duration_h": {
+            "name": "Draagduur"
+          }
+        }
+      },
+      "last_report": {
+        "name": "Laatste rapport",
+        "state_attributes": {
+          "start": {
+            "name": "Begin"
+          },
+          "end": {
+            "name": "Einde"
+          },
+          "duration_min": {
+            "name": "Duur"
+          },
+          "glucose_min": {
+            "name": "Minimum"
+          },
+          "glucose_max": {
+            "name": "Maximum"
+          },
+          "glucose_mean": {
+            "name": "Gemiddelde"
+          },
+          "unit": {
+            "name": "Eenheid"
+          },
+          "below": {
+            "name": "Onder bereik"
+          },
+          "in_range": {
+            "name": "Binnen bereik"
+          },
+          "above": {
+            "name": "Boven bereik"
+          },
+          "coverage": {
+            "name": "Gegevensdekking"
+          },
+          "alarms": {
+            "name": "Alarmen"
+          },
+          "low_alarms": {
+            "name": "Alarmen lage glucose"
+          },
+          "message": {
+            "name": "Bericht"
+          }
+        }
+      }
+    },
+    "switch": {
+      "pause": {
+        "name": "Alarmen pauzeren"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "Geen Blood Glucose Monitor-item met de ID {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "Het item {name} is niet geladen."
+    },
+    "change_not_enabled": {
+      "message": "Deze wisselherinnering van {name} heeft geen draagduur."
+    },
+    "change_from_entity": {
+      "message": "De laatste wissel van deze herinnering van {name} komt uit een entiteit en kan niet worden geregistreerd."
+    },
+    "change_in_future": {
+      "message": "De wissel kan niet in de toekomst liggen."
+    }
+  },
+  "issues": {
+    "no_reading_time": {
+      "title": "Geen meettijdstip voor {name}",
+      "description": "De glucosegegevens van {name} hebben geen meettijdstip. Zonder meettijdstip is de ouderdom van de gegevens onbekend en zijn er geen alarmen mogelijk.\n\nSelecteer een sensor voor het meettijdstip onder **Configureren → Glucosegegevens**."
+    }
+  },
+  "selector": {
+    "alarm": {
+      "options": {
+        "urgent_low": "Urgent laag",
+        "low": "Laag",
+        "data_loss": "Geen metingen",
+        "high": "Hoog",
+        "urgent_high": "Urgent hoog",
+        "rapid_fall": "Snel dalend",
+        "rapid_rise": "Snel stijgend",
+        "charging": "Oplaadherinnering",
+        "cannula_change": "Canulewissel",
+        "sensor_change": "Sensorwissel",
+        "reservoir_change": "Reservoirwissel"
+      }
+    },
+    "change": {
+      "options": {
+        "cannula_change": "Canule",
+        "sensor_change": "Sensor",
+        "reservoir_change": "Reservoir"
+      }
+    },
+    "alarm_text": {
+      "options": {
+        "high": "{name}: hoge glucose",
+        "urgent_high": "{name}: urgent hoge glucose",
+        "rapid_fall": "{name}: glucose daalt snel",
+        "rapid_rise": "{name}: glucose stijgt snel",
+        "urgent_low": "{name}: urgent lage glucose",
+        "low": "{name}: lage glucose",
+        "data_loss": "{name}: geen glucosegegevens",
+        "data_loss_message": "Al {minutes} min geen nieuwe meting.",
+        "acknowledged": "Bevestigd.",
+        "resolved": "Voorbij.",
+        "charging": "{name}: laad de telefoon op",
+        "charging_message": "Batterij op {battery} % en laadt niet op.",
+        "report": "{name}: rapport",
+        "report_message": "{period}: {in_range} % binnen bereik, {below} % eronder, {above} % erboven. Gemiddelde {mean} {unit} ({min}–{max}). Alarmen lage glucose: {low_alarms}.",
+        "report_message_no_range": "{period}: gemiddelde {mean} {unit} ({min}–{max}). Alarmen lage glucose: {low_alarms}.",
+        "report_no_data": "{period}: geen glucosegegevens.",
+        "cannula_change": "{name}: vervang de canule",
+        "cannula_change_soon": "{name}: canulewissel binnenkort nodig",
+        "sensor_change": "{name}: vervang de sensor",
+        "sensor_change_soon": "{name}: sensorwissel binnenkort nodig",
+        "reservoir_change": "{name}: vervang het reservoir",
+        "reservoir_change_soon": "{name}: reservoirwissel binnenkort nodig",
+        "change_message": "Al {duration} gedragen.",
+        "change_soon_message": "Nodig over {duration}."
+      }
+    },
+    "detection": {
+      "options": {
+        "off": "Uit",
+        "trend": "Trend van de glucosegegevens",
+        "rate": "Eigen veranderingssnelheid"
+      }
+    },
+    "trend_level": {
+      "options": {
+        "quickly": "Snel of sneller",
+        "very_quickly": "Alleen zeer snel"
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Alarm bevestigen",
+      "description": "Bevestigt één of alle alarmen van een persoon. Alarmen van andere items worden niet beïnvloed.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Persoon",
+          "description": "Het item van de persoon."
+        },
+        "alarm": {
+          "name": "Alarm",
+          "description": "Laat leeg om alle alarmen van de persoon te bevestigen."
+        }
+      }
+    },
+    "record_change": {
+      "name": "Wissel registreren",
+      "description": "Registreert een wissel van de canule, de sensor of het reservoir van een persoon, nu of op het opgegeven tijdstip. Niet mogelijk als de laatste wissel uit een entiteit komt.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Persoon",
+          "description": "Het item van de persoon."
+        },
+        "change": {
+          "name": "Wissel",
+          "description": "Wat er is gewisseld."
+        },
+        "time": {
+          "name": "Tijdstip",
+          "description": "Optioneel. Laat leeg voor nu."
+        }
+      }
+    }
+  }
+}

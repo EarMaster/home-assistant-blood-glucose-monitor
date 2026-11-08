@@ -1,0 +1,914 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Importante: no es un producto sanitario",
+        "description": "Blood Glucose Monitor añade a Home Assistant avisos e información **adicionales**, basados en los datos de glucosa de otra integración (por ejemplo Nightscout).\n\n**No es un producto sanitario y no sustituye las alarmas de tu MCG, tu bomba de insulina o tu app médica** (por ejemplo Dexcom, LibreLink, CamAPS FX o xDrip+). Mantén esas alarmas activadas en todo momento.\n\nLas notificaciones de Home Assistant pueden llegar con retraso o no llegar nunca, por ejemplo cuando Home Assistant, tu red o la fuente de datos de glucosa no funcionan. Nunca confíes solo en ellas.",
+        "data": {
+          "disclaimer_accepted": "Entiendo que esta integración no sustituye las alarmas de mi MCG, mi bomba o mi app médica"
+        }
+      },
+      "person": {
+        "title": "Persona y sensor de glucosa",
+        "description": "Crea una entrada por cada persona cuya glucosa se deba monitorizar.",
+        "data": {
+          "name": "Nombre",
+          "glucose_entity": "Sensor de glucosa",
+          "person_entity": "Persona"
+        },
+        "data_description": {
+          "name": "Se usa en los nombres de las entidades y en los mensajes, por ejemplo «Alex».",
+          "glucose_entity": "El sensor con el valor de glucosa actual, proporcionado por la integración que lee el MCG (por ejemplo Nightscout o Dexcom).",
+          "person_entity": "Opcional. Necesario para las funciones que solo deben ejecutarse cuando la persona está en casa."
+        }
+      },
+      "already_monitored": {
+        "title": "Sensor de glucosa ya monitorizado",
+        "description": "`{entity_id}` ya está monitorizado por: {entries}.\n\nAmbas entradas funcionan de forma independiente.\n\nEnvía el formulario para continuar o cierra este diálogo para cancelar."
+      },
+      "sources": {
+        "title": "Datos de glucosa adicionales de {name}",
+        "description": "Selecciona los sensores de la integración de glucosa que proporcionan la tendencia, el cambio respecto a la lectura anterior y la hora de la lectura. Los sensores adecuados del mismo dispositivo se sugieren automáticamente.\n\nSi un campo se deja vacío, se usan en su lugar los atributos del sensor de glucosa (`direction`, `delta` y `date`, tal como los proporciona Nightscout).\n\nSin hora de la lectura (sensor o atributo `date`), la antigüedad de los datos es desconocida y no es posible ninguna alarma.",
+        "data": {
+          "trend_entity": "Sensor de tendencia",
+          "change_entity": "Sensor de cambio",
+          "reading_time_entity": "Sensor de hora de la lectura",
+          "glucose_unit": "Unidad"
+        },
+        "data_description": {
+          "trend_entity": "Sensor con la tendencia de la glucosa, por ejemplo «Tendencia de glucosa».",
+          "change_entity": "Sensor con el cambio respecto a la lectura anterior, por ejemplo «Cambio de glucosa».",
+          "reading_time_entity": "Sensor con la hora de la última lectura, por ejemplo «Hora de la lectura de glucosa».",
+          "glucose_unit": "Solo es necesario si el sensor de glucosa o de cambio no indica ninguna unidad."
+        }
+      }
+    },
+    "error": {
+      "disclaimer_required": "Confirma que has leído y entendido el aviso.",
+      "name_required": "Introduce un nombre.",
+      "unsupported_unit": "Este sensor tiene una unidad no compatible. Las unidades compatibles son mg/dL y mmol/L.",
+      "not_numeric": "El valor actual de este sensor no es un número.",
+      "unknown_trend": "El valor actual de este sensor no es una tendencia de glucosa que esta integración entienda.",
+      "invalid_reading_time": "El valor actual de este sensor no es una hora.",
+      "unit_required": "El sensor de glucosa o de cambio no indica ninguna unidad. Selecciona la unidad."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ajustes",
+        "description": "Recordatorio: esta integración no sustituye las alarmas de tu MCG, tu bomba de insulina o tu app médica.\n\n[Abre el generador de automatizaciones]({builder_url}) para crear notificaciones para esta persona.",
+        "menu_options": {
+          "sources": "Datos de glucosa",
+          "urgent_low": "Alarma de glucosa baja urgente",
+          "low": "Alarma de glucosa baja",
+          "high": "Alarma de glucosa alta",
+          "urgent_high": "Alarma de glucosa alta urgente",
+          "rapid_fall": "Alarma de bajada rápida",
+          "rapid_rise": "Alarma de subida rápida",
+          "data_loss": "Alarma de falta de datos",
+          "charging": "Recordatorio de carga",
+          "cannula_change": "Cambio de cánula",
+          "sensor_change": "Cambio de sensor",
+          "reservoir_change": "Cambio de reservorio",
+          "report": "Informes",
+          "pause": "Pausa"
+        }
+      },
+      "sources": {
+        "title": "Datos de glucosa",
+        "description": "Si un campo opcional se deja vacío, se usan en su lugar los atributos del sensor de glucosa. Sin hora de la lectura no es posible ninguna alarma.",
+        "data": {
+          "glucose_entity": "Sensor de glucosa",
+          "person_entity": "Persona",
+          "trend_entity": "Sensor de tendencia",
+          "change_entity": "Sensor de cambio",
+          "reading_time_entity": "Sensor de hora de la lectura",
+          "glucose_unit": "Unidad"
+        },
+        "data_description": {
+          "glucose_entity": "El sensor con el valor de glucosa actual.",
+          "person_entity": "Opcional. Necesario para las funciones que solo deben ejecutarse cuando la persona está en casa.",
+          "trend_entity": "Opcional. Sensor con la tendencia de la glucosa.",
+          "change_entity": "Opcional. Sensor con el cambio respecto a la lectura anterior.",
+          "reading_time_entity": "Opcional. Sensor con la hora de la última lectura.",
+          "glucose_unit": "Opcional. Solo es necesario si el sensor de glucosa o de cambio no indica ninguna unidad."
+        }
+      },
+      "already_monitored": {
+        "title": "Sensor de glucosa ya monitorizado",
+        "description": "`{entity_id}` ya está monitorizado por: {entries}.\n\nAmbas entradas funcionan de forma independiente.\n\nEnvía el formulario para guardar o cierra este diálogo para cancelar."
+      },
+      "urgent_low": {
+        "title": "Alarma de glucosa baja urgente",
+        "description": "Alarma cuando la glucosa permanece por debajo del umbral durante el retraso. Termina cuando la glucosa alcanza el umbral más el margen de finalización (en {unit}). La pausa no se aplica a esta alarma.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "threshold_entity": "Umbral",
+          "clear_offset": "Margen de finalización",
+          "delay": "Retraso",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "clear_offset": "La alarma termina en el umbral más este valor.",
+          "delay": "Cuánto tiempo debe permanecer la glucosa por debajo del umbral.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "low": {
+        "title": "Alarma de glucosa baja",
+        "description": "Alarma cuando la glucosa permanece por debajo del umbral durante el retraso. Termina cuando la glucosa alcanza el umbral más el margen de finalización (en {unit}).\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "threshold_entity": "Umbral",
+          "clear_offset": "Margen de finalización",
+          "delay": "Retraso",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "clear_offset": "La alarma termina en el umbral más este valor.",
+          "delay": "Cuánto tiempo debe permanecer la glucosa por debajo del umbral.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "high": {
+        "title": "Alarma de glucosa alta",
+        "description": "Alarma cuando la glucosa permanece por encima del umbral durante el retraso. Termina cuando la glucosa baja hasta el umbral menos el margen de finalización (en {unit}).\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "threshold_entity": "Umbral",
+          "clear_offset": "Margen de finalización",
+          "delay": "Retraso",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "clear_offset": "La alarma termina en el umbral menos este valor.",
+          "delay": "Cuánto tiempo debe permanecer la glucosa por encima del umbral.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "urgent_high": {
+        "title": "Alarma de glucosa alta urgente",
+        "description": "Alarma cuando la glucosa permanece por encima del umbral durante el retraso. Termina cuando la glucosa baja hasta el umbral menos el margen de finalización (en {unit}).\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "threshold_entity": "Umbral",
+          "clear_offset": "Margen de finalización",
+          "delay": "Retraso",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "clear_offset": "La alarma termina en el umbral menos este valor.",
+          "delay": "Cuánto tiempo debe permanecer la glucosa por encima del umbral.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "rapid_fall": {
+        "title": "Alarma de bajada rápida",
+        "description": "Alarma cuando la glucosa baja rápido: según la tendencia de los datos de glucosa o según la tasa de cambio propia entre las dos últimas lecturas. El límite de tasa está en {unit} por minuto; una entidad con la unidad mg/dL/min o mmol/L/min tiene prioridad sobre el número.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "detection": "Detección",
+          "trend_level": "Tendencia a partir de",
+          "rate_limit": "Límite de tasa",
+          "rate_entity": "Entidad del límite de tasa",
+          "delay": "Retraso",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "detection": "Desactivada, la tendencia de los datos de glucosa o la tasa de cambio propia.",
+          "trend_level": "Se usa con la detección por tendencia.",
+          "rate_limit": "Cambio por minuto, se usa con la detección por tasa.",
+          "rate_entity": "Opcional. Entidad con el límite de tasa; tiene prioridad sobre el número.",
+          "delay": "Cuánto tiempo debe durar el cambio rápido.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "rapid_rise": {
+        "title": "Alarma de subida rápida",
+        "description": "Alarma cuando la glucosa sube rápido: según la tendencia de los datos de glucosa o según la tasa de cambio propia entre las dos últimas lecturas. El límite de tasa está en {unit} por minuto; una entidad con la unidad mg/dL/min o mmol/L/min tiene prioridad sobre el número.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "detection": "Detección",
+          "trend_level": "Tendencia a partir de",
+          "rate_limit": "Límite de tasa",
+          "rate_entity": "Entidad del límite de tasa",
+          "delay": "Retraso",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "detection": "Desactivada, la tendencia de los datos de glucosa o la tasa de cambio propia.",
+          "trend_level": "Se usa con la detección por tendencia.",
+          "rate_limit": "Cambio por minuto, se usa con la detección por tasa.",
+          "rate_entity": "Opcional. Entidad con el límite de tasa; tiene prioridad sobre el número.",
+          "delay": "Cuánto tiempo debe durar el cambio rápido.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "data_loss": {
+        "title": "Alarma de falta de datos",
+        "description": "Esta alarma está siempre activa. Alarma cuando no llega ninguna lectura nueva dentro de la antigüedad máxima de los datos. Las demás alarmas también ignoran las lecturas más antiguas, aunque esta alarma esté desactivada.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "max_age": "Antigüedad máxima de los datos",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "max_age": "Tiempo sin lectura nueva hasta la alarma.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "charging": {
+        "title": "Recordatorio de carga",
+        "description": "Recordatorio desde la hora del recordatorio hasta medianoche mientras el teléfono no se esté cargando y la batería esté en el límite o por debajo. Termina en cuanto el teléfono se carga. Una entidad para la hora o el límite tiene prioridad sobre el campo.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de este recordatorio: «iniciado o repetido» y «confirmado o terminado». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
+        "data": {
+          "battery_entity": "Nivel de batería",
+          "charging_entity": "Estado de carga",
+          "reminder_time": "Hora del recordatorio",
+          "time_entity": "Entidad de la hora del recordatorio",
+          "battery_limit": "Límite de batería",
+          "battery_limit_entity": "Entidad del límite de batería",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "battery_entity": "Sensor con el nivel de batería del teléfono en porcentaje. Deja ambos sensores vacíos para desactivar el recordatorio.",
+          "charging_entity": "Sensor o sensor binario que indica si el teléfono se está cargando.",
+          "time_entity": "Opcional. Entidad con la hora del recordatorio, por ejemplo una entrada de fecha y hora; tiene prioridad sobre el campo.",
+          "battery_limit_entity": "Opcional. Entidad con el límite en porcentaje; tiene prioridad sobre el campo.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciada una alarma confirmada. Después vuelve a iniciarse si sigue siendo aplicable.",
+          "only_when_home": "Las nuevas alarmas solo se inician mientras la persona está en casa. Una alarma en curso continúa."
+        }
+      },
+      "cannula_change": {
+        "title": "Cambio de cánula",
+        "description": "Recordatorio cuando toca cambiar la cánula (set de infusión, también llamado cambio de catéter; con una bomba parche, el pod): en el último cambio más la duración de uso, o a una hora fija de ese día. El último cambio procede de una entidad, por ejemplo de la integración de glucosa; sin ella, se registra con el botón «Cánula cambiada» o la acción «Registrar cambio». El recordatorio termina con el siguiente cambio. Una entidad para la duración de uso o la hora tiene prioridad sobre el campo.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de este recordatorio: «iniciado o repetido», «confirmado o terminado» y, con aviso previo, «en breve». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `due`, `last_change` y `phase`.",
+        "data": {
+          "wear_duration": "Duración de uso",
+          "wear_duration_entity": "Entidad de la duración de uso",
+          "last_change_entity": "Entidad del último cambio",
+          "due_time": "Hora fija",
+          "time_entity": "Entidad de la hora fija",
+          "warning": "Aviso previo",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "wear_duration": "Cuánto tiempo se lleva la cánula. Déjalo vacío para desactivar el recordatorio.",
+          "wear_duration_entity": "Opcional. Entidad con la duración de uso en d, h o min; tiene prioridad sobre el campo.",
+          "last_change_entity": "Opcional. Entidad con la hora del último cambio. Sin ella, los cambios se registran con el botón o la acción.",
+          "due_time": "Opcional. Recordar a esta hora el día en que toca el cambio, en lugar de exactamente al final de la duración de uso.",
+          "time_entity": "Opcional. Entidad con la hora fija, por ejemplo una entrada de fecha y hora; tiene prioridad sobre el campo.",
+          "warning": "Opcional. Dispara el evento «en breve» con esta antelación respecto al recordatorio.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciado un recordatorio confirmado. Después vuelve a iniciarse si el cambio sigue pendiente.",
+          "only_when_home": "Los nuevos recordatorios y avisos previos solo se inician mientras la persona está en casa. Un recordatorio en curso continúa."
+        }
+      },
+      "sensor_change": {
+        "title": "Cambio de sensor",
+        "description": "Recordatorio cuando toca cambiar el sensor: en el último cambio más la duración de uso, o a una hora fija de ese día. El último cambio procede de una entidad, por ejemplo de la integración de glucosa; sin ella, se registra con el botón «Sensor cambiado» o la acción «Registrar cambio». El recordatorio termina con el siguiente cambio. Una entidad para la duración de uso o la hora tiene prioridad sobre el campo.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de este recordatorio: «iniciado o repetido», «confirmado o terminado» y, con aviso previo, «en breve». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `due`, `last_change` y `phase`.",
+        "data": {
+          "wear_duration": "Duración de uso",
+          "wear_duration_entity": "Entidad de la duración de uso",
+          "last_change_entity": "Entidad del último cambio",
+          "due_time": "Hora fija",
+          "time_entity": "Entidad de la hora fija",
+          "warning": "Aviso previo",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "wear_duration": "Cuánto tiempo se lleva el sensor. Déjalo vacío para desactivar el recordatorio.",
+          "wear_duration_entity": "Opcional. Entidad con la duración de uso en d, h o min; tiene prioridad sobre el campo.",
+          "last_change_entity": "Opcional. Entidad con la hora del último cambio. Sin ella, los cambios se registran con el botón o la acción.",
+          "due_time": "Opcional. Recordar a esta hora el día en que toca el cambio, en lugar de exactamente al final de la duración de uso.",
+          "time_entity": "Opcional. Entidad con la hora fija, por ejemplo una entrada de fecha y hora; tiene prioridad sobre el campo.",
+          "warning": "Opcional. Dispara el evento «en breve» con esta antelación respecto al recordatorio.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciado un recordatorio confirmado. Después vuelve a iniciarse si el cambio sigue pendiente.",
+          "only_when_home": "Los nuevos recordatorios y avisos previos solo se inician mientras la persona está en casa. Un recordatorio en curso continúa."
+        }
+      },
+      "reservoir_change": {
+        "title": "Cambio de reservorio",
+        "description": "Recordatorio cuando toca cambiar el reservorio (también llamado cartucho): en el último cambio más la duración de uso, o a una hora fija de ese día. El último cambio procede de una entidad, por ejemplo de la integración de glucosa; sin ella, se registra con el botón «Reservorio cambiado» o la acción «Registrar cambio». El recordatorio termina con el siguiente cambio. Una entidad para la duración de uso o la hora tiene prioridad sobre el campo.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de este recordatorio: «iniciado o repetido», «confirmado o terminado» y, con aviso previo, «en breve». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `due`, `last_change` y `phase`.",
+        "data": {
+          "wear_duration": "Duración de uso",
+          "wear_duration_entity": "Entidad de la duración de uso",
+          "last_change_entity": "Entidad del último cambio",
+          "due_time": "Hora fija",
+          "time_entity": "Entidad de la hora fija",
+          "warning": "Aviso previo",
+          "repeat": "Intervalo de repetición",
+          "snooze": "Silenciar durante",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "wear_duration": "Cuánto tiempo se lleva el reservorio. Déjalo vacío para desactivar el recordatorio.",
+          "wear_duration_entity": "Opcional. Entidad con la duración de uso en d, h o min; tiene prioridad sobre el campo.",
+          "last_change_entity": "Opcional. Entidad con la hora del último cambio. Sin ella, los cambios se registran con el botón o la acción.",
+          "due_time": "Opcional. Recordar a esta hora el día en que toca el cambio, en lugar de exactamente al final de la duración de uso.",
+          "time_entity": "Opcional. Entidad con la hora fija, por ejemplo una entrada de fecha y hora; tiene prioridad sobre el campo.",
+          "warning": "Opcional. Dispara el evento «en breve» con esta antelación respecto al recordatorio.",
+          "repeat": "0 notifica solo una vez.",
+          "snooze": "Cuánto tiempo permanece silenciado un recordatorio confirmado. Después vuelve a iniciarse si el cambio sigue pendiente.",
+          "only_when_home": "Los nuevos recordatorios y avisos previos solo se inician mientras la persona está en casa. Un recordatorio en curso continúa."
+        }
+      },
+      "report": {
+        "title": "Informes",
+        "description": "Un informe por cada periodo en el que la entidad seleccionada está activada, por ejemplo por cada bloque de una programación. Cuando termina un periodo, la entidad de evento «Informe» de esta persona se dispara con las estadísticas, el inicio y el fin del periodo, y se actualiza el sensor «Último informe». Las estadísticas proceden del historial (recorder).",
+        "data": {
+          "report_entity": "Periodos",
+          "only_when_home": "Solo cuando la persona está en casa"
+        },
+        "data_description": {
+          "report_entity": "Programación, entrada booleana o sensor binario. Déjalo vacío para desactivar los informes.",
+          "only_when_home": "El evento «Informe» solo se dispara mientras la persona está en casa. El informe y el sensor «Último informe» se actualizan igualmente."
+        }
+      },
+      "pause": {
+        "title": "Pausa",
+        "description": "El interruptor de pausa silencia durante este tiempo todas las alarmas excepto la de glucosa baja urgente. La alarma de glucosa baja urgente nunca se pausa. Cuando termina la pausa, las alarmas se comprueban de nuevo de inmediato.",
+        "data": {
+          "duration": "Duración de la pausa"
+        }
+      }
+    },
+    "error": {
+      "unsupported_unit": "Este sensor tiene una unidad no compatible. Las unidades compatibles son mg/dL y mmol/L.",
+      "not_numeric": "El valor actual de este sensor no es un número.",
+      "unknown_trend": "El valor actual de este sensor no es una tendencia de glucosa que esta integración entienda.",
+      "invalid_reading_time": "El valor actual de este sensor no es una hora.",
+      "unit_required": "El sensor de glucosa o de cambio no indica ninguna unidad. Selecciona la unidad.",
+      "threshold_unit_required": "Esta entidad no indica ninguna unidad. Establece la unidad en Datos de glucosa.",
+      "person_required": "Selecciona primero una persona en Datos de glucosa.",
+      "rate_unit_required": "Esta entidad debe indicar la unidad mg/dL/min o mmol/L/min.",
+      "rate_limit_required": "Introduce un límite de tasa o selecciona una entidad.",
+      "charging_entities_required": "Selecciona tanto el sensor de batería como el de carga, o ninguno.",
+      "unknown_charging_state": "El estado actual de esta entidad no indica si el teléfono se está cargando.",
+      "invalid_time": "El valor actual de esta entidad no es una hora.",
+      "not_on_off": "Esta entidad debe estar activada o desactivada.",
+      "invalid_datetime": "El valor actual de esta entidad no es una fecha y hora.",
+      "duration_unit_required": "Esta entidad debe indicar la unidad d, h o min.",
+      "wear_duration_required": "Introduce una duración de uso o selecciona una entidad."
+    }
+  },
+  "entity": {
+    "button": {
+      "acknowledge_urgent_low": {
+        "name": "Confirmar alarma de glucosa baja urgente"
+      },
+      "acknowledge_low": {
+        "name": "Confirmar alarma de glucosa baja"
+      },
+      "acknowledge_data_loss": {
+        "name": "Confirmar alarma de falta de datos"
+      },
+      "acknowledge_high": {
+        "name": "Confirmar alarma de glucosa alta"
+      },
+      "acknowledge_urgent_high": {
+        "name": "Confirmar alarma de glucosa alta urgente"
+      },
+      "acknowledge_rapid_fall": {
+        "name": "Confirmar alarma de bajada rápida"
+      },
+      "acknowledge_rapid_rise": {
+        "name": "Confirmar alarma de subida rápida"
+      },
+      "acknowledge_charging": {
+        "name": "Confirmar recordatorio de carga"
+      },
+      "acknowledge_cannula_change": {
+        "name": "Confirmar recordatorio de cambio de cánula"
+      },
+      "acknowledge_sensor_change": {
+        "name": "Confirmar recordatorio de cambio de sensor"
+      },
+      "acknowledge_reservoir_change": {
+        "name": "Confirmar recordatorio de cambio de reservorio"
+      },
+      "cannula_change_changed": {
+        "name": "Cánula cambiada"
+      },
+      "sensor_change_changed": {
+        "name": "Sensor cambiado"
+      },
+      "reservoir_change_changed": {
+        "name": "Reservorio cambiado"
+      }
+    },
+    "event": {
+      "urgent_low_alarm": {
+        "name": "Alarma de glucosa baja urgente",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_low_alert": "Alarma de glucosa baja urgente iniciada o repetida",
+              "urgent_low_ended": "Alarma de glucosa baja urgente confirmada o terminada"
+            }
+          }
+        }
+      },
+      "low_alarm": {
+        "name": "Alarma de glucosa baja",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "low_alert": "Alarma de glucosa baja iniciada o repetida",
+              "low_ended": "Alarma de glucosa baja confirmada o terminada"
+            }
+          }
+        }
+      },
+      "high_alarm": {
+        "name": "Alarma de glucosa alta",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "high_alert": "Alarma de glucosa alta iniciada o repetida",
+              "high_ended": "Alarma de glucosa alta confirmada o terminada"
+            }
+          }
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarma de glucosa alta urgente",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_high_alert": "Alarma de glucosa alta urgente iniciada o repetida",
+              "urgent_high_ended": "Alarma de glucosa alta urgente confirmada o terminada"
+            }
+          }
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarma de bajada rápida",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_fall_alert": "Alarma de bajada rápida iniciada o repetida",
+              "rapid_fall_ended": "Alarma de bajada rápida confirmada o terminada"
+            }
+          }
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarma de subida rápida",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_rise_alert": "Alarma de subida rápida iniciada o repetida",
+              "rapid_rise_ended": "Alarma de subida rápida confirmada o terminada"
+            }
+          }
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarma de falta de datos",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "data_loss_alert": "Alarma de falta de datos iniciada o repetida",
+              "data_loss_ended": "Alarma de falta de datos confirmada o terminada"
+            }
+          }
+        }
+      },
+      "charging_alarm": {
+        "name": "Recordatorio de carga",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "charging_alert": "Recordatorio de carga iniciado o repetido",
+              "charging_ended": "Recordatorio de carga confirmado o terminado"
+            }
+          }
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Recordatorio de cambio de cánula",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "cannula_change_alert": "Recordatorio de cambio de cánula iniciado o repetido",
+              "cannula_change_ended": "Recordatorio de cambio de cánula confirmado o terminado",
+              "cannula_change_soon": "Cambio de cánula en breve"
+            }
+          }
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Recordatorio de cambio de sensor",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "sensor_change_alert": "Recordatorio de cambio de sensor iniciado o repetido",
+              "sensor_change_ended": "Recordatorio de cambio de sensor confirmado o terminado",
+              "sensor_change_soon": "Cambio de sensor en breve"
+            }
+          }
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Recordatorio de cambio de reservorio",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "reservoir_change_alert": "Recordatorio de cambio de reservorio iniciado o repetido",
+              "reservoir_change_ended": "Recordatorio de cambio de reservorio confirmado o terminado",
+              "reservoir_change_soon": "Cambio de reservorio en breve"
+            }
+          }
+        }
+      },
+      "report": {
+        "name": "Informe",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "report": "Informe creado"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Estado",
+        "state": {
+          "no_data": "Sin datos",
+          "urgent_low": "Bajo urgente",
+          "low": "Bajo",
+          "rapid_fall": "Bajando rápido",
+          "urgent_high": "Alto urgente",
+          "high": "Alto",
+          "rapid_rise": "Subiendo rápido",
+          "paused": "En pausa",
+          "ok": "OK"
+        },
+        "state_attributes": {
+          "glucose": {
+            "name": "Glucosa"
+          },
+          "unit": {
+            "name": "Unidad"
+          },
+          "trend_arrow": {
+            "name": "Tendencia"
+          },
+          "reading_time": {
+            "name": "Hora de la lectura"
+          },
+          "active_alarms": {
+            "name": "Alarmas activas"
+          },
+          "snoozed_alarms": {
+            "name": "Alarmas silenciadas"
+          },
+          "rate": {
+            "name": "Tasa de cambio"
+          }
+        }
+      },
+      "urgent_low_alarm": {
+        "name": "Alarma de glucosa baja urgente",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "low_alarm": {
+        "name": "Alarma de glucosa baja",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarma de falta de datos",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "high_alarm": {
+        "name": "Alarma de glucosa alta",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarma de glucosa alta urgente",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarma de bajada rápida",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarma de subida rápida",
+        "state": {
+          "idle": "Inactiva",
+          "pending": "Pendiente",
+          "active": "Activa",
+          "snoozed": "Silenciada"
+        }
+      },
+      "charging_alarm": {
+        "name": "Recordatorio de carga",
+        "state": {
+          "idle": "Inactivo",
+          "pending": "Pendiente",
+          "active": "Activo",
+          "snoozed": "Silenciado"
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Recordatorio de cambio de cánula",
+        "state": {
+          "idle": "Inactivo",
+          "pending": "Pendiente",
+          "active": "Activo",
+          "snoozed": "Silenciado"
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Recordatorio de cambio de sensor",
+        "state": {
+          "idle": "Inactivo",
+          "pending": "Pendiente",
+          "active": "Activo",
+          "snoozed": "Silenciado"
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Recordatorio de cambio de reservorio",
+        "state": {
+          "idle": "Inactivo",
+          "pending": "Pendiente",
+          "active": "Activo",
+          "snoozed": "Silenciado"
+        }
+      },
+      "cannula_change_due": {
+        "name": "Próximo cambio de cánula",
+        "state_attributes": {
+          "last_change": {
+            "name": "Último cambio"
+          },
+          "wear_duration_h": {
+            "name": "Duración de uso"
+          }
+        }
+      },
+      "sensor_change_due": {
+        "name": "Próximo cambio de sensor",
+        "state_attributes": {
+          "last_change": {
+            "name": "Último cambio"
+          },
+          "wear_duration_h": {
+            "name": "Duración de uso"
+          }
+        }
+      },
+      "reservoir_change_due": {
+        "name": "Próximo cambio de reservorio",
+        "state_attributes": {
+          "last_change": {
+            "name": "Último cambio"
+          },
+          "wear_duration_h": {
+            "name": "Duración de uso"
+          }
+        }
+      },
+      "last_report": {
+        "name": "Último informe",
+        "state_attributes": {
+          "start": {
+            "name": "Inicio"
+          },
+          "end": {
+            "name": "Fin"
+          },
+          "duration_min": {
+            "name": "Duración"
+          },
+          "glucose_min": {
+            "name": "Mínimo"
+          },
+          "glucose_max": {
+            "name": "Máximo"
+          },
+          "glucose_mean": {
+            "name": "Media"
+          },
+          "unit": {
+            "name": "Unidad"
+          },
+          "below": {
+            "name": "Por debajo del rango"
+          },
+          "in_range": {
+            "name": "En rango"
+          },
+          "above": {
+            "name": "Por encima del rango"
+          },
+          "coverage": {
+            "name": "Cobertura de datos"
+          },
+          "alarms": {
+            "name": "Alarmas"
+          },
+          "low_alarms": {
+            "name": "Alarmas de glucosa baja"
+          },
+          "message": {
+            "name": "Mensaje"
+          }
+        }
+      }
+    },
+    "switch": {
+      "pause": {
+        "name": "Pausar alarmas"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "No hay ninguna entrada de Blood Glucose Monitor con el ID {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "La entrada {name} no está cargada."
+    },
+    "change_not_enabled": {
+      "message": "Este recordatorio de cambio de {name} no tiene duración de uso."
+    },
+    "change_from_entity": {
+      "message": "El último cambio de este recordatorio de {name} procede de una entidad y no se puede registrar."
+    },
+    "change_in_future": {
+      "message": "El cambio no puede estar en el futuro."
+    }
+  },
+  "issues": {
+    "no_reading_time": {
+      "title": "Sin hora de la lectura para {name}",
+      "description": "Los datos de glucosa de {name} no tienen hora de la lectura. Sin ella, la antigüedad de los datos es desconocida y no es posible ninguna alarma.\n\nSelecciona un sensor de hora de la lectura en **Configurar → Datos de glucosa**."
+    }
+  },
+  "selector": {
+    "alarm": {
+      "options": {
+        "urgent_low": "Bajo urgente",
+        "low": "Bajo",
+        "data_loss": "Falta de datos",
+        "high": "Alto",
+        "urgent_high": "Alto urgente",
+        "rapid_fall": "Bajada rápida",
+        "rapid_rise": "Subida rápida",
+        "charging": "Recordatorio de carga",
+        "cannula_change": "Cambio de cánula",
+        "sensor_change": "Cambio de sensor",
+        "reservoir_change": "Cambio de reservorio"
+      }
+    },
+    "change": {
+      "options": {
+        "cannula_change": "Cánula",
+        "sensor_change": "Sensor",
+        "reservoir_change": "Reservorio"
+      }
+    },
+    "alarm_text": {
+      "options": {
+        "high": "{name}: glucosa alta",
+        "urgent_high": "{name}: glucosa alta urgente",
+        "rapid_fall": "{name}: glucosa bajando rápido",
+        "rapid_rise": "{name}: glucosa subiendo rápido",
+        "urgent_low": "{name}: glucosa baja urgente",
+        "low": "{name}: glucosa baja",
+        "data_loss": "{name}: sin datos de glucosa",
+        "data_loss_message": "Sin lectura nueva desde hace {minutes} min.",
+        "acknowledged": "Confirmada.",
+        "resolved": "Terminada.",
+        "charging": "{name}: carga el teléfono",
+        "charging_message": "Batería al {battery} % y sin cargar.",
+        "report": "{name}: informe",
+        "report_message": "{period}: {in_range} % en rango, {below} % por debajo, {above} % por encima. Media {mean} {unit} ({min}–{max}). Alarmas de glucosa baja: {low_alarms}.",
+        "report_message_no_range": "{period}: media {mean} {unit} ({min}–{max}). Alarmas de glucosa baja: {low_alarms}.",
+        "report_no_data": "{period}: sin datos de glucosa.",
+        "cannula_change": "{name}: cambia la cánula",
+        "cannula_change_soon": "{name}: cambio de cánula en breve",
+        "sensor_change": "{name}: cambia el sensor",
+        "sensor_change_soon": "{name}: cambio de sensor en breve",
+        "reservoir_change": "{name}: cambia el reservorio",
+        "reservoir_change_soon": "{name}: cambio de reservorio en breve",
+        "change_message": "Llevado durante {duration}.",
+        "change_soon_message": "Toca en {duration}."
+      }
+    },
+    "detection": {
+      "options": {
+        "off": "Desactivada",
+        "trend": "Tendencia de los datos de glucosa",
+        "rate": "Tasa de cambio propia"
+      }
+    },
+    "trend_level": {
+      "options": {
+        "quickly": "Rápido o más rápido",
+        "very_quickly": "Solo muy rápido"
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Confirmar alarma",
+      "description": "Confirma una o todas las alarmas de una persona. Las alarmas de otras entradas no se ven afectadas.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Persona",
+          "description": "La entrada de la persona."
+        },
+        "alarm": {
+          "name": "Alarma",
+          "description": "Déjalo vacío para confirmar todas las alarmas de la persona."
+        }
+      }
+    },
+    "record_change": {
+      "name": "Registrar cambio",
+      "description": "Registra un cambio de la cánula, el sensor o el reservorio de una persona, ahora o a la hora indicada. No es posible cuando el último cambio procede de una entidad.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Persona",
+          "description": "La entrada de la persona."
+        },
+        "change": {
+          "name": "Cambio",
+          "description": "Qué se ha cambiado."
+        },
+        "time": {
+          "name": "Hora",
+          "description": "Opcional. Déjalo vacío para ahora."
+        }
+      }
+    }
+  }
+}
