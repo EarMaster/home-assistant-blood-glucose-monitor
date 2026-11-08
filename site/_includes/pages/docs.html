@@ -53,10 +53,11 @@ actions:
 
 <h2 id="estimate">{{ d.estimate_title }}</h2>
 <p>{{ d.estimate_text }}</p>
+{%- assign menu_token = "{menu}" %}
 {%- capture estimate_menu %}<b>{{ t.js.configure }} → {{ site.data.ha[page.lang].menu.estimate }}</b>{% endcapture %}
 <ul>
   {%- for point in d.estimate_points %}
-  <li>{{ point | replace: "{menu}", estimate_menu }}</li>
+  <li>{{ point | replace: menu_token, estimate_menu }}</li>
   {%- endfor %}
 </ul>
 
