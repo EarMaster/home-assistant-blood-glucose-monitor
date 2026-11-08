@@ -1,0 +1,4 @@
+<figure class="screenshot">
+  <img src="{{ '/img/' | append: include.file | relative_url }}" alt="{{ include.alt }}" loading="lazy" onerror="this.closest('figure').remove()">
+  <figcaption>{{ include.caption }}</figcaption>
+</figure>

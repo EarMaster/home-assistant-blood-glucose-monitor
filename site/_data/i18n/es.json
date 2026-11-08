@@ -1,0 +1,286 @@
+{
+  "language": "Español",
+  "menu": {
+    "info": "Información",
+    "builder": "Generador de automatizaciones",
+    "docs": "Documentación",
+    "language": "Idioma"
+  },
+  "footer": {
+    "disclaimer": "No es un producto sanitario. No sustituye las alarmas de tu MCG, tu bomba de insulina o tu app médica.",
+    "theme": "Tema: %theme% de Zerostatic (MIT)"
+  },
+  "caution": {
+    "title": "No es un producto sanitario. No sustituye a las alarmas reales.",
+    "text": "Blood Glucose Monitor solo añade avisos <em>adicionales</em> a Home Assistant. <b>No</b> sustituye las alarmas de tu MCG, tu bomba de insulina o tu app médica (por ejemplo Dexcom, LibreLink, CamAPS FX o xDrip+). Mantén esas alarmas activadas en todo momento. Las notificaciones de Home Assistant pueden llegar con retraso o no llegar nunca, por ejemplo cuando Home Assistant, tu red o la fuente de datos de glucosa no funcionan. Nunca confíes solo en ellas. Úsalo bajo tu propia responsabilidad; no se ofrece ninguna garantía de ningún tipo."
+  },
+  "home": {
+    "title": "Información",
+    "description": "Avisos de glucosa adicionales para Home Assistant: alarmas, recordatorios e informes como piezas para tus propias notificaciones. No es un producto sanitario.",
+    "headline": "Avisos de glucosa adicionales para Home Assistant",
+    "lead": "Blood Glucose Monitor convierte los datos de glucosa de otra integración (por ejemplo Nightscout o Dexcom) en alarmas, recordatorios e informes opcionales, con una entrada por persona. La integración decide cuándo; tú decides cómo se te notifica.",
+    "what_title": "Qué hace",
+    "cards": [
+      {
+        "title": "Alarmas de glucosa",
+        "text": "Glucosa baja urgente, baja, alta, alta urgente, bajada rápida, subida rápida y falta de datos, cada una con retraso, repetición, confirmación, silencio temporal y nueva comprobación. La alarma de glucosa baja urgente nunca se pausa."
+      },
+      {
+        "title": "Recordatorios",
+        "text": "Recordatorio de carga del teléfono por la noche y recordatorios de cambio de cánula, sensor del MCG y reservorio de insulina, con un aviso previo opcional antes de que toque el cambio."
+      },
+      {
+        "title": "Informes",
+        "text": "Un resumen por cada periodo de una programación (por ejemplo la noche o el colegio): mínimo, máximo, media, tiempo en rango y las alarmas del periodo."
+      },
+      {
+        "title": "Tus notificaciones",
+        "text": "Cada alarma y el informe tienen una entidad de evento. Tus propias automatizaciones deciden cómo notificar: teléfono, altavoz, luz. El <a href=\"%builder%\">generador de automatizaciones</a> las prepara."
+      }
+    ],
+    "shot_device_alt": "Página del dispositivo de la persona Alex con el estado, los sensores de alarma, las entidades de evento y los botones",
+    "shot_device": "Un dispositivo por persona: el estado, y por cada alarma un sensor de estado, una entidad de evento y un botón para confirmar; además, los recordatorios de cambio y el último informe.",
+    "shot_notifications_alt": "Notificaciones de una alarma de glucosa baja y de un informe con los textos ya preparados",
+    "shot_notifications": "Notificaciones de una automatización del generador, con los textos ya preparados de la integración (aquí como notificaciones de Home Assistant).",
+    "secondary_title": "Complementaria por diseño",
+    "secondary_text": "La integración está pensada como segunda línea: información adicional para la familia, un aviso por el altavoz por la noche, un recordatorio de que hay que cargar el teléfono. Depende de Home Assistant, de la red, de la integración de glucosa y del teléfono, y cualquiera de ellos puede fallar sin previo aviso. Las alarmas principales son las del MCG, la bomba o la app médica.",
+    "secondary_points": [
+      "Sin hora de la lectura en los datos de glucosa no hay alarmas de glucosa; un problema de reparación te lo indica. No se supone nada.",
+      "Los datos desactualizados ni inician ni terminan una alarma de glucosa; la alarma de falta de datos cubre los datos que faltan.",
+      "Los estados de las alarmas se conservan tras un reinicio de Home Assistant."
+    ],
+    "start_title": "Primeros pasos",
+    "start_steps": [
+      "Instala <b>Blood Glucose Monitor</b> desde el Marketplace: añade <code>EarMaster/home-assistant-blood-glucose-monitor</code> como repositorio personalizado de tipo <i>Integración</i>, descárgalo y reinicia Home Assistant.",
+      "Añade la integración en <b>Ajustes → Dispositivos y servicios</b>, una vez por persona: confirma el aviso, introduce el nombre y selecciona el sensor de glucosa y, opcionalmente, la persona.",
+      "En <b>Configurar</b>, activa lo que necesites: los umbrales de las alarmas, los recordatorios de carga y de cambio, los periodos de los informes.",
+      "Crea las notificaciones: abre el <a href=\"%builder%\">generador de automatizaciones</a> desde la página del dispositivo de la persona (<b>Visitar</b>) o desde el menú <b>Configurar</b>. Ya conoce las entidades de esa persona."
+    ],
+    "button_builder": "Generador de automatizaciones",
+    "button_docs": "Documentación",
+    "shot_setup_alt": "Diálogo de configuración con el aviso de que la integración no es un producto sanitario",
+    "shot_setup": "La configuración empieza con el aviso, que hay que confirmar.",
+    "shot_options_alt": "Menú Configurar con una opción por alarma y el enlace al generador de automatizaciones",
+    "shot_options": "Configurar: una opción por alarma, los recordatorios, los informes y la pausa, y el enlace al generador de automatizaciones.",
+    "entities_title": "Entidades por persona",
+    "entities_head": [
+      "Entidad",
+      "Función"
+    ],
+    "entities": [
+      [
+        "Sensor <i>Estado</i>",
+        "El estado actual más importante, con el último valor de glucosa, la tendencia y las alarmas activas como atributos."
+      ],
+      [
+        "Evento <i>Alarma …</i> / <i>Recordatorio …</i>",
+        "<b>Desencadenante de las notificaciones.</b> Uno por alarma; se dispara al iniciarse, al repetirse, al confirmarse y al terminar, y antes de que toque un cambio (aviso previo opcional)."
+      ],
+      [
+        "Sensor <i>Alarma …</i> / <i>Recordatorio …</i>",
+        "Estado de la alarma (<code>idle</code>, <code>pending</code>, <code>active</code>, <code>snoozed</code>) para paneles y condiciones. No cambia con una repetición."
+      ],
+      [
+        "Botón <i>Confirmar …</i>",
+        "Confirma la alarma durante su tiempo de silencio."
+      ],
+      [
+        "Interruptor <i>Pausar alarmas</i>",
+        "Silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado."
+      ],
+      [
+        "Sensor <i>Próximo cambio de …</i>, botón <i>Cánula cambiada</i> / <i>Sensor cambiado</i> / <i>Reservorio cambiado</i>",
+        "Hora en que toca el cambio de un recordatorio y registro de un cambio."
+      ],
+      [
+        "Evento <i>Informe</i>, sensor <i>Último informe</i>",
+        "El informe de cada periodo; el sensor contiene el tiempo en rango del último."
+      ]
+    ],
+    "shot_status_alt": "Sensor de estado de Alex con un estado de glucosa baja",
+    "shot_status": "El sensor de estado con el estado actual más importante (datos ficticios).",
+    "screenshots_note": "Las capturas de pantalla muestran la interfaz de Home Assistant en inglés.",
+    "about_title": "Sobre este proyecto",
+    "about_text": "Desarrollo Blood Glucose Monitor para mí y para mi familia, y espero que también sea útil para otras personas. Si quieres apoyar mi trabajo, puedes hacerlo en <a href=\"%liberapay%\">Liberapay</a>.",
+    "contribute_title": "Participa",
+    "contribute_text": "Blood Glucose Monitor es un proyecto abierto y las contribuciones son bienvenidas:",
+    "contribute_points": [
+      "<b>Ideas y peticiones de funciones</b>: ¿qué te ayudaría en el día a día con la diabetes?",
+      "<b>Informes de errores</b>: ¿algo no funciona como se describe? Describe qué esperabas y qué ha pasado.",
+      "<b>Traducciones</b>: mejoras en los idiomas existentes o un idioma nuevo para la integración y este sitio."
+    ],
+    "contribute_link": "Abre una <a href=\"%issues%\">incidencia en GitHub</a> o envía una pull request.",
+    "my_ha_alt": "Abre tu instancia de Home Assistant y este repositorio en el Marketplace."
+  },
+  "builder": {
+    "title": "Generador de automatizaciones",
+    "description": "Prepara una automatización de notificaciones para los eventos de Blood Glucose Monitor.",
+    "lead": "Elige los eventos y el teléfono; el generador prepara una automatización que envía una notificación con el texto ya preparado de la integración. Si quieres más, ajústala en Home Assistant.",
+    "caution_title": "Solo notificaciones complementarias.",
+    "caution_text": "Estas notificaciones pueden llegar con retraso o no llegar. Mantén activadas las alarmas de tu MCG, tu bomba de insulina o tu app médica.",
+    "prefill_note": "Rellenado desde Home Assistant: solo se muestran los eventos configurados para esta persona, con sus ID de entidad.",
+    "manual_note": "Consejo: abre el generador desde Home Assistant (página del dispositivo de la persona → <b>Visitar</b>, o <b>Configurar</b> de la entrada) para obtener los ID de entidad correctos. Aquí se deducen a partir del nombre; compruébalos en <b>Ajustes → Dispositivos y servicios → Entidades</b>.",
+    "person": "Persona",
+    "notify": "Acción de notificación",
+    "notify_hint": "La acción de notificación del teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>). Varias, separadas por comas.",
+    "ack": "Botón para confirmar en las notificaciones de alarma",
+    "events_title": "Eventos",
+    "events_hint": "Inicio o repetición → notificación. Confirmación o fin → la notificación se vuelve a eliminar.",
+    "output_title": "Automatización",
+    "copy": "Copiar YAML",
+    "paste_hint": "En Home Assistant: <b>Ajustes → Automatizaciones y escenas → Crear automatización → Crear nueva automatización</b>, después <b>⋮ → Editar en YAML</b>, pega y guarda.",
+    "shot_automation_alt": "Editor de automatizaciones con el desencadenante Evento recibido en la alarma de glucosa baja y el informe",
+    "shot_automation": "El resultado en el editor de automatizaciones: el desencadenante <i>Evento recibido</i> con los tipos de evento seleccionados.",
+    "requirements_title": "Cuándo se dispara"
+  },
+  "docs": {
+    "title": "Documentación",
+    "description": "Entidades de evento, tipos de evento, requisitos y atributos de Blood Glucose Monitor.",
+    "lead": "Qué eventos hay, cuándo se disparan y qué valores incluyen. Para la configuración y las opciones, consulta el <a href=\"%readme%\">README en GitHub</a>.",
+    "events_title": "Eventos y automatizaciones",
+    "events_text": "Cada alarma y cada recordatorio activos tienen su propia <b>entidad de evento</b> junto a su sensor de estado y su botón para confirmar, por ejemplo <i>Alarma de glucosa baja</i>. El informe tiene la entidad de evento <i>Informe</i>. Las automatizaciones usan el desencadenante <b>Evento recibido</b> con uno o varios tipos de evento:",
+    "types_head": [
+      "Tipo de evento",
+      "Se dispara cuando"
+    ],
+    "types": [
+      [
+        "<code>&lt;alarm&gt;_alert</code>",
+        "la alarma se inicia y en cada repetición"
+      ],
+      [
+        "<code>&lt;alarm&gt;_ended</code>",
+        "la alarma se confirma o termina"
+      ],
+      [
+        "<code>&lt;change&gt;_soon</code>",
+        "el aviso previo de un recordatorio de cambio"
+      ],
+      [
+        "<code>report</code>",
+        "termina un periodo del informe"
+      ]
+    ],
+    "values_text": "Los tipos de evento son únicos por persona, así que una automatización puede tener como destino la entidad o todo el dispositivo de la persona. Los valores de un evento son los atributos de la entidad, en plantillas <code>trigger.to_state.attributes.&lt;name&gt;</code>; el tipo de evento es <code>trigger.to_state.attributes.event_type</code>.",
+    "shot_automation_alt": "Editor de automatizaciones con el desencadenante Evento recibido",
+    "shot_automation": "El desencadenante <i>Evento recibido</i> en el editor de automatizaciones.",
+    "sensors_text": "Los sensores de estado de las alarmas son para paneles y condiciones; no cambian con una repetición, por lo que no sirven como desencadenantes.",
+    "alarm_values_title": "Valores de las alarmas",
+    "alarm_values_text": "Todos los eventos de alarmas y recordatorios tienen estos atributos; los valores que no se aplican están vacíos.",
+    "alarms_title": "Alarmas y recordatorios",
+    "report_title": "Informe",
+    "report_text": "Entidad <i>Informe</i>, tipo de evento <code>report</code>.",
+    "when_title": "Cuándo se dispara",
+    "values_title": "Valores",
+    "ack_title": "Confirmar y pausar",
+    "ack_points": [
+      "<b>Confirmar</b> silencia una alarma durante su tiempo de silencio; después se comprueba de nuevo y se inicia de inmediato si sigue siendo aplicable. Formas: el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o una acción de notificación con el ID de <code>ack_action</code>.",
+      "<b>Pausar alarmas</b> silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado y se desactiva por sí solo.",
+      "<b>Registrar un cambio</b> de cánula, sensor o reservorio con los botones <i>Cánula cambiada</i>, <i>Sensor cambiado</i> o <i>Reservorio cambiado</i> o con la acción <code>blood_glucose_monitor.record_change</code> (opcionalmente con una hora en el pasado)."
+    ]
+  },
+  "js": {
+    "configure": "Configurar",
+    "attribute": "Atributo",
+    "content": "Contenido",
+    "additional_values": "Valores adicionales",
+    "entity_note": "Entidad <code>{entity}</code>; el ID de entidad depende del idioma de Home Assistant cuando se configuró la entrada.",
+    "event_type_value": "El tipo de evento, por ejemplo <code>low_alert</code>.",
+    "event_entity": "Entidad de evento",
+    "select_event": "Selecciona al menos un evento.",
+    "copied": "Copiado",
+    "copy_fallback": "Pulsa Ctrl+C para copiar",
+    "ack_title": "Confirmar",
+    "alias": "Notificaciones de glucosa",
+    "automation_description": "Creada con el generador de automatizaciones de Blood Glucose Monitor.",
+    "labels": {
+      "alert": "Inicio o repetición",
+      "ended": "Confirmación o fin",
+      "soon": "En breve",
+      "report": "Informe creado"
+    },
+    "req": {
+      "threshold_set": "En {menu} hay seleccionada una entidad de umbral.",
+      "below_for_delay": "La glucosa permanece por debajo del umbral durante el retraso.",
+      "above_for_delay": "La glucosa permanece por encima del umbral durante el retraso.",
+      "reading_time": "Los datos de glucosa tienen hora de la lectura (un sensor de hora de la lectura o el atributo <code>date</code> del sensor de glucosa). Sin ella no hay alarmas de glucosa y un problema de reparación te lo indica.",
+      "reading_time_short": "Los datos de glucosa tienen hora de la lectura (un sensor de hora de la lectura o el atributo <code>date</code> del sensor de glucosa).",
+      "fresh": "La última lectura no es más antigua que la antigüedad máxima de los datos de la alarma de falta de datos; los datos desactualizados ni inician ni terminan una alarma de glucosa.",
+      "home": "Con <i>Solo cuando la persona está en casa</i> en {menu}: la persona está en casa cuando la alarma se iniciaría. Una alarma en curso continúa cuando la persona se va.",
+      "not_acknowledged": "La alarma no está confirmada: tras una confirmación permanece en silencio durante el tiempo de silencio y después se comprueba de nuevo.",
+      "pause_off": "El interruptor <i>{pause}</i> está desactivado.",
+      "pause_never": "La pausa no se aplica a esta alarma.",
+      "repeats": "Repeticiones: el evento se vuelve a disparar en cada intervalo de repetición mientras la alarma está activa (intervalo de repetición 0 = solo una vez).",
+      "acknowledged": "La alarma se confirma: con el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o la acción de notificación <code>ack_action</code>.",
+      "back_above": "La glucosa alcanza el umbral más el margen de finalización.",
+      "back_below": "La glucosa baja hasta el umbral menos el margen de finalización.",
+      "detection_set": "En {menu} hay seleccionada una detección: <i>Tendencia de los datos de glucosa</i> o <i>Tasa de cambio propia</i>.",
+      "fall_trend": "Tendencia: la tendencia de los datos de glucosa (sensor de tendencia o atributo <code>direction</code>) baja rápido (o, según el ajuste, solo muy rápido).",
+      "fall_rate": "Tasa propia: dos lecturas separadas como máximo 15 minutos bajan más rápido que el límite de tasa por minuto.",
+      "fall_delay": "La bajada rápida dura el retraso.",
+      "fall_over": "La glucosa ya no baja rápido.",
+      "rise_trend": "Tendencia: la tendencia de los datos de glucosa (sensor de tendencia o atributo <code>direction</code>) sube rápido (o, según el ajuste, solo muy rápido).",
+      "rise_rate": "Tasa propia: dos lecturas separadas como máximo 15 minutos suben más rápido que el límite de tasa por minuto.",
+      "rise_delay": "La subida rápida dura el retraso.",
+      "rise_over": "La glucosa ya no sube rápido.",
+      "always_active": "Siempre activa.",
+      "no_reading": "No llega ninguna lectura nueva dentro de la antigüedad máxima de los datos.",
+      "new_reading": "Llega una lectura nueva.",
+      "charging_set": "En {menu} hay seleccionados un sensor de nivel de batería y uno de estado de carga.",
+      "charging_time": "Es entre la hora del recordatorio y medianoche.",
+      "charging_state": "El teléfono no se está cargando y la batería está en el límite o por debajo.",
+      "charging_over": "El teléfono se carga. Después de medianoche, un recordatorio en curso espera a que se cargue; no se inicia ninguno nuevo antes de la siguiente hora del recordatorio.",
+      "change_duration": "En {menu} hay establecida una duración de uso (campo o entidad).",
+      "change_last": "Se conoce el último cambio: desde la entidad del último cambio seleccionada, o registrado con los botones <i>Cánula cambiada</i>, <i>Sensor cambiado</i> o <i>Reservorio cambiado</i> o con la acción <code>blood_glucose_monitor.record_change</code>.",
+      "change_due": "Se alcanza la hora en que toca el cambio: el último cambio más la duración de uso, o la hora fija del día en que toca.",
+      "change_next": "Se registra el siguiente cambio (botón, acción o una nueva hora en la entidad del último cambio).",
+      "soon_set": "En {menu} hay establecido un tiempo de <i>Aviso previo</i>.",
+      "soon_once": "Se dispara una vez por cada cambio pendiente, con esa antelación respecto a la hora en que toca.",
+      "soon_away": "Mientras la persona está fuera (con <i>Solo cuando la persona está en casa</i>) o las alarmas están en pausa, se envía lo antes posible antes de la hora en que toca.",
+      "report_entity": "En {menu} hay seleccionada una entidad con los periodos (por ejemplo un ayudante de programación).",
+      "report_end": "Termina un periodo: la entidad se desactiva. Un periodo que termina durante un reinicio se notifica después.",
+      "report_home": "Con <i>Solo cuando la persona está en casa</i> en {menu}: la persona está en casa cuando termina el periodo. El sensor <i>Último informe</i> se actualiza igualmente.",
+      "report_stats": "Las estadísticas necesitan el recorder; el tiempo en rango necesita un umbral bajo (o bajo urgente) y uno alto (o alto urgente)."
+    },
+    "attributes": {
+      "title": "Título ya preparado en el idioma de Home Assistant, por ejemplo <i>Alex: glucosa baja</i>.",
+      "message": "Mensaje ya preparado: la glucosa con unidad y flecha de tendencia en las alarmas de glucosa, un texto adecuado en la falta de datos y en los recordatorios; al confirmar o terminar, un texto breve.",
+      "alarm": "Clave de la alarma, por ejemplo <code>low</code>.",
+      "phase": "<code>triggered</code>, <code>repeat</code>, <code>acknowledged</code>, <code>resolved</code> o <code>soon</code> (aviso previo de un recordatorio de cambio).",
+      "glucose": "Último valor de glucosa en la unidad del sensor de glucosa.",
+      "unit": "<code>mg/dL</code> o <code>mmol/L</code>.",
+      "delta": "Cambio desde la lectura anterior.",
+      "rate": "Tasa de cambio propia por minuto.",
+      "trend": "Clave de la tendencia, por ejemplo <code>falling_quickly</code>.",
+      "trend_arrow": "Tendencia como flecha, por ejemplo <code>↘</code>.",
+      "data_age_min": "Antigüedad de la última lectura en minutos.",
+      "person_name": "Nombre de la entrada (la persona).",
+      "entry_id": "ID de la entrada de configuración, para las acciones de la integración.",
+      "tag": "Etiqueta de la notificación, única por persona y alarma. Sirve para sustituir y eliminar la notificación.",
+      "ack_action": "Acción de notificación de la app móvil que confirma esta alarma.",
+      "battery": "Nivel de batería del teléfono en porcentaje.",
+      "last_change": "Hora del último cambio (ISO 8601).",
+      "due": "Hora en que toca el cambio (ISO 8601)."
+    },
+    "report_attributes": {
+      "title": "Título ya preparado, por ejemplo <i>Alex: informe</i>.",
+      "message": "Resumen ya preparado del periodo.",
+      "start": "Inicio del periodo (ISO 8601).",
+      "end": "Fin del periodo (ISO 8601).",
+      "duration_min": "Duración del periodo en minutos.",
+      "unit": "<code>mg/dL</code> o <code>mmol/L</code>.",
+      "glucose_min": "Valor de glucosa más bajo.",
+      "glucose_max": "Valor de glucosa más alto.",
+      "glucose_mean": "Glucosa media, ponderada por el tiempo.",
+      "below": "Porcentaje del tiempo por debajo del rango (vacío si no están ambos umbrales).",
+      "in_range": "Porcentaje del tiempo en rango (vacío si no están ambos umbrales).",
+      "above": "Porcentaje del tiempo por encima del rango (vacío si no están ambos umbrales).",
+      "coverage": "Porcentaje del periodo con datos de glucosa.",
+      "alarms": "Número de alarmas que se iniciaron en el periodo, por alarma.",
+      "low_alarms": "Número de alarmas de glucosa baja y baja urgente en el periodo.",
+      "tag": "Etiqueta de la notificación, única por persona, para que un informe nuevo sustituya al anterior.",
+      "person_name": "Nombre de la entrada (la persona).",
+      "entry_id": "ID de la entrada de configuración."
+    }
+  }
+}

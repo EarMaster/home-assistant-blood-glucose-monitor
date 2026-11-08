@@ -9,6 +9,8 @@ DOMAIN: Final = "blood_glucose_monitor"
 # Documentation site with the automation builder.
 DOCS_URL: Final = "https://earmaster.github.io/home-assistant-blood-glucose-monitor/"
 BUILDER_URL: Final = f"{DOCS_URL}builder.html"
+# Languages of the documentation site besides English (under /<language>/).
+DOCS_LANGUAGES: Final = ("de", "es", "fr", "nl")
 
 # Config entry data
 CONF_NAME: Final = "name"

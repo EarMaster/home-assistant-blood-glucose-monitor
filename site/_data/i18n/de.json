@@ -1,0 +1,286 @@
+{
+  "language": "Deutsch",
+  "menu": {
+    "info": "Information",
+    "builder": "Automation-Builder",
+    "docs": "Dokumentation",
+    "language": "Sprache"
+  },
+  "footer": {
+    "disclaimer": "Kein Medizinprodukt. Ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.",
+    "theme": "Theme: %theme% von Zerostatic (MIT)"
+  },
+  "caution": {
+    "title": "Kein Medizinprodukt. Kein Ersatz für echte Alarme.",
+    "text": "Blood Glucose Monitor ergänzt Home Assistant nur um <em>zusätzliche</em> Hinweise. Es ersetzt <b>nicht</b> die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App (zum Beispiel Dexcom, LibreLink, CamAPS FX oder xDrip+). Lass diese Alarme immer eingeschaltet. Benachrichtigungen aus Home Assistant können verspätet oder gar nicht ankommen, zum Beispiel wenn Home Assistant, dein Netzwerk oder die Quelle der Glukosedaten ausfällt. Verlass dich nie allein auf sie. Nutzung auf eigene Gefahr; es gibt keinerlei Gewährleistung."
+  },
+  "home": {
+    "title": "Information",
+    "description": "Zusätzliche Glukose-Hinweise für Home Assistant: Alarme, Erinnerungen und Berichte als Bausteine für deine eigenen Benachrichtigungen. Kein Medizinprodukt.",
+    "headline": "Zusätzliche Glukose-Hinweise für Home Assistant",
+    "lead": "Blood Glucose Monitor macht aus den Glukosedaten einer anderen Integration (zum Beispiel Nightscout oder Dexcom) optionale Alarme, Erinnerungen und Berichte, ein Eintrag pro Person. Die Integration entscheidet, wann; du entscheidest, wie du benachrichtigt wirst.",
+    "what_title": "Was die Integration macht",
+    "cards": [
+      {
+        "title": "Glukose-Alarme",
+        "text": "Dringend niedrig, niedrig, hoch, dringend hoch, schnell fallend, schnell steigend und Datenausfall, jeweils mit Verzögerung, Wiederholung, Bestätigen, Schlummern und erneuter Prüfung. Dringend niedrig wird nie pausiert."
+      },
+      {
+        "title": "Erinnerungen",
+        "text": "Lade-Erinnerung für das Handy am Abend sowie Wechsel-Erinnerungen für Kanüle, CGM-Sensor und Insulinreservoir mit optionaler Vorwarnung."
+      },
+      {
+        "title": "Berichte",
+        "text": "Eine Zusammenfassung je Zeitraum eines Zeitplans (zum Beispiel Nacht oder Schule): Minimum, Maximum, Mittelwert, Zeit im Zielbereich und die Alarme des Zeitraums."
+      },
+      {
+        "title": "Deine Benachrichtigungen",
+        "text": "Jeder Alarm und der Bericht hat eine Ereignis-Entität. Deine eigenen Automationen entscheiden, wie benachrichtigt wird: Handy, Lautsprecher, Licht. Der <a href=\"%builder%\">Automation-Builder</a> bereitet sie vor."
+      }
+    ],
+    "shot_device_alt": "Geräteseite der Person Alex mit Status, Alarm-Sensoren, Ereignis-Entitäten und Buttons",
+    "shot_device": "Ein Gerät pro Person: Status, je Alarm ein Zustandssensor, eine Ereignis-Entität und ein Bestätigen-Button, die Wechsel-Erinnerungen und der letzte Bericht.",
+    "shot_notifications_alt": "Benachrichtigungen eines Niedrig-Alarms und eines Berichts mit den fertigen Texten",
+    "shot_notifications": "Benachrichtigungen aus einer Automation des Builders mit den fertigen Texten der Integration (hier als Home-Assistant-Benachrichtigungen).",
+    "secondary_title": "Bewusst nur ergänzend",
+    "secondary_text": "Die Integration ist als zweite Linie gedacht: zusätzliche Informationen für den Haushalt, ein Hinweis über den Lautsprecher in der Nacht, eine Erinnerung, dass das Handy geladen werden muss. Sie hängt von Home Assistant, dem Netzwerk, der Glukose-Integration und dem Handy ab, und jedes davon kann ohne Vorwarnung ausfallen. Die eigentlichen Alarme gehören zum CGM, zur Pumpe oder zur Medizin-App.",
+    "secondary_points": [
+      "Ohne Messzeitpunkt der Glukosedaten gibt es keine Glukose-Alarme; ein Reparaturhinweis weist darauf hin. Nichts wird geraten.",
+      "Veraltete Daten starten und beenden keinen Glukose-Alarm; fehlende Daten deckt der Alarm Datenausfall ab.",
+      "Alarmzustände bleiben bei einem Neustart von Home Assistant erhalten."
+    ],
+    "start_title": "Erste Schritte",
+    "start_steps": [
+      "Installiere <b>Blood Glucose Monitor</b> über den Marketplace: Füge <code>EarMaster/home-assistant-blood-glucose-monitor</code> als benutzerdefiniertes Repository vom Typ <i>Integration</i> hinzu, lade es herunter und starte Home Assistant neu.",
+      "Füge die Integration unter <b>Einstellungen → Geräte &amp; Dienste</b> hinzu, einmal pro Person: Bestätige den Hinweis, gib den Namen ein und wähle den Glukosesensor und optional die Person.",
+      "Schalte unter <b>Konfigurieren</b> ein, was du brauchst: Schwellwerte für die Alarme, die Lade- und Wechsel-Erinnerungen, die Zeiträume für Berichte.",
+      "Lege die Benachrichtigungen an: Öffne den <a href=\"%builder%\">Automation-Builder</a> über die Geräteseite der Person (<b>Besuchen</b>) oder über das Menü <b>Konfigurieren</b>. Er kennt die Entitäten dieser Person schon."
+    ],
+    "button_builder": "Automation-Builder",
+    "button_docs": "Dokumentation",
+    "shot_setup_alt": "Einrichtungsdialog mit dem Hinweis, dass die Integration kein Medizinprodukt ist",
+    "shot_setup": "Die Einrichtung beginnt mit dem Hinweis, der bestätigt werden muss.",
+    "shot_options_alt": "Menü Konfigurieren mit einem Eintrag pro Alarm und dem Link zum Automation-Builder",
+    "shot_options": "Konfigurieren: ein Eintrag pro Alarm, die Erinnerungen, Berichte und Pause sowie der Link zum Automation-Builder.",
+    "entities_title": "Entitäten pro Person",
+    "entities_head": [
+      "Entität",
+      "Zweck"
+    ],
+    "entities": [
+      [
+        "Sensor <i>Status</i>",
+        "Der wichtigste aktuelle Zustand, mit dem letzten Glukosewert, Trend und aktiven Alarmen als Attributen."
+      ],
+      [
+        "Ereignis <i>Alarm …</i> / <i>…-Erinnerung</i>",
+        "<b>Auslöser für Benachrichtigungen.</b> Einer pro Alarm; feuert beim Start, bei Wiederholung, Bestätigung und Ende sowie vor einem fälligen Wechsel (optionale Vorwarnung)."
+      ],
+      [
+        "Sensor <i>Alarm …</i> / <i>…-Erinnerung</i>",
+        "Zustand des Alarms (<code>idle</code>, <code>pending</code>, <code>active</code>, <code>snoozed</code>) für Dashboards und Bedingungen. Er ändert sich bei einer Wiederholung nicht."
+      ],
+      [
+        "Button <i>… bestätigen</i>",
+        "Bestätigt den Alarm für seine Schlummerzeit."
+      ],
+      [
+        "Schalter <i>Alarme pausieren</i>",
+        "Schaltet alle Alarme außer dringend niedrig für die eingestellte Zeit stumm."
+      ],
+      [
+        "Sensor <i>… fällig</i>, Button <i>… gewechselt</i>",
+        "Fälligkeit einer Wechsel-Erinnerung und Erfassen eines Wechsels."
+      ],
+      [
+        "Ereignis <i>Bericht</i>, Sensor <i>Letzter Bericht</i>",
+        "Der Bericht jedes Zeitraums; der Sensor enthält die Zeit im Zielbereich des letzten."
+      ]
+    ],
+    "shot_status_alt": "Status-Sensor von Alex mit niedrigem Glukosewert",
+    "shot_status": "Der Status-Sensor mit dem wichtigsten aktuellen Zustand (ausgedachte Daten).",
+    "screenshots_note": "Die Screenshots zeigen die englische Oberfläche von Home Assistant.",
+    "about_title": "Über dieses Projekt",
+    "about_text": "Ich entwickle Blood Glucose Monitor für mich und meine Familie und hoffe, dass es auch anderen hilft. Wenn du meine Arbeit unterstützen möchtest, kannst du das über <a href=\"%liberapay%\">Liberapay</a> tun.",
+    "contribute_title": "Mitmachen",
+    "contribute_text": "Blood Glucose Monitor ist ein offenes Projekt, und Beiträge sind willkommen:",
+    "contribute_points": [
+      "<b>Ideen und Wünsche</b>: Was würde dir im Alltag mit Diabetes helfen?",
+      "<b>Fehlerberichte</b>: Etwas funktioniert nicht wie beschrieben? Beschreibe bitte, was du erwartet hast und was passiert ist.",
+      "<b>Übersetzungen</b>: Verbesserungen an den vorhandenen Sprachen oder eine neue Sprache für die Integration und diese Seite."
+    ],
+    "contribute_link": "Eröffne ein <a href=\"%issues%\">Issue auf GitHub</a> oder schick einen Pull Request.",
+    "my_ha_alt": "Öffne deine Home-Assistant-Instanz und dieses Repository im Marketplace."
+  },
+  "builder": {
+    "title": "Automation-Builder",
+    "description": "Bereite eine Benachrichtigungs-Automation für die Ereignisse von Blood Glucose Monitor vor.",
+    "lead": "Wähle die Ereignisse und das Handy; der Builder bereitet eine Automation vor, die eine Benachrichtigung mit dem fertigen Text der Integration schickt. Wenn du mehr willst, passe sie in Home Assistant an.",
+    "caution_title": "Nur ergänzende Benachrichtigungen.",
+    "caution_text": "Diese Benachrichtigungen können verspätet sein oder fehlen. Lass die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App eingeschaltet.",
+    "prefill_note": "Aus Home Assistant vorausgefüllt: Es werden nur die Ereignisse angezeigt, die für diese Person eingerichtet sind, mit ihren Entitäts-IDs.",
+    "manual_note": "Tipp: Öffne den Builder aus Home Assistant (Geräteseite der Person → <b>Besuchen</b> oder <b>Konfigurieren</b> des Eintrags), dann stimmen die Entitäts-IDs. Hier werden sie aus dem Namen geraten; prüfe sie unter <b>Einstellungen → Geräte &amp; Dienste → Entitäten</b>.",
+    "person": "Person",
+    "notify": "Benachrichtigungsaktion",
+    "notify_hint": "Die Notify-Aktion des Handys, zum Beispiel <code>notify.mobile_app_pixel_8</code> (siehe <b>Entwicklerwerkzeuge → Aktionen</b>). Mehrere durch Kommas getrennt.",
+    "ack": "Bestätigen-Button in Alarm-Benachrichtigungen",
+    "events_title": "Ereignisse",
+    "events_hint": "Ausgelöst oder wiederholt → Benachrichtigung. Bestätigt oder vorbei → die Benachrichtigung wird wieder entfernt.",
+    "output_title": "Automation",
+    "copy": "YAML kopieren",
+    "paste_hint": "In Home Assistant: <b>Einstellungen → Automationen &amp; Szenen → Automation erstellen → Neue Automation erstellen</b>, dann <b>⋮ → In YAML bearbeiten</b>, einfügen und speichern.",
+    "shot_automation_alt": "Automationseditor mit dem Auslöser Ereignis empfangen für den Niedrig-Alarm und den Bericht",
+    "shot_automation": "Das Ergebnis im Automationseditor: der Auslöser <i>Ereignis empfangen</i> mit den gewählten Ereignistypen.",
+    "requirements_title": "Wann es auslöst"
+  },
+  "docs": {
+    "title": "Dokumentation",
+    "description": "Ereignis-Entitäten, Ereignistypen, Voraussetzungen und Attribute von Blood Glucose Monitor.",
+    "lead": "Welche Ereignisse es gibt, wann sie auslösen und welche Werte sie mitbringen. Einrichtung und Optionen beschreibt das <a href=\"%readme%\">README auf GitHub</a>.",
+    "events_title": "Ereignisse und Automationen",
+    "events_text": "Jeder aktive Alarm und jede Erinnerung hat eine eigene <b>Ereignis-Entität</b> neben dem Zustandssensor und dem Bestätigen-Button, zum Beispiel <i>Alarm niedrig</i>. Der Bericht hat die Ereignis-Entität <i>Bericht</i>. Automationen nutzen den Auslöser <b>Ereignis empfangen</b> mit einem oder mehreren Ereignistypen:",
+    "types_head": [
+      "Ereignistyp",
+      "Löst aus, wenn"
+    ],
+    "types": [
+      [
+        "<code>&lt;alarm&gt;_alert</code>",
+        "der Alarm startet und bei jeder Wiederholung"
+      ],
+      [
+        "<code>&lt;alarm&gt;_ended</code>",
+        "der Alarm bestätigt wird oder vorbei ist"
+      ],
+      [
+        "<code>&lt;change&gt;_soon</code>",
+        "die Vorwarnung einer Wechsel-Erinnerung"
+      ],
+      [
+        "<code>report</code>",
+        "ein Zeitraum des Berichts endet"
+      ]
+    ],
+    "values_text": "Die Ereignistypen sind pro Person eindeutig, daher kann eine Automation die Entität oder das ganze Gerät der Person als Ziel haben. Die Werte eines Ereignisses sind die Attribute der Entität, in Vorlagen <code>trigger.to_state.attributes.&lt;name&gt;</code>; der Ereignistyp ist <code>trigger.to_state.attributes.event_type</code>.",
+    "shot_automation_alt": "Automationseditor mit dem Auslöser Ereignis empfangen",
+    "shot_automation": "Der Auslöser <i>Ereignis empfangen</i> im Automationseditor.",
+    "sensors_text": "Die Zustandssensoren der Alarme sind für Dashboards und Bedingungen gedacht; sie ändern sich bei einer Wiederholung nicht und eignen sich daher nicht als Auslöser.",
+    "alarm_values_title": "Werte der Alarme",
+    "alarm_values_text": "Alle Ereignisse der Alarme und Erinnerungen haben diese Attribute; Werte, die nicht zutreffen, sind leer.",
+    "alarms_title": "Alarme und Erinnerungen",
+    "report_title": "Bericht",
+    "report_text": "Entität <i>Bericht</i>, Ereignistyp <code>report</code>.",
+    "when_title": "Wann es auslöst",
+    "values_title": "Werte",
+    "ack_title": "Bestätigen und pausieren",
+    "ack_points": [
+      "<b>Bestätigen</b> schaltet einen Alarm für seine Schlummerzeit stumm; danach wird er erneut geprüft und startet sofort, wenn er noch zutrifft. Wege: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder eine Benachrichtigungsaktion mit der ID aus <code>ack_action</code>.",
+      "<b>Alarme pausieren</b> schaltet alle Alarme außer dringend niedrig für die eingestellte Dauer stumm und schaltet sich selbst wieder aus.",
+      "<b>Wechsel erfassen</b> für Kanüle, Sensor oder Reservoir mit dem Button <i>… gewechselt</i> oder der Aktion <code>blood_glucose_monitor.record_change</code> (optional mit einem Zeitpunkt in der Vergangenheit)."
+    ]
+  },
+  "js": {
+    "configure": "Konfigurieren",
+    "attribute": "Attribut",
+    "content": "Inhalt",
+    "additional_values": "Weitere Werte",
+    "entity_note": "Entität <code>{entity}</code>; die Entitäts-ID hängt von der Sprache von Home Assistant beim Einrichten des Eintrags ab.",
+    "event_type_value": "Der Ereignistyp, zum Beispiel <code>low_alert</code>.",
+    "event_entity": "Ereignis-Entität",
+    "select_event": "Wähle mindestens ein Ereignis.",
+    "copied": "Kopiert",
+    "copy_fallback": "Mit Strg+C kopieren",
+    "ack_title": "Bestätigen",
+    "alias": "Blutzucker-Benachrichtigungen",
+    "automation_description": "Erstellt mit dem Automation-Builder von Blood Glucose Monitor.",
+    "labels": {
+      "alert": "Ausgelöst oder wiederholt",
+      "ended": "Bestätigt oder vorbei",
+      "soon": "Bald fällig",
+      "report": "Bericht erstellt"
+    },
+    "req": {
+      "threshold_set": "In {menu} ist eine Schwellwert-Entität gewählt.",
+      "below_for_delay": "Die Glukose bleibt für die Verzögerung unter dem Schwellwert.",
+      "above_for_delay": "Die Glukose bleibt für die Verzögerung über dem Schwellwert.",
+      "reading_time": "Die Glukosedaten haben einen Messzeitpunkt (ein Messzeitpunkt-Sensor oder das Attribut <code>date</code> des Glukosesensors). Ohne ihn gibt es keine Glukose-Alarme, und ein Reparaturhinweis weist darauf hin.",
+      "reading_time_short": "Die Glukosedaten haben einen Messzeitpunkt (ein Messzeitpunkt-Sensor oder das Attribut <code>date</code> des Glukosesensors).",
+      "fresh": "Der letzte Messwert ist nicht älter als das maximale Datenalter des Alarms Datenausfall; veraltete Daten starten und beenden keinen Glukose-Alarm.",
+      "home": "Mit <i>Nur wenn die Person zu Hause ist</i> in {menu}: Die Person ist zu Hause, wenn der Alarm starten würde. Ein laufender Alarm läuft weiter, wenn die Person geht.",
+      "not_acknowledged": "Der Alarm ist nicht bestätigt: Nach einer Bestätigung bleibt er für die Schlummerzeit still und wird dann erneut geprüft.",
+      "pause_off": "Der Schalter <i>{pause}</i> ist aus.",
+      "pause_never": "Die Pause gilt für diesen Alarm nicht.",
+      "repeats": "Wiederholungen: Das Ereignis löst im Wiederholungsintervall erneut aus, solange der Alarm aktiv ist (Intervall 0 = nur einmal).",
+      "acknowledged": "Der Alarm wird bestätigt: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder die Benachrichtigungsaktion <code>ack_action</code>.",
+      "back_above": "Die Glukose erreicht den Schwellwert plus den Abstand zum Beenden.",
+      "back_below": "Die Glukose fällt auf den Schwellwert minus den Abstand zum Beenden.",
+      "detection_set": "In {menu} ist eine Erkennung gewählt: <i>Trend der Glukosedaten</i> oder <i>Eigene Änderungsrate</i>.",
+      "fall_trend": "Trend: Der Trend der Glukosedaten (Trend-Sensor oder Attribut <code>direction</code>) fällt schnell (oder, je nach Einstellung, erst sehr schnell).",
+      "fall_rate": "Eigene Rate: Zwei höchstens 15 Minuten auseinanderliegende Messwerte fallen schneller als der Grenzwert pro Minute.",
+      "fall_delay": "Der schnelle Abfall dauert die Verzögerung an.",
+      "fall_over": "Die Glukose fällt nicht mehr schnell.",
+      "rise_trend": "Trend: Der Trend der Glukosedaten (Trend-Sensor oder Attribut <code>direction</code>) steigt schnell (oder, je nach Einstellung, erst sehr schnell).",
+      "rise_rate": "Eigene Rate: Zwei höchstens 15 Minuten auseinanderliegende Messwerte steigen schneller als der Grenzwert pro Minute.",
+      "rise_delay": "Der schnelle Anstieg dauert die Verzögerung an.",
+      "rise_over": "Die Glukose steigt nicht mehr schnell.",
+      "always_active": "Immer aktiv.",
+      "no_reading": "Innerhalb des maximalen Datenalters kommt kein neuer Messwert.",
+      "new_reading": "Ein neuer Messwert kommt an.",
+      "charging_set": "In {menu} sind ein Akkustand- und ein Ladezustand-Sensor gewählt.",
+      "charging_time": "Es ist zwischen der Uhrzeit der Erinnerung und Mitternacht.",
+      "charging_state": "Das Handy lädt nicht, und der Akku ist bei oder unter der Grenze.",
+      "charging_over": "Das Handy lädt. Nach Mitternacht wartet eine laufende Erinnerung auf das Laden; vor der nächsten Uhrzeit startet keine neue.",
+      "change_duration": "In {menu} ist eine Tragedauer gesetzt (Feld oder Entität).",
+      "change_last": "Der letzte Wechsel ist bekannt: aus der gewählten Entität mit dem letzten Wechsel oder erfasst mit dem Button <i>… gewechselt</i> bzw. der Aktion <code>blood_glucose_monitor.record_change</code>.",
+      "change_due": "Die Fälligkeit ist erreicht: letzter Wechsel plus Tragedauer oder die feste Uhrzeit am Fälligkeitstag.",
+      "change_next": "Der nächste Wechsel wird erfasst (Button, Aktion oder ein neuer Zeitpunkt der Entität mit dem letzten Wechsel).",
+      "soon_set": "In {menu} ist eine <i>Vorwarnung</i> gesetzt.",
+      "soon_once": "Sie löst einmal pro Fälligkeit aus, um diese Zeit vor der Fälligkeit.",
+      "soon_away": "Solange die Person weg ist (mit <i>Nur wenn die Person zu Hause ist</i>) oder die Alarme pausiert sind, wird sie so bald wie möglich vor der Fälligkeit geschickt.",
+      "report_entity": "In {menu} ist eine Entität mit den Zeiträumen gewählt (zum Beispiel ein Zeitplan-Helfer).",
+      "report_end": "Ein Zeitraum endet: Die Entität schaltet aus. Ein Zeitraum, der während eines Neustarts endet, wird danach berichtet.",
+      "report_home": "Mit <i>Nur wenn die Person zu Hause ist</i> in {menu}: Die Person ist zu Hause, wenn der Zeitraum endet. Der Sensor <i>Letzter Bericht</i> wird trotzdem aktualisiert.",
+      "report_stats": "Die Statistik braucht den Recorder; die Zeit im Zielbereich braucht einen unteren (oder dringend niedrigen) und einen oberen (oder dringend hohen) Schwellwert."
+    },
+    "attributes": {
+      "title": "Fertiger Titel in der Sprache von Home Assistant, zum Beispiel <i>Alex: Glukose niedrig</i>.",
+      "message": "Fertige Nachricht: Glukose mit Einheit und Trendpfeil bei den Glukose-Alarmen, ein passender Text bei Datenausfall und den Erinnerungen; bei Bestätigung oder Ende ein kurzer Text.",
+      "alarm": "Schlüssel des Alarms, zum Beispiel <code>low</code>.",
+      "phase": "<code>triggered</code>, <code>repeat</code>, <code>acknowledged</code>, <code>resolved</code> oder <code>soon</code> (Vorwarnung einer Wechsel-Erinnerung).",
+      "glucose": "Letzter Glukosewert in der Einheit des Glukosesensors.",
+      "unit": "<code>mg/dL</code> oder <code>mmol/L</code>.",
+      "delta": "Änderung seit dem vorherigen Messwert.",
+      "rate": "Eigene Änderungsrate pro Minute.",
+      "trend": "Trend-Schlüssel, zum Beispiel <code>falling_quickly</code>.",
+      "trend_arrow": "Trend als Pfeil, zum Beispiel <code>↘</code>.",
+      "data_age_min": "Alter des letzten Messwerts in Minuten.",
+      "person_name": "Name des Eintrags (der Person).",
+      "entry_id": "ID des Konfigurationseintrags, für die Aktionen der Integration.",
+      "tag": "Benachrichtigungs-Tag, eindeutig pro Person und Alarm. Damit lässt sich die Benachrichtigung ersetzen und entfernen.",
+      "ack_action": "Benachrichtigungsaktion der Mobile App, die diesen Alarm bestätigt.",
+      "battery": "Akkustand des Handys in Prozent.",
+      "last_change": "Zeitpunkt des letzten Wechsels (ISO 8601).",
+      "due": "Fälligkeit (ISO 8601)."
+    },
+    "report_attributes": {
+      "title": "Fertiger Titel, zum Beispiel <i>Alex: Bericht</i>.",
+      "message": "Fertige Zusammenfassung des Zeitraums.",
+      "start": "Beginn des Zeitraums (ISO 8601).",
+      "end": "Ende des Zeitraums (ISO 8601).",
+      "duration_min": "Länge des Zeitraums in Minuten.",
+      "unit": "<code>mg/dL</code> oder <code>mmol/L</code>.",
+      "glucose_min": "Niedrigster Glukosewert.",
+      "glucose_max": "Höchster Glukosewert.",
+      "glucose_mean": "Mittlere Glukose, zeitgewichtet.",
+      "below": "Anteil der Zeit unter dem Zielbereich in Prozent (leer ohne beide Schwellwerte).",
+      "in_range": "Anteil der Zeit im Zielbereich in Prozent (leer ohne beide Schwellwerte).",
+      "above": "Anteil der Zeit über dem Zielbereich in Prozent (leer ohne beide Schwellwerte).",
+      "coverage": "Anteil des Zeitraums mit Glukosedaten in Prozent.",
+      "alarms": "Anzahl der Alarme, die im Zeitraum gestartet sind, je Alarm.",
+      "low_alarms": "Anzahl der Alarme niedrig und dringend niedrig im Zeitraum.",
+      "tag": "Benachrichtigungs-Tag, eindeutig pro Person, damit ein neuer Bericht den letzten ersetzt.",
+      "person_name": "Name des Eintrags (der Person).",
+      "entry_id": "ID des Konfigurationseintrags."
+    }
+  }
+}

@@ -247,3 +247,63 @@ button.button {
     padding-bottom: 40px;
   }
 }
+
+// Header: menu and language switcher side by side.
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  .language-switch {
+    display: none;
+    @include media-breakpoint-up(md) {
+      display: flex;
+    }
+  }
+}
+
+.language-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  a {
+    font-size: 0.8rem;
+    font-weight: bold;
+    letter-spacing: 0.04em;
+    color: $steel;
+    padding: 4px 7px;
+    border-radius: 4px;
+    text-decoration: none;
+    &:hover {
+      color: $primary;
+    }
+    &[aria-current="true"] {
+      color: #ffffff;
+      background: $primary;
+    }
+  }
+}
+
+.main-menu-mobile .language-switch {
+  justify-content: center;
+  margin-top: 24px;
+  a {
+    font-size: 1rem;
+    padding: 6px 10px;
+  }
+}
+
+// "Open in Marketplace" badge of My Home Assistant.
+.my-ha {
+  display: inline-flex;
+  align-items: center;
+  img {
+    height: 40px;
+    width: auto;
+    margin: 0;
+  }
+}
+
+.content li .my-ha {
+  margin-top: 10px;
+  text-decoration: none;
+}

@@ -169,3 +169,15 @@ async def test_builder_links(
     assert result["description_placeholders"] == {
         "builder_url": device.configuration_url
     }
+
+
+async def test_builder_link_language(
+    hass: HomeAssistant, freezer: FrozenDateTimeFactory
+) -> None:
+    """The builder opens in the language of Home Assistant if the site has it."""
+    from custom_components.blood_glucose_monitor.links import builder_page
+
+    hass.config.language = "de"
+    assert builder_page(hass).endswith("/de/builder.html")
+    hass.config.language = "pt-BR"
+    assert builder_page(hass) == BUILDER_URL
