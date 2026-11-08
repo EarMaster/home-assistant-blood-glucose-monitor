@@ -87,3 +87,50 @@ def _share(weights: list[tuple[float, float]], known: float, test: object) -> fl
     assert callable(test)
     seconds = sum(seconds for value, seconds in weights if test(value))
     return round(100 * seconds / known, 1)
+
+
+# Estimates of the HbA1c from the mean glucose over a long period. Below this
+# share of the period with data no estimate is given (usual CGM rule).
+MIN_ESTIMATE_COVERAGE = 70.0
+
+
+def gmi(mean: float) -> float:
+    """Return the glucose management indicator in percent (Bergenstal 2018)."""
+    return 3.31 + 0.02392 * mean
+
+
+def estimated_a1c(mean: float) -> float:
+    """Return the estimated HbA1c in percent (ADAG, Nathan 2008)."""
+    return (mean + 46.7) / 28.7
+
+
+def to_mmol_mol(percent: float) -> float:
+    """Convert an HbA1c in percent (NGSP) to mmol/mol (IFCC)."""
+    return (percent - 2.15) * 10.929
+
+
+@dataclass(frozen=True, slots=True)
+class EstimateStats:
+    """Mean glucose of a long period from hourly means."""
+
+    mean: float | None
+    """Mean in mg/dL, None without any data."""
+
+    coverage: float
+    """Share of the hours of the period with data in percent."""
+
+    @property
+    def sufficient(self) -> bool:
+        """Return True if the period has enough data for an estimate."""
+        return self.mean is not None and self.coverage >= MIN_ESTIMATE_COVERAGE
+
+
+def compute_estimate(hourly_means: Sequence[float | None], hours: int) -> EstimateStats:
+    """Return the mean of the hourly means and the share of hours with data."""
+    values = [value for value in hourly_means if value is not None]
+    if not values or hours <= 0:
+        return EstimateStats(mean=None, coverage=0.0)
+    return EstimateStats(
+        mean=sum(values) / len(values),
+        coverage=min(100.0, 100 * len(values) / hours),
+    )

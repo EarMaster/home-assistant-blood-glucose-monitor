@@ -30,8 +30,8 @@
         "text": "Recordatorio de carga del teléfono por la noche y recordatorios de cambio de cánula, sensor del MCG y reservorio de insulina, con un aviso previo opcional antes de que toque el cambio."
       },
       {
-        "title": "Informes",
-        "text": "Un resumen por cada periodo de una programación (por ejemplo la noche o el colegio): mínimo, máximo, media, tiempo en rango y las alarmas del periodo."
+        "title": "Informes y estimaciones",
+        "text": "Un resumen por cada periodo de una programación (por ejemplo la noche o el colegio): mínimo, máximo, media, tiempo en rango y las alarmas del periodo. Y el GMI y la HbA1c estimada a partir de la glucosa media de los últimos 90 días."
       },
       {
         "title": "Tus notificaciones",
@@ -39,7 +39,7 @@
       }
     ],
     "shot_device_alt": "Página del dispositivo de la persona Alex con el estado, los sensores de alarma, las entidades de evento y los botones",
-    "shot_device": "Un dispositivo por persona: el estado, y por cada alarma un sensor de estado, una entidad de evento y un botón para confirmar; además, los recordatorios de cambio y el último informe.",
+    "shot_device": "Un dispositivo por persona: el estado, y por cada alarma un sensor de estado, una entidad de evento y un botón para confirmar; además, los recordatorios de cambio, el último informe y las estimaciones de la HbA1c.",
     "shot_notifications_alt": "Notificaciones de una alarma de glucosa baja y de un informe con los textos ya preparados",
     "shot_notifications": "Notificaciones de una automatización del generador, con los textos ya preparados de la integración (aquí como notificaciones de Home Assistant).",
     "secondary_title": "Complementaria por diseño",
@@ -61,7 +61,7 @@
     "shot_setup_alt": "Diálogo de configuración con el aviso de que la integración no es un producto sanitario",
     "shot_setup": "La configuración empieza con el aviso, que hay que confirmar.",
     "shot_options_alt": "Menú Configurar con una opción por alarma y el enlace al generador de automatizaciones",
-    "shot_options": "Configurar: una opción por alarma, los recordatorios, los informes y la pausa, y el enlace al generador de automatizaciones.",
+    "shot_options": "Configurar: una opción por alarma, los recordatorios, los informes, el GMI y la HbA1c estimada, la pausa, y el enlace al generador de automatizaciones.",
     "entities_title": "Entidades por persona",
     "entities_head": [
       "Entidad",
@@ -95,6 +95,10 @@
       [
         "Evento <i>Informe</i>, sensor <i>Último informe</i>",
         "El informe de cada periodo; el sensor contiene el tiempo en rango del último."
+      ],
+      [
+        "Sensores <i>GMI</i>, <i>HbA1c estimada</i>",
+        "Estimaciones en porcentaje a partir de la glucosa media del periodo (90 días por defecto), con el valor en mmol/mol como atributo. No es una HbA1c de laboratorio."
       ]
     ],
     "shot_status_alt": "Sensor de estado de Alex con un estado de glucosa baja",
@@ -124,7 +128,7 @@
     "notify": "Acción de notificación",
     "notify_hint": "La acción de notificación del teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>). Varias, separadas por comas. Vacío: <code>notify.notify</code>.",
     "channel": "Canal de notificación",
-    "channel_hint": "Canal de notificación de Android, para ajustar el sonido y la importancia por canal en la app Companion. Vacío: el nombre de la persona.",
+    "channel_hint": "Canal de notificación de Android, para ajustar el sonido y la importancia por canal en la app Companion. Vacío: el nombre de la persona del evento (person_name).",
     "ack": "Botón para confirmar en las notificaciones de alarma",
     "events_title": "Eventos",
     "events_hint": "Inicio o repetición → notificación. Confirmación o fin → la notificación se vuelve a eliminar.",
@@ -174,6 +178,15 @@
     "report_text": "Entidad <i>Informe</i>, tipo de evento <code>report</code>.",
     "when_title": "Cuándo se dispara",
     "values_title": "Valores",
+    "estimate_title": "GMI y HbA1c estimada",
+    "estimate_text": "Los sensores <i>GMI</i> y <i>HbA1c estimada</i> estiman la HbA1c en porcentaje a partir de la glucosa media de un periodo. No tienen evento; úsalos en paneles o como desencadenante de tus propias automatizaciones. Son estimaciones a partir de los datos de glucosa, no una HbA1c de laboratorio.",
+    "estimate_points": [
+      "<b>GMI</b> (indicador de gestión de la glucosa, Bergenstal 2018): 3,31 + 0,02392 × media en mg/dL. <b>HbA1c estimada</b> (ADAG, Nathan 2008): (media en mg/dL + 46,7) / 28,7.",
+      "<b>Periodo</b>: en {menu}, un número de días (90 por defecto) o una entidad (días, o con una unidad de tiempo como <code>h</code>); la entidad tiene prioridad. Ambos vacíos: los sensores están desactivados.",
+      "<b>Origen</b>: las estadísticas a largo plazo del recorder (medias horarias) del sensor de glucosa. Solo existen para sensores con una clase de estado (por ejemplo <code>measurement</code>); sin ellas, una reparación lo indica y los sensores son desconocidos.",
+      "Si menos del 70 % del periodo está cubierto por datos, ambos sensores son desconocidos. Se actualizan cada hora y cuando cambia la entidad del periodo.",
+      "<b>Atributos</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> y <code>unit</code> (unidad del sensor de glucosa), <code>coverage</code> (porcentaje del periodo con datos), <code>period_days</code>, <code>start</code> y <code>end</code> (ISO 8601)."
+    ],
     "ack_title": "Confirmar y pausar",
     "ack_points": [
       "<b>Confirmar</b> silencia una alarma durante su tiempo de silencio; después se comprueba de nuevo y se inicia de inmediato si sigue siendo aplicable. Confirmar la de glucosa baja urgente también silencia la de glucosa baja durante ese tiempo (la de glucosa alta urgente también la de glucosa alta); confirmar la de glucosa baja no silencia la de glucosa baja urgente. Formas: el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o una acción de notificación con el ID de <code>ack_action</code>.",

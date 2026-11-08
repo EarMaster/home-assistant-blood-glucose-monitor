@@ -68,7 +68,7 @@ actions:
               data:
                 tag: "{{ event.tag }}"
                 notification_icon: "{{ event.icon }}"
-                channel: "Alex"
+                channel: "{{ event.person_name }}"
                 importance: high
                 actions:
                   - action: "{{ event.ack_action }}"
@@ -95,7 +95,7 @@ actions:
               data:
                 tag: "{{ event.tag }}"
                 notification_icon: "{{ event.icon }}"
-                channel: "Alex"
+                channel: "{{ event.person_name }}"
 """
 
 

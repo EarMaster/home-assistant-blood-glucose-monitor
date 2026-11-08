@@ -51,6 +51,16 @@ actions:
 <h3>{{ d.values_title }}</h3>
 <div class="table-wrap"><table id="report-attributes"></table></div>
 
+<h2 id="estimate">{{ d.estimate_title }}</h2>
+<p>{{ d.estimate_text }}</p>
+{%- assign menu_token = "{menu}" %}
+{%- capture estimate_menu %}<b>{{ t.js.configure }} → {{ site.data.ha[page.lang].menu.estimate }}</b>{% endcapture %}
+<ul>
+  {%- for point in d.estimate_points %}
+  <li>{{ point | replace: menu_token, estimate_menu }}</li>
+  {%- endfor %}
+</ul>
+
 <h2 id="acknowledge">{{ d.ack_title }}</h2>
 <ul>
   {%- for point in d.ack_points %}

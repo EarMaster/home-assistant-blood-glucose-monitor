@@ -155,6 +155,15 @@ CONF_REPORT: Final = "report"
 CONF_REPORT_ENTITY: Final = "report_entity"
 TRIGGER_REPORT: Final = "report"
 
+# GMI and estimated HbA1c from the long-term statistics of the glucose
+# sensor. Options dict under this key; without the key the default period is
+# used, a saved step without period switches the estimates off.
+CONF_ESTIMATE: Final = "estimate"
+CONF_PERIOD: Final = "period"
+"""Period in days."""
+CONF_PERIOD_ENTITY: Final = "period_entity"
+DEFAULT_ESTIMATE_PERIOD: Final = 90
+
 # Icons of the alarms and the report (as in icons.json), also sent with the
 # events, for example as notification icon.
 ALARM_ICONS: Final = {

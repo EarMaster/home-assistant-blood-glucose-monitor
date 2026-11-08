@@ -72,6 +72,7 @@
           "sensor_change": "Sensor change",
           "reservoir_change": "Reservoir change",
           "report": "Reports",
+          "estimate": "GMI and estimated HbA1c",
           "pause": "Pause"
         }
       },
@@ -363,6 +364,18 @@
         "data_description": {
           "report_entity": "Schedule, input boolean or binary sensor. Leave empty to switch the reports off.",
           "only_when_home": "The event \"Report\" only fires while the person is at home. The report and the sensor \"Last report\" are updated anyway."
+        }
+      },
+      "estimate": {
+        "title": "GMI and estimated HbA1c",
+        "description": "The sensors \"GMI\" and \"Estimated HbA1c\" are calculated from the mean glucose of the period, taken from the long-term statistics of the glucose sensor (recorder; only for sensors with a state class). With less than 70 % of the period covered by data, both are unknown. They are estimates, not a laboratory HbA1c.",
+        "data": {
+          "period": "Period",
+          "period_entity": "Period entity"
+        },
+        "data_description": {
+          "period": "Number of days, usually 90. Leave both fields empty to switch the sensors off.",
+          "period_entity": "Number in days (or with a time unit such as h); takes precedence over the field."
         }
       },
       "pause": {
@@ -789,6 +802,58 @@
             "name": "Message"
           }
         }
+      },
+      "gmi": {
+        "name": "GMI",
+        "state_attributes": {
+          "mmol_mol": {
+            "name": "mmol/mol (IFCC)"
+          },
+          "glucose_mean": {
+            "name": "Mean glucose"
+          },
+          "unit": {
+            "name": "Unit"
+          },
+          "coverage": {
+            "name": "Coverage"
+          },
+          "period_days": {
+            "name": "Period"
+          },
+          "start": {
+            "name": "Start"
+          },
+          "end": {
+            "name": "End"
+          }
+        }
+      },
+      "estimated_a1c": {
+        "name": "Estimated HbA1c",
+        "state_attributes": {
+          "mmol_mol": {
+            "name": "mmol/mol (IFCC)"
+          },
+          "glucose_mean": {
+            "name": "Mean glucose"
+          },
+          "unit": {
+            "name": "Unit"
+          },
+          "coverage": {
+            "name": "Coverage"
+          },
+          "period_days": {
+            "name": "Period"
+          },
+          "start": {
+            "name": "Start"
+          },
+          "end": {
+            "name": "End"
+          }
+        }
       }
     },
     "switch": {
@@ -818,6 +883,10 @@
     "no_reading_time": {
       "title": "No reading time for {name}",
       "description": "The glucose data of {name} has no reading time. Without it the age of the data is unknown and no alarms are possible.\n\nSelect a reading time sensor under **Configure → Glucose data**."
+    },
+    "no_statistics": {
+      "title": "No long-term statistics for {name}",
+      "description": "The glucose sensor {entity_id} of {name} has no long-term statistics, so GMI and estimated HbA1c cannot be calculated. The recorder keeps them only for sensors with a state class (e.g. `measurement`) that are not excluded from the recorder.\n\nIf the source integration does not set a state class, add one with a customization (`state_class: measurement`), or switch the sensors off under **Configure → GMI and estimated HbA1c**."
     }
   },
   "selector": {

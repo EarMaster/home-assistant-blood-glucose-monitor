@@ -59,6 +59,7 @@ from .const import (
     CONF_DISCLAIMER_ACCEPTED,
     CONF_DUE_TIME,
     CONF_DURATION,
+    CONF_ESTIMATE,
     CONF_GLUCOSE_ENTITY,
     CONF_GLUCOSE_UNIT,
     CONF_LAST_CHANGE_ENTITY,
@@ -66,6 +67,8 @@ from .const import (
     CONF_NAME,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
+    CONF_PERIOD,
+    CONF_PERIOD_ENTITY,
     CONF_PERSON_ENTITY,
     CONF_RATE_ENTITY,
     CONF_RATE_LIMIT,
@@ -84,6 +87,7 @@ from .const import (
     CONF_WEAR_DURATION,
     CONF_WEAR_DURATION_ENTITY,
     DEFAULT_CLEAR_OFFSET,
+    DEFAULT_ESTIMATE_PERIOD,
     DEFAULT_PAUSE_DURATION,
     DEFAULT_RATE_LIMIT,
     DETECTION_RATE,
@@ -199,6 +203,20 @@ REPORT_SCHEMA = vol.Schema(
             EntitySelectorConfig(domain=["schedule", "input_boolean", "binary_sensor"])
         ),
         vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
+    }
+)
+ESTIMATE_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_PERIOD): NumberSelector(
+            NumberSelectorConfig(
+                min=1,
+                max=365,
+                step=1,
+                unit_of_measurement="d",
+                mode=NumberSelectorMode.BOX,
+            )
+        ),
+        vol.Optional(CONF_PERIOD_ENTITY): THRESHOLD_SELECTOR,
     }
 )
 TIME_ENTITY_SELECTOR = EntitySelector(
@@ -585,7 +603,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Show what can be configured."""
         return self.async_show_menu(
             step_id="init",
-            menu_options=["sources", *ALARMS, CONF_REPORT, CONF_PAUSE],
+            menu_options=["sources", *ALARMS, CONF_REPORT, CONF_ESTIMATE, CONF_PAUSE],
             description_placeholders={"builder_url": self._builder_url()},
         )
 
@@ -731,6 +749,20 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                 user_input or self.config_entry.options.get(CONF_REPORT, {}),
             ),
             errors=errors,
+        )
+
+    async def async_step_estimate(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure GMI and estimated HbA1c (empty period: off)."""
+        if user_input is not None:
+            return self._async_save(CONF_ESTIMATE, user_input)
+        current = self.config_entry.options.get(
+            CONF_ESTIMATE, {CONF_PERIOD: DEFAULT_ESTIMATE_PERIOD}
+        )
+        return self.async_show_form(
+            step_id=CONF_ESTIMATE,
+            data_schema=self.add_suggested_values_to_schema(ESTIMATE_SCHEMA, current),
         )
 
     async def async_step_pause(

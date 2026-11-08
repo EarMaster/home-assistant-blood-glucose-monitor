@@ -88,8 +88,12 @@
   // The event data, as variable "event" (see the variables block below).
   const attr = (name) => `"{{ event.${name} }}"`;
 
-  // Android notification channel: the field, else the name of the person.
-  const channel = () => channelInput?.value.trim() || nameInput.value.trim();
+  // Android notification channel: the field, else the name of the person
+  // from the event (follows a renamed entry).
+  const channel = () => {
+    const text = channelInput?.value.trim();
+    return text ? JSON.stringify(text) : attr("person_name");
+  };
 
   // Alarm notifications (started or repeated) get high importance and,
   // if wanted, the acknowledge button.
@@ -101,7 +105,7 @@
     "    data:",
     `      tag: ${attr("tag")}`,
     `      notification_icon: ${attr("icon")}`,
-    ...(channel() ? [`      channel: ${JSON.stringify(channel())}`] : []),
+    `      channel: ${channel()}`,
     ...(isAlarm ? ["      importance: high"] : []),
     ...(withAck
       ? [

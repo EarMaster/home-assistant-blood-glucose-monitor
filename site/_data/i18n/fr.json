@@ -30,8 +30,8 @@
         "text": "Rappel de charge du téléphone le soir, et rappels de changement pour la canule, le capteur MCG et le réservoir d'insuline, avec un préavis facultatif avant l'échéance."
       },
       {
-        "title": "Rapports",
-        "text": "Un résumé par période d'une planification (par exemple la nuit ou l'école) : minimum, maximum, moyenne, temps dans la cible et les alarmes de la période."
+        "title": "Rapports et estimations",
+        "text": "Un résumé par période d'une planification (par exemple la nuit ou l'école) : minimum, maximum, moyenne, temps dans la cible et les alarmes de la période. Ainsi que le GMI et l'HbA1c estimée à partir de la glucose moyenne des 90 derniers jours."
       },
       {
         "title": "Vos notifications",
@@ -39,7 +39,7 @@
       }
     ],
     "shot_device_alt": "Page de l'appareil de la personne Alex avec le statut, les capteurs d'alarme, les entités d'événement et les boutons",
-    "shot_device": "Un appareil par personne : le statut, un capteur d'état, une entité d'événement et un bouton d'acquittement par alarme, les rappels de changement et le dernier rapport.",
+    "shot_device": "Un appareil par personne : le statut, un capteur d'état, une entité d'événement et un bouton d'acquittement par alarme, les rappels de changement, le dernier rapport et les estimations de l'HbA1c.",
     "shot_notifications_alt": "Notifications d'une alarme de glucose bas et d'un rapport avec les textes prêts à l'emploi",
     "shot_notifications": "Notifications d'une automatisation du générateur, avec les textes prêts à l'emploi de l'intégration (ici sous forme de notifications Home Assistant).",
     "secondary_title": "Complémentaire par conception",
@@ -61,7 +61,7 @@
     "shot_setup_alt": "Boîte de dialogue de configuration avec l'avertissement que l'intégration n'est pas un dispositif médical",
     "shot_setup": "La configuration commence par l'avertissement, qui doit être confirmé.",
     "shot_options_alt": "Menu Configurer avec une entrée par alarme et le lien vers le générateur d'automatisations",
-    "shot_options": "Configurer : une entrée par alarme, les rappels, les rapports et la pause, ainsi que le lien vers le générateur d'automatisations.",
+    "shot_options": "Configurer : une entrée par alarme, les rappels, les rapports, le GMI et l'HbA1c estimée, la pause, ainsi que le lien vers le générateur d'automatisations.",
     "entities_title": "Entités par personne",
     "entities_head": [
       "Entité",
@@ -95,6 +95,10 @@
       [
         "Événement <i>Rapport</i>, capteur <i>Dernier rapport</i>",
         "Le rapport de chaque période ; le capteur contient le temps dans la cible du dernier."
+      ],
+      [
+        "Capteurs <i>GMI</i>, <i>HbA1c estimée</i>",
+        "Estimations en pourcentage à partir de la glucose moyenne de la période (90 jours par défaut), avec la valeur en mmol/mol comme attribut. Pas une HbA1c de laboratoire."
       ]
     ],
     "shot_status_alt": "Capteur de statut d'Alex indiquant un état de glucose bas",
@@ -124,7 +128,7 @@
     "notify": "Action de notification",
     "notify_hint": "L'action de notification du téléphone, par exemple <code>notify.mobile_app_pixel_8</code> (voir <b>Outils de développement → Actions</b>). Plusieurs possibles, séparées par des virgules. Vide : <code>notify.notify</code>.",
     "channel": "Canal de notification",
-    "channel_hint": "Canal de notification Android, pour régler le son et l'importance par canal dans l'application Companion. Vide : le nom de la personne.",
+    "channel_hint": "Canal de notification Android, pour régler le son et l'importance par canal dans l'application Companion. Vide : le nom de la personne issu de l'événement (person_name).",
     "ack": "Bouton d'acquittement dans les notifications d'alarme",
     "events_title": "Événements",
     "events_hint": "Déclenchée ou répétée → notification. Acquittée ou terminée → la notification est retirée.",
@@ -174,6 +178,15 @@
     "report_text": "Entité <i>Rapport</i>, type d'événement <code>report</code>.",
     "when_title": "Quand il se déclenche",
     "values_title": "Valeurs",
+    "estimate_title": "GMI et HbA1c estimée",
+    "estimate_text": "Les capteurs <i>GMI</i> et <i>HbA1c estimée</i> estiment l'HbA1c en pourcentage à partir de la glucose moyenne d'une période. Ils n'ont pas d'événement ; utilisez-les dans des tableaux de bord ou comme déclencheur de vos propres automatisations. Ce sont des estimations à partir des données de glucose, pas une HbA1c de laboratoire.",
+    "estimate_points": [
+      "<b>GMI</b> (glucose management indicator, Bergenstal 2018) : 3,31 + 0,02392 × moyenne en mg/dL. <b>HbA1c estimée</b> (ADAG, Nathan 2008) : (moyenne en mg/dL + 46,7) / 28,7.",
+      "<b>Période</b> : dans {menu}, un nombre de jours (90 par défaut) ou une entité (jours, ou avec une unité de temps comme <code>h</code>) ; l'entité est prioritaire. Les deux vides : les capteurs sont désactivés.",
+      "<b>Source</b> : les statistiques à long terme du recorder (moyennes horaires) du capteur de glucose. Elles n'existent que pour les capteurs ayant une classe d'état (par exemple <code>measurement</code>) ; sans elles, une réparation le signale et les capteurs sont inconnus.",
+      "Si moins de 70 % de la période est couverte par des données, les deux capteurs sont inconnus. Ils sont mis à jour toutes les heures et lorsque l'entité de la période change.",
+      "<b>Attributs</b> : <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> et <code>unit</code> (unité du capteur de glucose), <code>coverage</code> (part de la période avec des données, en pourcentage), <code>period_days</code>, <code>start</code> et <code>end</code> (ISO 8601)."
+    ],
     "ack_title": "Acquitter et mettre en pause",
     "ack_points": [
       "<b>Acquitter</b> rend une alarme silencieuse pendant sa durée de mise en sourdine ; ensuite, elle est vérifiée à nouveau et se déclenche immédiatement si elle s'applique toujours. Acquitter l'urgence glucose bas rend aussi silencieuse l'alarme glucose bas pendant cette durée (l'urgence glucose élevé aussi l'alarme glucose élevé) ; acquitter l'alarme glucose bas ne rend pas silencieuse l'urgence glucose bas. Moyens : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou une action de notification avec l'identifiant de <code>ack_action</code>.",

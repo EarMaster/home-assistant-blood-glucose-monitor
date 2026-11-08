@@ -30,8 +30,8 @@
         "text": "Charging reminder for the phone in the evening, and change reminders for cannula, CGM sensor and insulin reservoir with an optional warning before they are due."
       },
       {
-        "title": "Reports",
-        "text": "A summary per period of a schedule (for example night or school): minimum, maximum, mean, time in range and the alarms of the period."
+        "title": "Reports and estimates",
+        "text": "A summary per period of a schedule (for example night or school): minimum, maximum, mean, time in range and the alarms of the period. And GMI and estimated HbA1c from the mean glucose of the last 90 days."
       },
       {
         "title": "Your notifications",
@@ -39,7 +39,7 @@
       }
     ],
     "shot_device_alt": "Device page of the person Alex with status, alarm sensors, event entities and buttons",
-    "shot_device": "One device per person: status, a state sensor, an event entity and an acknowledge button per alarm, the change reminders and the last report.",
+    "shot_device": "One device per person: status, a state sensor, an event entity and an acknowledge button per alarm, the change reminders, the last report and the HbA1c estimates.",
     "shot_notifications_alt": "Notifications of a low alarm and a report with the ready-made texts",
     "shot_notifications": "Notifications from an automation of the builder, with the ready-made texts of the integration (here as Home Assistant notifications).",
     "secondary_title": "Secondary by design",
@@ -61,7 +61,7 @@
     "shot_setup_alt": "Setup dialog with the notice that the integration is not a medical device",
     "shot_setup": "Setup starts with the notice, which has to be confirmed.",
     "shot_options_alt": "Configure menu with one item per alarm and the link to the automation builder",
-    "shot_options": "Configure: one item per alarm, the reminders, reports and pause, and the link to the automation builder.",
+    "shot_options": "Configure: one item per alarm, the reminders, reports, GMI and estimated HbA1c, pause, and the link to the automation builder.",
     "entities_title": "Entities per person",
     "entities_head": [
       "Entity",
@@ -95,6 +95,10 @@
       [
         "<i>Report</i> event, <i>Last report</i> sensor",
         "The report of each period; the sensor holds the time in range of the last one."
+      ],
+      [
+        "<i>GMI</i>, <i>Estimated HbA1c</i> sensors",
+        "Estimates in percent from the mean glucose of the period (default 90 days), with the value in mmol/mol as attribute. Not a laboratory HbA1c."
       ]
     ],
     "shot_status_alt": "Status sensor of Alex showing a low glucose state",
@@ -124,7 +128,7 @@
     "notify": "Notify action",
     "notify_hint": "The notify action of the phone, for example <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools → Actions</b>). Several, separated by commas. Empty: <code>notify.notify</code>.",
     "channel": "Notification channel",
-    "channel_hint": "Android notification channel, so the sound and importance can be set per channel in the Companion app. Empty: the name of the person.",
+    "channel_hint": "Android notification channel, so the sound and importance can be set per channel in the Companion app. Empty: the name of the person from the event (person_name).",
     "ack": "Acknowledge button in alarm notifications",
     "events_title": "Events",
     "events_hint": "Started or repeated → notification. Acknowledged or over → the notification is removed again.",
@@ -174,6 +178,15 @@
     "report_text": "Entity <i>Report</i>, event type <code>report</code>.",
     "when_title": "When it fires",
     "values_title": "Values",
+    "estimate_title": "GMI and estimated HbA1c",
+    "estimate_text": "The sensors <i>GMI</i> and <i>Estimated HbA1c</i> estimate the HbA1c in percent from the mean glucose of a period. They have no event; use them in dashboards or as a trigger of your own automations. They are estimates from the glucose data, not a laboratory HbA1c.",
+    "estimate_points": [
+      "<b>GMI</b> (glucose management indicator, Bergenstal 2018): 3.31 + 0.02392 × mean in mg/dL. <b>Estimated HbA1c</b> (ADAG, Nathan 2008): (mean in mg/dL + 46.7) / 28.7.",
+      "<b>Period</b>: in {menu} a number of days (default 90) or an entity (days, or with a time unit such as <code>h</code>); the entity wins. Both empty: the sensors are switched off.",
+      "<b>Source</b>: the long-term statistics of the recorder (hourly means) of the glucose sensor. They exist only for sensors with a state class (for example <code>measurement</code>); without them a repair issue says so and the sensors are unknown.",
+      "With less than 70 % of the period covered by data, both sensors are unknown. They are updated every hour and when the period entity changes.",
+      "<b>Attributes</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> and <code>unit</code> (unit of the glucose sensor), <code>coverage</code> (share of the period with data in percent), <code>period_days</code>, <code>start</code> and <code>end</code> (ISO 8601)."
+    ],
     "ack_title": "Acknowledge and pause",
     "ack_points": [
       "<b>Acknowledge</b> silences an alarm for its snooze time; then it is checked again and starts at once if it still applies. Acknowledging urgent low also silences low for that time (urgent high also high); acknowledging low does not silence urgent low. Ways: the <i>Acknowledge …</i> button, the action <code>blood_glucose_monitor.acknowledge</code> or a notification action with the id from <code>ack_action</code>.",

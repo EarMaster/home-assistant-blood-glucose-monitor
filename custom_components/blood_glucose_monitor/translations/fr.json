@@ -72,6 +72,7 @@
           "sensor_change": "Changement de capteur",
           "reservoir_change": "Changement de réservoir",
           "report": "Rapports",
+          "estimate": "GMI et HbA1c estimée",
           "pause": "Pause"
         }
       },
@@ -363,6 +364,18 @@
         "data_description": {
           "report_entity": "Planification, entrée booléenne ou capteur binaire. Laissez vide pour désactiver les rapports.",
           "only_when_home": "L'événement « Rapport » n'est déclenché que lorsque la personne est à la maison. Le rapport et le capteur « Dernier rapport » sont tout de même mis à jour."
+        }
+      },
+      "estimate": {
+        "title": "GMI et HbA1c estimée",
+        "description": "Les capteurs « GMI » et « HbA1c estimée » sont calculés à partir de la glucose moyenne de la période, issue des statistiques à long terme du capteur de glucose (recorder ; uniquement pour les capteurs ayant une classe d'état). Si moins de 70 % de la période est couverte par des données, les deux sont inconnus. Ce sont des estimations, pas une HbA1c de laboratoire.",
+        "data": {
+          "period": "Période",
+          "period_entity": "Entité de la période"
+        },
+        "data_description": {
+          "period": "Nombre de jours, généralement 90. Laissez les deux champs vides pour désactiver les capteurs.",
+          "period_entity": "Nombre en jours (ou avec une unité de temps comme h) ; prioritaire sur le champ."
         }
       },
       "pause": {
@@ -789,6 +802,58 @@
             "name": "Message"
           }
         }
+      },
+      "gmi": {
+        "name": "GMI",
+        "state_attributes": {
+          "mmol_mol": {
+            "name": "mmol/mol (IFCC)"
+          },
+          "glucose_mean": {
+            "name": "Glucose moyenne"
+          },
+          "unit": {
+            "name": "Unité"
+          },
+          "coverage": {
+            "name": "Couverture des données"
+          },
+          "period_days": {
+            "name": "Période"
+          },
+          "start": {
+            "name": "Début"
+          },
+          "end": {
+            "name": "Fin"
+          }
+        }
+      },
+      "estimated_a1c": {
+        "name": "HbA1c estimée",
+        "state_attributes": {
+          "mmol_mol": {
+            "name": "mmol/mol (IFCC)"
+          },
+          "glucose_mean": {
+            "name": "Glucose moyenne"
+          },
+          "unit": {
+            "name": "Unité"
+          },
+          "coverage": {
+            "name": "Couverture des données"
+          },
+          "period_days": {
+            "name": "Période"
+          },
+          "start": {
+            "name": "Début"
+          },
+          "end": {
+            "name": "Fin"
+          }
+        }
       }
     },
     "switch": {
@@ -818,6 +883,10 @@
     "no_reading_time": {
       "title": "Aucune heure de mesure pour {name}",
       "description": "Les données de glucose de {name} n'ont pas d'heure de mesure. Sans elle, l'âge des données est inconnu et aucune alarme n'est possible.\n\nSélectionnez un capteur d'heure de mesure sous **Configurer → Données de glucose**."
+    },
+    "no_statistics": {
+      "title": "Aucune statistique à long terme pour {name}",
+      "description": "Le capteur de glucose {entity_id} de {name} n'a pas de statistiques à long terme ; le GMI et l'HbA1c estimée ne peuvent donc pas être calculés. Le recorder ne les conserve que pour les capteurs ayant une classe d'état (par ex. `measurement`) qui ne sont pas exclus du recorder.\n\nSi l'intégration de glucose ne définit pas de classe d'état, ajoutez-en une avec une personnalisation (`state_class: measurement`), ou désactivez les capteurs sous **Configurer → GMI et HbA1c estimée**."
     }
   },
   "selector": {

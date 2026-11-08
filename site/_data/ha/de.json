@@ -27,6 +27,7 @@
     "sensor_change": "Sensorwechsel",
     "reservoir_change": "Reservoirwechsel",
     "report": "Berichte",
+    "estimate": "GMI und geschätzter HbA1c",
     "pause": "Pause"
   },
   "event_types": {

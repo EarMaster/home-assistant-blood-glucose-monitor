@@ -16,6 +16,7 @@ import argparse
 import asyncio
 from datetime import UTC, datetime, timedelta
 import json
+import math
 from pathlib import Path
 import secrets
 import sys
@@ -133,6 +134,21 @@ class HomeAssistant:
             raise RuntimeError(f"Flow not finished: {result}")
         return result
 
+    async def websocket(self, message: dict[str, Any]) -> Any:
+        """Send one websocket command and return its result."""
+        async with self.session.ws_connect(f"{URL}/api/websocket") as ws:
+            await ws.receive_json()  # auth_required
+            await ws.send_json(
+                {"type": "auth", "access_token": self.tokens["access_token"]}
+            )
+            if (await ws.receive_json())["type"] != "auth_ok":
+                raise RuntimeError("Websocket authentication failed")
+            await ws.send_json({"id": 1, **message})
+            result = await ws.receive_json()
+            if not result.get("success"):
+                raise RuntimeError(f"Websocket {message['type']}: {result}")
+            return result.get("result")
+
     async def options(self, entry_id: str, step: str, data: dict[str, Any]) -> None:
         """Set the options of one menu item."""
         await self.flow("options/flow", entry_id, {"next_step_id": step}, data)
@@ -164,9 +180,38 @@ async def reading(ha: HomeAssistant, glucose: float, trend: str, change: float) 
     )
 
 
+async def import_statistics(ha: HomeAssistant) -> None:
+    """Import 90 days of synthetic hourly means for GMI and estimated HbA1c."""
+    end = datetime.now(UTC).replace(minute=0, second=0, microsecond=0)
+    stats = []
+    for hour in range(1, 90 * 24 + 1):
+        start = end - timedelta(hours=hour)
+        # A plain daily curve around 150 mg/dL, highest in the afternoon.
+        mean = 150 + 30 * math.sin(2 * math.pi * (start.hour - 10) / 24)
+        stats.append(
+            {"start": iso(start), "mean": round(mean, 1), "min": mean, "max": mean}
+        )
+    await ha.websocket(
+        {
+            "type": "recorder/import_statistics",
+            "metadata": {
+                "mean_type": 1,
+                "has_sum": False,
+                "name": None,
+                "source": "recorder",
+                "statistic_id": "sensor.alex_glucose",
+                "unit_class": "blood_glucose_concentration",
+                "unit_of_measurement": MG_DL,
+            },
+            "stats": stats,
+        }
+    )
+
+
 async def set_up(ha: HomeAssistant) -> dict[str, str]:
     """Create the synthetic data, the entry and the automation."""
     await reading(ha, 104, "steady", -1)
+    await import_statistics(ha)
     for key, value, name in (
         ("urgent_low", 55, "Alex urgent low threshold"),
         ("low", 70, "Alex low threshold"),

@@ -61,3 +61,8 @@ and then `python scripts/site_i18n.py`.
 | Event received (trigger) | Ereignis empfangen | Un événement a été reçu | Evento recibido | Gebeurtenis ontvangen |
 | automation builder | Automation-Builder | générateur d'automatisations | generador de automatizaciones | automatiseringsbouwer |
 | Visit (device page link) | Besuchen | Visiter | Visitar | Bezoeken |
+| GMI (glucose management indicator) | GMI | GMI | GMI | GMI |
+| Estimated HbA1c | Geschätzter HbA1c | HbA1c estimée | HbA1c estimada | Geschatte HbA1c |
+| Mean glucose | Mittlere Glukose | Glucose moyenne | Glucosa media | Gemiddelde glucose |
+| not a laboratory HbA1c | kein im Labor bestimmter HbA1c | pas une HbA1c de laboratoire | no una HbA1c de laboratorio | geen HbA1c uit het laboratorium |
+| long-term statistics / state class | Langzeitstatistiken / Zustandsklasse | statistiques à long terme / classe d'état | estadísticas a largo plazo / clase de estado | langetermijnstatistieken / statusklasse |

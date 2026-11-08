@@ -6,7 +6,14 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from custom_components.blood_glucose_monitor.report import compute_stats
+from custom_components.blood_glucose_monitor.report import (
+    EstimateStats,
+    compute_estimate,
+    compute_stats,
+    estimated_a1c,
+    gmi,
+    to_mmol_mol,
+)
 
 START = datetime(2026, 11, 7, 22, tzinfo=UTC)
 END = START + timedelta(hours=1)
@@ -63,3 +70,22 @@ def test_without_thresholds() -> None:
 def test_no_stats(samples: list, end: datetime) -> None:
     """No known value in the period gives no statistics."""
     assert compute_stats(samples, START, end) is None
+
+
+def test_estimate_formulas() -> None:
+    """GMI (Bergenstal), estimated HbA1c (ADAG) and IFCC conversion."""
+    assert gmi(154) == pytest.approx(6.99, abs=0.01)
+    assert estimated_a1c(154) == pytest.approx(6.99, abs=0.01)
+    assert estimated_a1c(126) == pytest.approx(6.02, abs=0.01)
+    assert to_mmol_mol(7.0) == pytest.approx(53, abs=0.1)
+
+
+def test_compute_estimate() -> None:
+    """Mean of the hourly means; coverage is the share of hours with data."""
+    stats = compute_estimate([100, None, 200, 150], 4)
+    assert stats.mean == 150
+    assert stats.coverage == 75
+    assert stats.sufficient
+    assert not compute_estimate([100, 200], 4).sufficient
+    assert compute_estimate([], 4) == EstimateStats(mean=None, coverage=0.0)
+    assert not compute_estimate([], 4).sufficient

@@ -43,9 +43,10 @@ FORMS = {
     ("options", "sensor_change"): config_flow.CHANGE_SCHEMA,
     ("options", "reservoir_change"): config_flow.CHANGE_SCHEMA,
     ("options", "report"): config_flow.REPORT_SCHEMA,
+    ("options", "estimate"): config_flow.ESTIMATE_SCHEMA,
     ("options", "pause"): config_flow.PAUSE_SCHEMA,
 }
-MENU_OPTIONS = {"sources", *const.ALARMS, "report", "pause"}
+MENU_OPTIONS = {"sources", *const.ALARMS, "report", "estimate", "pause"}
 SOURCE_ERRORS = {
     "unsupported_unit",
     "not_numeric",

@@ -66,10 +66,13 @@ from .const import (
     CONF_DETECTION,
     CONF_DUE_TIME,
     CONF_DURATION,
+    CONF_ESTIMATE,
     CONF_LAST_CHANGE_ENTITY,
     CONF_MAX_AGE,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
+    CONF_PERIOD,
+    CONF_PERIOD_ENTITY,
     CONF_PERSON_ENTITY,
     CONF_RATE_ENTITY,
     CONF_RATE_LIMIT,
@@ -85,6 +88,7 @@ from .const import (
     CONF_WARNING,
     CONF_WEAR_DURATION,
     CONF_WEAR_DURATION_ENTITY,
+    DEFAULT_ESTIMATE_PERIOD,
     DEFAULT_PAUSE_DURATION,
     DETECTION_OFF,
     DETECTION_TREND,
@@ -103,6 +107,7 @@ from .const import (
     TRIGGER_ENDED,
     TRIGGER_SOON,
 )
+from .estimates import EstimateTracker, no_statistics_issue
 from .glucose import GlucoseReading, Trend, parse_number
 from .reports import ReportTracker
 from .source import (
@@ -298,6 +303,12 @@ class AlarmMonitor:
                 ),
             )
         )
+        estimate = options.get(CONF_ESTIMATE, {CONF_PERIOD: DEFAULT_ESTIMATE_PERIOD})
+        self.estimate = (
+            EstimateTracker(self, estimate)
+            if estimate.get(CONF_PERIOD) or estimate.get(CONF_PERIOD_ENTITY)
+            else None
+        )
         # Changes recorded by the integration, and the due time per change
         # reminder whose warning was sent.
         self.changes: dict[str, datetime] = {}
@@ -462,6 +473,8 @@ class AlarmMonitor:
         entry.async_on_unload(self._async_cancel_timer)
         if self.report is not None:
             self.report.async_start()
+        if self.estimate is not None:
+            self.estimate.async_start()
         self._async_update()
 
     async def async_stop(self) -> None:
@@ -471,9 +484,8 @@ class AlarmMonitor:
     async def async_remove(self) -> None:
         """Remove the stored state and the repair issue of a deleted entry."""
         await self._store.async_remove()
-        ir.async_delete_issue(
-            self.hass, DOMAIN, no_reading_time_issue(self.entry.entry_id)
-        )
+        for issue_id in (no_reading_time_issue, no_statistics_issue):
+            ir.async_delete_issue(self.hass, DOMAIN, issue_id(self.entry.entry_id))
 
     @callback
     def async_add_listener(self, update_callback: CALLBACK_TYPE) -> CALLBACK_TYPE:
