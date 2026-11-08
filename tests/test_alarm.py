@@ -146,6 +146,40 @@ def test_acknowledge_pending_alarm_is_silent() -> None:
     assert engine.state is AlarmState.SNOOZED
 
 
+def test_snooze_active_alarm_acknowledges() -> None:
+    """Taking over a snooze acknowledges an active alarm until that time."""
+    engine = active_engine()
+    assert engine.snooze(at(6), at(16)) == [Phase.ACKNOWLEDGED]
+    assert engine.next_check() == at(16)
+
+
+def test_snooze_holds_idle_alarm() -> None:
+    """An idle alarm does not start before the snooze ends, then re-checks."""
+    engine = AlarmEngine(SETTINGS)
+    assert engine.snooze(at(0), at(10)) == []
+    assert engine.state is AlarmState.SNOOZED
+    assert engine.update(at(5), ALARM, True) == []
+    assert engine.update(at(10), ALARM, True) == [Phase.TRIGGERED]
+
+
+def test_snooze_of_idle_alarm_ends_quietly() -> None:
+    """A held alarm that never sounded ends without "resolved"."""
+    engine = AlarmEngine(SETTINGS)
+    engine.snooze(at(0), at(10))
+    assert engine.update(at(5), CLEAR, True) == []
+    assert engine.state is AlarmState.IDLE
+
+
+def test_snooze_keeps_longer_snooze() -> None:
+    """A longer running snooze (e.g. the pause) is not shortened."""
+    engine = active_engine()
+    engine.acknowledge(at(6), until=at(66))
+    assert engine.snooze(at(7), at(17)) == []
+    assert engine.next_check() == at(66)
+    engine.snooze(at(8), at(80))
+    assert engine.next_check() == at(80)
+
+
 def test_may_start() -> None:
     """A new alarm cannot start while not allowed; an active one continues."""
     engine = AlarmEngine(SETTINGS)

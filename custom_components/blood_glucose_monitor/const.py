@@ -88,6 +88,8 @@ RATE_ALARMS: Final = (ALARM_RAPID_FALL, ALARM_RAPID_RISE)
 # Urgent low is never paused.
 PAUSABLE_ALARMS: Final = tuple(alarm for alarm in ALARMS if alarm != ALARM_URGENT_LOW)
 
+# Threshold as number in the unit of the glucose data, or as entity (wins).
+CONF_THRESHOLD: Final = "threshold"
 CONF_THRESHOLD_ENTITY: Final = "threshold_entity"
 CONF_CLEAR_OFFSET: Final = "clear_offset"
 CONF_DELAY: Final = "delay"

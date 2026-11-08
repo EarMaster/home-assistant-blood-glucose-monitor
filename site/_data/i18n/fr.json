@@ -176,7 +176,7 @@
     "values_title": "Valeurs",
     "ack_title": "Acquitter et mettre en pause",
     "ack_points": [
-      "<b>Acquitter</b> rend une alarme silencieuse pendant sa durée de mise en sourdine ; ensuite, elle est vérifiée à nouveau et se déclenche immédiatement si elle s'applique toujours. Moyens : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou une action de notification avec l'identifiant de <code>ack_action</code>.",
+      "<b>Acquitter</b> rend une alarme silencieuse pendant sa durée de mise en sourdine ; ensuite, elle est vérifiée à nouveau et se déclenche immédiatement si elle s'applique toujours. Acquitter l'urgence glucose bas rend aussi silencieuse l'alarme glucose bas pendant cette durée (l'urgence glucose élevé aussi l'alarme glucose élevé) ; acquitter l'alarme glucose bas ne rend pas silencieuse l'urgence glucose bas. Moyens : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou une action de notification avec l'identifiant de <code>ack_action</code>.",
       "<b>Mettre les alarmes en pause</b> rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée et se désactive tout seul.",
       "<b>Enregistrer un changement</b> de canule, de capteur ou de réservoir avec le bouton <i>… changé(e)</i> ou l'action <code>blood_glucose_monitor.record_change</code> (éventuellement avec une heure dans le passé)."
     ]
@@ -202,7 +202,7 @@
       "report": "Rapport créé"
     },
     "req": {
-      "threshold_set": "Une entité de seuil est sélectionnée dans {menu}.",
+      "threshold_set": "Un seuil (nombre ou entité) est défini dans {menu}.",
       "below_for_delay": "Le glucose reste sous le seuil pendant le délai.",
       "above_for_delay": "Le glucose reste au-dessus du seuil pendant le délai.",
       "reading_time": "Les données de glucose ont une heure de mesure (un capteur d'heure de mesure ou l'attribut <code>date</code> du capteur de glucose). Sans elle, il n'y a pas d'alarmes de glucose et une réparation vous le signale.",
@@ -210,10 +210,12 @@
       "fresh": "La dernière mesure n'est pas plus ancienne que l'âge maximal des données de l'alarme d'absence de données ; des données trop anciennes ne déclenchent ni ne terminent une alarme de glucose.",
       "home": "Avec <i>Uniquement lorsque la personne est à la maison</i> dans {menu} : la personne est à la maison au moment où l'alarme se déclencherait. Une alarme en cours continue lorsque la personne part.",
       "not_acknowledged": "L'alarme n'est pas acquittée : après un acquittement, elle reste silencieuse pendant la durée de mise en sourdine, puis elle est vérifiée à nouveau.",
+      "not_superseded": "{urgent} n'est pas en cours (en attente, active ou en sourdine) : tant qu'elle est en cours, cette alarme ne se déclenche pas et ne se répète pas. Après l'acquittement de {urgent}, cette alarme reste silencieuse jusqu'à la fin de la mise en sourdine de {urgent} (et non de la sienne), puis elle est vérifiée à nouveau.",
       "pause_off": "L'interrupteur <i>{pause}</i> est désactivé.",
       "pause_never": "La pause ne s'applique pas à cette alarme.",
       "repeats": "Répétitions : l'événement se déclenche à nouveau selon l'intervalle de répétition tant que l'alarme est active (intervalle de répétition 0 = une seule fois).",
       "acknowledged": "L'alarme est acquittée : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou l'action de notification <code>ack_action</code>.",
+      "urgent_acknowledged": "{urgent} est acquittée pendant que cette alarme est active : cette alarme est acquittée en même temps.",
       "back_above": "Le glucose atteint le seuil plus l'écart de fin.",
       "back_below": "Le glucose redescend au seuil moins l'écart de fin.",
       "detection_set": "Une détection est sélectionnée dans {menu} : <i>Tendance des données de glucose</i> ou <i>Vitesse de variation calculée</i>.",

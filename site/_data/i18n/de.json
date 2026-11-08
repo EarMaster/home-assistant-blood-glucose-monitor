@@ -176,7 +176,7 @@
     "values_title": "Werte",
     "ack_title": "Bestätigen und pausieren",
     "ack_points": [
-      "<b>Bestätigen</b> schaltet einen Alarm für seine Schlummerzeit stumm; danach wird er erneut geprüft und startet sofort, wenn er noch zutrifft. Wege: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder eine Benachrichtigungsaktion mit der ID aus <code>ack_action</code>.",
+      "<b>Bestätigen</b> schaltet einen Alarm für seine Schlummerzeit stumm; danach wird er erneut geprüft und startet sofort, wenn er noch zutrifft. Wer dringend niedrig bestätigt, schaltet für diese Zeit auch niedrig stumm (dringend hoch auch hoch); wer niedrig bestätigt, schaltet dringend niedrig nicht stumm. Wege: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder eine Benachrichtigungsaktion mit der ID aus <code>ack_action</code>.",
       "<b>Alarme pausieren</b> schaltet alle Alarme außer dringend niedrig für die eingestellte Dauer stumm und schaltet sich selbst wieder aus.",
       "<b>Wechsel erfassen</b> für Kanüle, Sensor oder Reservoir mit dem Button <i>… gewechselt</i> oder der Aktion <code>blood_glucose_monitor.record_change</code> (optional mit einem Zeitpunkt in der Vergangenheit)."
     ]
@@ -202,7 +202,7 @@
       "report": "Bericht erstellt"
     },
     "req": {
-      "threshold_set": "In {menu} ist eine Schwellwert-Entität gewählt.",
+      "threshold_set": "In {menu} ist ein Schwellwert gesetzt (Zahl oder Entität).",
       "below_for_delay": "Die Glukose bleibt für die Verzögerung unter dem Schwellwert.",
       "above_for_delay": "Die Glukose bleibt für die Verzögerung über dem Schwellwert.",
       "reading_time": "Die Glukosedaten haben einen Messzeitpunkt (ein Messzeitpunkt-Sensor oder das Attribut <code>date</code> des Glukosesensors). Ohne ihn gibt es keine Glukose-Alarme, und ein Reparaturhinweis weist darauf hin.",
@@ -210,10 +210,12 @@
       "fresh": "Der letzte Messwert ist nicht älter als das maximale Datenalter des Alarms Datenausfall; veraltete Daten starten und beenden keinen Glukose-Alarm.",
       "home": "Mit <i>Nur wenn die Person zu Hause ist</i> in {menu}: Die Person ist zu Hause, wenn der Alarm starten würde. Ein laufender Alarm läuft weiter, wenn die Person geht.",
       "not_acknowledged": "Der Alarm ist nicht bestätigt: Nach einer Bestätigung bleibt er für die Schlummerzeit still und wird dann erneut geprüft.",
+      "not_superseded": "{urgent} läuft nicht (ausstehend, aktiv oder geschlummert): Solange er läuft, startet dieser Alarm nicht und wiederholt sich nicht. Nachdem {urgent} bestätigt wurde, bleibt dieser Alarm still, bis die Schlummerzeit von {urgent} endet (nicht die eigene), und wird dann erneut geprüft.",
       "pause_off": "Der Schalter <i>{pause}</i> ist aus.",
       "pause_never": "Die Pause gilt für diesen Alarm nicht.",
       "repeats": "Wiederholungen: Das Ereignis löst im Wiederholungsintervall erneut aus, solange der Alarm aktiv ist (Intervall 0 = nur einmal).",
       "acknowledged": "Der Alarm wird bestätigt: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder die Benachrichtigungsaktion <code>ack_action</code>.",
+      "urgent_acknowledged": "{urgent} wird bestätigt, während dieser Alarm aktiv ist: Dieser Alarm wird mit bestätigt.",
       "back_above": "Die Glukose erreicht den Schwellwert plus den Abstand zum Beenden.",
       "back_below": "Die Glukose fällt auf den Schwellwert minus den Abstand zum Beenden.",
       "detection_set": "In {menu} ist eine Erkennung gewählt: <i>Trend der Glukosedaten</i> oder <i>Eigene Änderungsrate</i>.",

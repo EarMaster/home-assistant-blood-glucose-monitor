@@ -176,7 +176,7 @@
     "values_title": "Valores",
     "ack_title": "Confirmar y pausar",
     "ack_points": [
-      "<b>Confirmar</b> silencia una alarma durante su tiempo de silencio; después se comprueba de nuevo y se inicia de inmediato si sigue siendo aplicable. Formas: el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o una acción de notificación con el ID de <code>ack_action</code>.",
+      "<b>Confirmar</b> silencia una alarma durante su tiempo de silencio; después se comprueba de nuevo y se inicia de inmediato si sigue siendo aplicable. Confirmar la de glucosa baja urgente también silencia la de glucosa baja durante ese tiempo (la de glucosa alta urgente también la de glucosa alta); confirmar la de glucosa baja no silencia la de glucosa baja urgente. Formas: el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o una acción de notificación con el ID de <code>ack_action</code>.",
       "<b>Pausar alarmas</b> silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado y se desactiva por sí solo.",
       "<b>Registrar un cambio</b> de cánula, sensor o reservorio con los botones <i>Cánula cambiada</i>, <i>Sensor cambiado</i> o <i>Reservorio cambiado</i> o con la acción <code>blood_glucose_monitor.record_change</code> (opcionalmente con una hora en el pasado)."
     ]
@@ -202,7 +202,7 @@
       "report": "Informe creado"
     },
     "req": {
-      "threshold_set": "En {menu} hay seleccionada una entidad de umbral.",
+      "threshold_set": "En {menu} hay un umbral definido (número o entidad).",
       "below_for_delay": "La glucosa permanece por debajo del umbral durante el retraso.",
       "above_for_delay": "La glucosa permanece por encima del umbral durante el retraso.",
       "reading_time": "Los datos de glucosa tienen hora de la lectura (un sensor de hora de la lectura o el atributo <code>date</code> del sensor de glucosa). Sin ella no hay alarmas de glucosa y un problema de reparación te lo indica.",
@@ -210,10 +210,12 @@
       "fresh": "La última lectura no es más antigua que la antigüedad máxima de los datos de la alarma de falta de datos; los datos desactualizados ni inician ni terminan una alarma de glucosa.",
       "home": "Con <i>Solo cuando la persona está en casa</i> en {menu}: la persona está en casa cuando la alarma se iniciaría. Una alarma en curso continúa cuando la persona se va.",
       "not_acknowledged": "La alarma no está confirmada: tras una confirmación permanece en silencio durante el tiempo de silencio y después se comprueba de nuevo.",
+      "not_superseded": "{urgent} no está en curso (pendiente, activa o silenciada): mientras lo está, esta alarma no se inicia ni se repite. Después de confirmar {urgent}, esta alarma permanece en silencio hasta que termina el tiempo de silencio de {urgent} (no el suyo propio) y después se comprueba de nuevo.",
       "pause_off": "El interruptor <i>{pause}</i> está desactivado.",
       "pause_never": "La pausa no se aplica a esta alarma.",
       "repeats": "Repeticiones: el evento se vuelve a disparar en cada intervalo de repetición mientras la alarma está activa (intervalo de repetición 0 = solo una vez).",
       "acknowledged": "La alarma se confirma: con el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o la acción de notificación <code>ack_action</code>.",
+      "urgent_acknowledged": "{urgent} se confirma mientras esta alarma está activa: esta alarma se confirma junto con ella.",
       "back_above": "La glucosa alcanza el umbral más el margen de finalización.",
       "back_below": "La glucosa baja hasta el umbral menos el margen de finalización.",
       "detection_set": "En {menu} hay seleccionada una detección: <i>Tendencia de los datos de glucosa</i> o <i>Tasa de cambio propia</i>.",

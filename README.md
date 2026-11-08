@@ -114,9 +114,10 @@ entities.
 | Rising fast | fast rise for the delay (see below) | no longer a fast rise |
 | Data loss | no new reading within the maximum data age | a new reading |
 
-- **Thresholds** are entities: for example the threshold sensors of the
-  glucose integration (suggested automatically when available) or an
-  `input_number`. Each alarm has its own threshold.
+- **Thresholds** are a number in the unit of the glucose data or an entity,
+  for example the threshold sensors of the glucose integration (suggested
+  automatically when available) or an `input_number`; the entity takes
+  precedence. Each alarm has its own threshold.
 - **Rapid change** is detected either by the **trend** of the glucose data
   (from "quickly" or only "very quickly") or by the **own rate of change**
   between the last two readings (at most 15 minutes apart) with a limit per
@@ -129,8 +130,15 @@ entities.
   is checked again and starts at once if it still applies. Ways to
   acknowledge: the *Acknowledge … alarm* button, the
   `blood_glucose_monitor.acknowledge` action, or a mobile app notification
-  action with the id from `ack_action`. Each alarm of each entry is
-  acknowledged on its own.
+  action with the id from `ack_action`. Each entry is acknowledged on its
+  own.
+- **Urgent low and low:** while urgent low runs (pending, active or
+  snoozed), low neither starts nor repeats. Acknowledging urgent low also
+  acknowledges low until urgent low's snooze time ends; low's own snooze
+  time does not apply here. Low shows `snoozed`, even if it was idle, and is
+  checked again afterwards.
+  Acknowledging low does not hold urgent low: if glucose falls further,
+  urgent low still starts. The same applies to urgent high and high.
 - **Pause:** the *Pause alarms* switch silences all alarms except urgent low
   for the configured duration and turns off by itself. Urgent low is never
   paused.

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-08
+
+### Added
+- Threshold alarms: the threshold can again be entered as a number (in the unit of the glucose data); a threshold entity takes precedence
+
+### Changed
+- Urgent low supersedes low (urgent high supersedes high): while the urgent alarm runs (pending, active or snoozed), the plain one neither starts nor repeats, and acknowledging the urgent alarm also acknowledges the plain one until the urgent alarm's snooze time ends (not the plain alarm's own); acknowledging low or high does not hold the urgent alarm
+
 ## [1.1.2] - 2026-11-08
 
 ### Added

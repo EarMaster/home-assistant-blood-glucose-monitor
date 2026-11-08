@@ -75,6 +75,7 @@ from .const import (
     CONF_REPORT,
     CONF_REPORT_ENTITY,
     CONF_SNOOZE,
+    CONF_THRESHOLD,
     CONF_THRESHOLD_ENTITY,
     CONF_TIME_ENTITY,
     CONF_TREND_ENTITY,
@@ -169,8 +170,12 @@ THRESHOLD_SELECTOR = EntitySelector(
 CLEAR_OFFSET_SELECTOR = NumberSelector(
     NumberSelectorConfig(min=0, max=100, step="any", mode=NumberSelectorMode.BOX)
 )
+THRESHOLD_VALUE_SELECTOR = NumberSelector(
+    NumberSelectorConfig(min=0, max=1000, step="any", mode=NumberSelectorMode.BOX)
+)
 THRESHOLD_ALARM_SCHEMA = vol.Schema(
     {
+        vol.Optional(CONF_THRESHOLD): THRESHOLD_VALUE_SELECTOR,
         vol.Optional(CONF_THRESHOLD_ENTITY): THRESHOLD_SELECTOR,
         vol.Required(CONF_CLEAR_OFFSET): CLEAR_OFFSET_SELECTOR,
         vol.Required(CONF_DELAY): _minutes(),
@@ -756,7 +761,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         errors: dict[str, str] = {}
         if user_input is not None:
             values = dict(user_input)
-            # Without threshold a threshold alarm is off.
+            # Without threshold (number or entity) a threshold alarm is off.
             if entity_id := values.get(CONF_THRESHOLD_ENTITY):
                 errors |= _validate_threshold(
                     self.hass, entity_id, options.get(CONF_GLUCOSE_UNIT)

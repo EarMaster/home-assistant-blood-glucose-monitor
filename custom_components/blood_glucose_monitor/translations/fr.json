@@ -103,7 +103,8 @@
         "title": "Alarme d'urgence glucose bas",
         "description": "Alarme lorsque le glucose reste sous le seuil pendant le délai. Elle se termine lorsque le glucose atteint le seuil plus l'écart de fin (en {unit}). La pause ne s'applique pas à cette alarme.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
         "data": {
-          "threshold_entity": "Seuil",
+          "threshold": "Seuil",
+          "threshold_entity": "Entité de seuil",
           "clear_offset": "Écart de fin",
           "delay": "Délai",
           "repeat": "Intervalle de répétition",
@@ -111,7 +112,8 @@
           "only_when_home": "Uniquement lorsque la personne est à la maison"
         },
         "data_description": {
-          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "threshold": "Seuil en {unit}. Laissez vides le seuil et l'entité de seuil pour désactiver l'alarme.",
+          "threshold_entity": "Facultatif. Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique ; prioritaire sur le champ.",
           "clear_offset": "L'alarme se termine au seuil plus cette valeur.",
           "delay": "Durée pendant laquelle le glucose doit rester sous le seuil.",
           "repeat": "0 ne notifie qu'une seule fois.",
@@ -123,7 +125,8 @@
         "title": "Alarme de glucose bas",
         "description": "Alarme lorsque le glucose reste sous le seuil pendant le délai. Elle se termine lorsque le glucose atteint le seuil plus l'écart de fin (en {unit}).\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
         "data": {
-          "threshold_entity": "Seuil",
+          "threshold": "Seuil",
+          "threshold_entity": "Entité de seuil",
           "clear_offset": "Écart de fin",
           "delay": "Délai",
           "repeat": "Intervalle de répétition",
@@ -131,7 +134,8 @@
           "only_when_home": "Uniquement lorsque la personne est à la maison"
         },
         "data_description": {
-          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "threshold": "Seuil en {unit}. Laissez vides le seuil et l'entité de seuil pour désactiver l'alarme.",
+          "threshold_entity": "Facultatif. Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique ; prioritaire sur le champ.",
           "clear_offset": "L'alarme se termine au seuil plus cette valeur.",
           "delay": "Durée pendant laquelle le glucose doit rester sous le seuil.",
           "repeat": "0 ne notifie qu'une seule fois.",
@@ -143,7 +147,8 @@
         "title": "Alarme de glucose élevé",
         "description": "Alarme lorsque le glucose reste au-dessus du seuil pendant le délai. Elle se termine lorsque le glucose redescend au seuil moins l'écart de fin (en {unit}).\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
         "data": {
-          "threshold_entity": "Seuil",
+          "threshold": "Seuil",
+          "threshold_entity": "Entité de seuil",
           "clear_offset": "Écart de fin",
           "delay": "Délai",
           "repeat": "Intervalle de répétition",
@@ -151,7 +156,8 @@
           "only_when_home": "Uniquement lorsque la personne est à la maison"
         },
         "data_description": {
-          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "threshold": "Seuil en {unit}. Laissez vides le seuil et l'entité de seuil pour désactiver l'alarme.",
+          "threshold_entity": "Facultatif. Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique ; prioritaire sur le champ.",
           "clear_offset": "L'alarme se termine au seuil moins cette valeur.",
           "delay": "Durée pendant laquelle le glucose doit rester au-dessus du seuil.",
           "repeat": "0 ne notifie qu'une seule fois.",
@@ -163,7 +169,8 @@
         "title": "Alarme d'urgence glucose élevé",
         "description": "Alarme lorsque le glucose reste au-dessus du seuil pendant le délai. Elle se termine lorsque le glucose redescend au seuil moins l'écart de fin (en {unit}).\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
         "data": {
-          "threshold_entity": "Seuil",
+          "threshold": "Seuil",
+          "threshold_entity": "Entité de seuil",
           "clear_offset": "Écart de fin",
           "delay": "Délai",
           "repeat": "Intervalle de répétition",
@@ -171,7 +178,8 @@
           "only_when_home": "Uniquement lorsque la personne est à la maison"
         },
         "data_description": {
-          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "threshold": "Seuil en {unit}. Laissez vides le seuil et l'entité de seuil pour désactiver l'alarme.",
+          "threshold_entity": "Facultatif. Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique ; prioritaire sur le champ.",
           "clear_offset": "L'alarme se termine au seuil moins cette valeur.",
           "delay": "Durée pendant laquelle le glucose doit rester au-dessus du seuil.",
           "repeat": "0 ne notifie qu'une seule fois.",

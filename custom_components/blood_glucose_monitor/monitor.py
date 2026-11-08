@@ -5,8 +5,10 @@ glucose data and threshold entities, schedules the time based checks, fires
 the events of the event entities (``event.py``) and keeps the alarm
 states across restarts.
 
-Every config entry has its own monitor. Alarms of different entries, and
-different alarms of one entry, are acknowledged and snoozed independently.
+Every config entry has its own monitor. Alarms of different entries are
+acknowledged and snoozed independently. Within an entry, urgent low holds low
+(urgent high holds high) while it runs, and acknowledging it snoozes low too;
+acknowledging low does not hold urgent low.
 """
 
 from __future__ import annotations
@@ -76,6 +78,7 @@ from .const import (
     CONF_REPORT,
     CONF_REPORT_ENTITY,
     CONF_SNOOZE,
+    CONF_THRESHOLD,
     CONF_THRESHOLD_ENTITY,
     CONF_TIME_ENTITY,
     CONF_TREND_LEVEL,
@@ -117,6 +120,13 @@ _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = 1
 # Phases of the alert event; the others are the ended event.
 ALERT_PHASES = (Phase.TRIGGERED, Phase.REPEAT)
+# The urgent alarm supersedes the plain one: while it runs (pending, active or
+# snoozed) the plain alarm neither starts nor repeats.
+SUPERSEDED_BY = {ALARM_LOW: ALARM_URGENT_LOW, ALARM_HIGH: ALARM_URGENT_HIGH}
+# Acknowledging the urgent alarm also snoozes the plain one, not the other way
+# round: an urgent alarm still sounds after the plain one was acknowledged.
+SNOOZES_ALSO = {urgent: alarm for alarm, urgent in SUPERSEDED_BY.items()}
+RUNNING_STATES = (AlarmState.PENDING, AlarmState.ACTIVE, AlarmState.SNOOZED)
 TEXT_PREFIX = f"component.{DOMAIN}.selector.alarm_text.options."
 
 type EventListener = Callable[[str, dict[str, Any]], None]
@@ -161,7 +171,7 @@ def alarm_options(options: Mapping[str, Any], alarm: str) -> dict[str, Any]:
 def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
     """Return the active alarms.
 
-    A threshold alarm is active once it has a threshold entity, a rapid
+    A threshold alarm is active once it has a threshold (number or entity), a rapid
     change alarm once a detection is selected, a change reminder once it has
     a wear duration; the data loss alarm is always active. Notifications are
     the user's automations.
@@ -171,6 +181,7 @@ def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
         for alarm in ALARMS
         if alarm == ALARM_DATA_LOSS
         or options.get(alarm, {}).get(CONF_THRESHOLD_ENTITY)
+        or options.get(alarm, {}).get(CONF_THRESHOLD) is not None
         or options.get(alarm, {}).get(CONF_DETECTION, DETECTION_OFF) != DETECTION_OFF
         or (
             alarm == ALARM_CHARGING
@@ -379,14 +390,17 @@ class AlarmMonitor:
     def range_thresholds(self) -> tuple[float | None, float | None]:
         """Return the target range in mg/dL from the low and high thresholds.
 
-        Uses the low (else urgent low) and high (else urgent high) threshold
-        entities, whether or not those alarms are active.
+        Uses the low (else urgent low) and high (else urgent high) thresholds,
+        whether or not those alarms are active.
         """
 
         def first(alarms: tuple[str, ...]) -> float | None:
             for alarm in alarms:
-                if entity_id := self._options[alarm].get(CONF_THRESHOLD_ENTITY):
-                    return value_mg_dl(self.hass, entity_id, self.source.entities.unit)
+                options = self._options[alarm]
+                if options.get(CONF_THRESHOLD_ENTITY) or (
+                    options.get(CONF_THRESHOLD) is not None
+                ):
+                    return self._threshold(options)
             return None
 
         return first(tuple(reversed(LOW_ALARMS))), first(HIGH_ALARMS)
@@ -478,9 +492,29 @@ class AlarmMonitor:
         """Acknowledge one alarm, or all alarms of this entry."""
         now = dt_util.utcnow()
         for name in [alarm] if alarm else list(self.engines):
-            if (engine := self.engines.get(name)) is not None:
-                self._async_notify_all(name, engine.acknowledge(now), now)
+            if name in self.engines:
+                self._async_acknowledge(name, now)
         self._async_update()
+
+    @callback
+    def _async_acknowledge(self, alarm: str, now: datetime) -> None:
+        """Acknowledge an alarm; an urgent one also snoozes the plain one.
+
+        The plain alarm stays silent until the urgent alarm's snooze ends.
+        """
+        engine = self.engines[alarm]
+        if engine.state not in (AlarmState.PENDING, AlarmState.ACTIVE):
+            return
+        until = now + engine.settings.snooze
+        self._async_notify_all(alarm, engine.acknowledge(now, until), now)
+        if (plain := self.engines.get(SNOOZES_ALSO.get(alarm, ""))) is not None:
+            phases = plain.snooze(now, until)
+            self._async_notify_all(SNOOZES_ALSO[alarm], phases, now)
+
+    def _superseded(self, alarm: str) -> bool:
+        """Return True while the urgent alarm superseding ``alarm`` runs."""
+        urgent = self.engines.get(SUPERSEDED_BY.get(alarm, ""))
+        return urgent is not None and urgent.state in RUNNING_STATES
 
     @callback
     def async_pause(self, on: bool) -> None:
@@ -602,7 +636,10 @@ class AlarmMonitor:
             self.pause_until = None
         self._async_update_issue(reading)
 
-        for alarm, engine in self.engines.items():
+        # Urgent alarms first: they decide whether the plain ones may sound.
+        for alarm, engine in sorted(
+            self.engines.items(), key=lambda item: item[0] in SUPERSEDED_BY
+        ):
             if alarm == ALARM_CHARGING:
                 condition = self._charging_condition(now)
             elif alarm in CHANGE_ALARMS:
@@ -612,6 +649,8 @@ class AlarmMonitor:
             else:
                 continue
             phases = engine.update(now, condition, self._may_start(alarm))
+            if self._superseded(alarm):
+                phases = [phase for phase in phases if phase is not Phase.REPEAT]
             self._async_notify_all(alarm, phases, now)
         for alarm in self.engines:
             if alarm in CHANGE_ALARMS:
@@ -642,13 +681,7 @@ class AlarmMonitor:
         if (
             reading.value is None
             or too_old
-            or not (entity_id := options.get(CONF_THRESHOLD_ENTITY))
-            or (
-                threshold := value_mg_dl(
-                    self.hass, entity_id, self.source.entities.unit
-                )
-            )
-            is None
+            or (threshold := self._threshold(options)) is None
         ):
             return Condition.UNKNOWN
         offset = to_mg_dl(float(options.get(CONF_CLEAR_OFFSET) or 0), self._unit()) or 0
@@ -831,7 +864,7 @@ class AlarmMonitor:
 
     def _may_start(self, alarm: str) -> bool:
         """Return True if a new alarm may start now."""
-        if alarm in PAUSABLE_ALARMS and self.paused:
+        if (alarm in PAUSABLE_ALARMS and self.paused) or self._superseded(alarm):
             return False
         return not self._options[alarm].get(CONF_ONLY_WHEN_HOME) or self.at_home
 
@@ -849,6 +882,14 @@ class AlarmMonitor:
             STATE_UNKNOWN,
             STATE_UNAVAILABLE,
         )
+
+    def _threshold(self, options: Mapping[str, Any]) -> float | None:
+        """Return the threshold of an alarm in mg/dL: entity, else number."""
+        if entity_id := options.get(CONF_THRESHOLD_ENTITY):
+            return value_mg_dl(self.hass, entity_id, self.source.entities.unit)
+        if (value := options.get(CONF_THRESHOLD)) is None:
+            return None
+        return to_mg_dl(float(value), self._unit())
 
     def _unit(self) -> str:
         """Return the unit of the glucose data."""
