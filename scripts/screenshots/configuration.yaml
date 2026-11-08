@@ -1,0 +1,23 @@
+# Demo Home Assistant for the screenshots of the documentation site.
+# Synthetic data only; see demo.py.
+homeassistant:
+  name: Demo
+  unit_system: metric
+  time_zone: Europe/Berlin
+  country: DE
+  currency: EUR
+  latitude: 52.52
+  longitude: 13.40
+  elevation: 34
+
+default_config:
+
+logger:
+  default: warning
+  logs:
+    custom_components.blood_glucose_monitor: info
+
+input_boolean:
+  alex_night:
+    name: Alex night
+    icon: mdi:weather-night

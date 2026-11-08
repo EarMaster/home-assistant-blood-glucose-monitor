@@ -13,3 +13,7 @@ venv/
 .coverage
 coverage.xml
 htmlcov/
+
+# Screenshot debugging output
+screenshots-debug/
+site/img/
