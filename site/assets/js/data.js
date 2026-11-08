@@ -23,7 +23,7 @@ window.BGM = (() => {
 
   const alarmAttributes = [
     ["title", "Ready-made title in the language of Home Assistant, for example <i>Alex: low glucose</i>."],
-    ["message", "Ready-made message: glucose with unit and trend arrow; on acknowledge or end a short text."],
+    ["message", "Ready-made message: glucose with unit and trend arrow for the glucose alarms, a matching text for data loss and the reminders; on acknowledge or end a short text."],
     ["alarm", "Key of the alarm, for example <code>low</code>."],
     ["phase", "<code>triggered</code>, <code>repeat</code>, <code>acknowledged</code>, <code>resolved</code> or <code>soon</code> (warning of a change reminder)."],
     ["glucose", "Latest glucose value in the unit of the glucose sensor."],

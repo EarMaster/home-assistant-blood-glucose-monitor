@@ -112,7 +112,7 @@ description: >-
     </thead>
     <tbody>
       <tr><td><i>Status</i> sensor</td><td>The most important current state, with the latest glucose value, trend and active alarms as attributes.</td></tr>
-      <tr><td><i>… alarm</i> / <i>… reminder</i> event</td><td><b>Trigger for notifications.</b> One per alarm; fires on start, repeat, acknowledge and end.</td></tr>
+      <tr><td><i>… alarm</i> / <i>… reminder</i> event</td><td><b>Trigger for notifications.</b> One per alarm; fires on start, repeat, acknowledge and end, and before a change is due (optional warning).</td></tr>
       <tr><td><i>… alarm</i> / <i>… reminder</i> sensor</td><td>State of the alarm (<code>idle</code>, <code>pending</code>, <code>active</code>, <code>snoozed</code>) for dashboards and conditions. It does not change on a repeat.</td></tr>
       <tr><td><i>Acknowledge …</i> button</td><td>Acknowledges the alarm for its snooze time.</td></tr>
       <tr><td><i>Pause alarms</i> switch</td><td>Silences all alarms except urgent low for the configured time.</td></tr>

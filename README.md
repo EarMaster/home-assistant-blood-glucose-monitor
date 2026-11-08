@@ -97,10 +97,11 @@ when the current value of a selected sensor cannot be read.
 ## Alarms
 
 Under **Configure** each entry has a menu: glucose data, one item per alarm
-and the pause. The threshold alarms are active once they have a threshold
-(leave it empty to switch them off), the rapid change alarms once a detection
-is selected; the data loss alarm is always active. Without an automation on
-their events, alarms only change their state sensors.
+and reminder, reports and the pause. The threshold alarms are active once
+they have a threshold (leave it empty to switch them off), the rapid change
+alarms once a detection is selected; the data loss alarm is always active.
+Without an automation on their event entities, alarms only change their
+entities.
 
 | Alarm | Starts | Ends |
 | --- | --- | --- |
@@ -167,6 +168,7 @@ The automation gets the data of the event as attributes of the entity,
 
 | Attribute | Content |
 | --- | --- |
+| `event_type` | the event type, for example `low_alert` |
 | `title`, `message` | ready-made texts in the language of Home Assistant |
 | `alarm` | `urgent_low`, `low`, `high`, `urgent_high`, `rapid_fall`, `rapid_rise`, `data_loss`, `charging`, `cannula_change`, `sensor_change` or `reservoir_change` |
 | `phase` | `triggered`, `repeat`, `acknowledged` or `resolved` (`soon` for the warning of a change reminder) |
@@ -268,6 +270,7 @@ works too. When a period ends, the *Report* event entity of the person fires
 | `alarms`, `low_alarms` | number of alarms that started in the period |
 | `title`, `message` | ready-made texts |
 | `tag` | notification tag, unique per entry |
+| `person_name`, `entry_id` | the entry |
 
 The statistics come from the history of the glucose sensor (recorder). A
 period that ends while Home Assistant is restarting is reported afterwards.
