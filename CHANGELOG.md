@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-11-08
+
 ### Added
 - Threshold alarms: the threshold can again be entered as a number (in the unit of the glucose data); a threshold entity takes precedence
 
