@@ -126,7 +126,7 @@
     "manual_note": "Tipp: Öffne den Builder aus Home Assistant (Geräteseite der Person → <b>Besuchen</b> oder <b>Konfigurieren</b> des Eintrags), dann stimmen die Entitäts-IDs. Hier werden sie aus dem Namen geraten; prüfe sie unter <b>Einstellungen → Geräte &amp; Dienste → Entitäten</b>.",
     "person": "Person",
     "notify": "Benachrichtigungsaktion",
-    "notify_hint": "Die Notify-Aktion des Handys, zum Beispiel <code>notify.mobile_app_pixel_8</code> (siehe <b>Entwicklerwerkzeuge → Aktionen</b>). Mehrere durch Kommas getrennt. Leer: <code>notify.notify</code>.",
+    "notify_hint": "Eine Benachrichtigungsaktion: das Handy, zum Beispiel <code>notify.mobile_app_pixel_8</code> (siehe <b>Entwicklerwerkzeuge → Aktionen</b>), oder eine <a href=\"docs.html#notify\">Notify-Gruppe</a> für mehrere Handys. Leer: <code>notify.notify</code>, das an alle Handys mit der Companion-App sendet.",
     "channel": "Benachrichtigungskanal",
     "channel_hint": "Android-Benachrichtigungskanal; Ton und Wichtigkeit lassen sich in der Companion-App pro Kanal einstellen. Leer: der Name der Person aus dem Ereignis (person_name).",
     "ack": "Bestätigen-Button in Alarm-Benachrichtigungen",
@@ -186,6 +186,12 @@
       "<b>Quelle</b>: die Langzeitstatistiken des Recorders (Stundenmittelwerte) des Glukosesensors. Es gibt sie nur für Sensoren mit einer Zustandsklasse (zum Beispiel <code>measurement</code>); ohne sie weist ein Reparaturhinweis darauf hin und die Sensoren sind unbekannt.",
       "Sind weniger als 70 % des Zeitraums durch Daten abgedeckt, sind beide Sensoren unbekannt. Sie werden jede Stunde aktualisiert und wenn sich die Entität des Zeitraums ändert.",
       "<b>Attribute</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> und <code>unit</code> (Einheit des Glukosesensors), <code>coverage</code> (Anteil des Zeitraums mit Daten in Prozent), <code>period_days</code>, <code>start</code> und <code>end</code> (ISO 8601)."
+    ],
+    "notify_title": "Benachrichtigungen auf mehreren Handys",
+    "notify_points": [
+      "<code>notify.notify</code> stellt die Mobile-App-Integration bereit; es sendet an <b>alle</b> Handys mit der Companion-App, mit allen Optionen (Tag, Kanal, Bestätigen-Button). Ist eine weitere Notify-Integration ohne Namen eingerichtet, kann <code>notify.notify</code> stattdessen zu dieser gehören.",
+      "Für nur einige Handys lege in der <code>configuration.yaml</code> eine <b>Notify-Gruppe</b> an und verwende sie im Builder als Benachrichtigungsaktion. Die Gruppe gibt die Optionen an jedes Handy weiter, die Benachrichtigung wird also nur einmal definiert.",
+      "Der Gruppen-Helfer der Benutzeroberfläche gruppiert Notify-Entitäten; diese nehmen nur einen Titel und eine Nachricht an, ohne Tag, Kanal oder Buttons. Verwende stattdessen die Gruppe in der <code>configuration.yaml</code>."
     ],
     "ack_title": "Bestätigen und pausieren",
     "ack_points": [

@@ -61,6 +61,20 @@ actions:
   {%- endfor %}
 </ul>
 
+<h2 id="notify">{{ d.notify_title }}</h2>
+<ul>
+  {%- for point in d.notify_points %}
+  <li>{{ point }}</li>
+  {%- endfor %}
+</ul>
+<pre><code>notify:
+  - platform: group
+    name: alex_phones
+    services:
+      - action: mobile_app_pixel_8
+      - action: mobile_app_tablet
+</code></pre>
+
 <h2 id="acknowledge">{{ d.ack_title }}</h2>
 <ul>
   {%- for point in d.ack_points %}

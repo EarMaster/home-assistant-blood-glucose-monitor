@@ -126,7 +126,7 @@
     "manual_note": "Tip: open de bouwer vanuit Home Assistant (apparaatpagina van de persoon → <b>Bezoeken</b>, of <b>Configureren</b> van het item), dan kloppen de entiteit-ID's. Hier worden ze afgeleid uit de naam; controleer ze onder <b>Instellingen → Apparaten &amp; diensten → Entiteiten</b>.",
     "person": "Persoon",
     "notify": "Meldingsactie",
-    "notify_hint": "De notify-actie van de telefoon, bijvoorbeeld <code>notify.mobile_app_pixel_8</code> (zie <b>Ontwikkelhulpmiddelen → Acties</b>). Meerdere gescheiden door komma's. Leeg: <code>notify.notify</code>.",
+    "notify_hint": "Eén notify-actie: de telefoon, bijvoorbeeld <code>notify.mobile_app_pixel_8</code> (zie <b>Ontwikkelhulpmiddelen → Acties</b>), of een <a href=\"docs.html#notify\">notify-groep</a> voor meerdere telefoons. Leeg: <code>notify.notify</code>, dat naar alle telefoons met de Companion-app stuurt.",
     "channel": "Meldingskanaal",
     "channel_hint": "Android-meldingskanaal, zodat je geluid en prioriteit per kanaal in de Companion-app kunt instellen. Leeg: de naam van de persoon uit de gebeurtenis (person_name).",
     "ack": "Bevestigknop in alarmmeldingen",
@@ -186,6 +186,12 @@
       "<b>Bron</b>: de langetermijnstatistieken van de recorder (uurgemiddelden) van de glucosesensor. Die bestaan alleen voor sensoren met een statusklasse (bijvoorbeeld <code>measurement</code>); zonder die statistieken meldt een reparatie dat en zijn de sensoren onbekend.",
       "Als minder dan 70% van de periode door gegevens wordt gedekt, zijn beide sensoren onbekend. Ze worden elk uur bijgewerkt en wanneer de entiteit van de periode verandert.",
       "<b>Attributen</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> en <code>unit</code> (eenheid van de glucosesensor), <code>coverage</code> (deel van de periode met gegevens in procent), <code>period_days</code>, <code>start</code> en <code>end</code> (ISO 8601)."
+    ],
+    "notify_title": "Meldingen op meerdere telefoons",
+    "notify_points": [
+      "<code>notify.notify</code> wordt geleverd door de Mobile App-integratie en stuurt naar <b>alle</b> telefoons met de Companion-app, met alle opties (tag, kanaal, bevestigknop). Is er een andere notify-integratie zonder naam ingesteld, dan kan <code>notify.notify</code> in plaats daarvan bij die integratie horen.",
+      "Voor slechts enkele telefoons maak je een <b>notify-groep</b> aan in <code>configuration.yaml</code> en gebruik je die als meldingsactie in de bouwer. De groep geeft de opties door aan elke telefoon, zodat je de melding maar één keer definieert.",
+      "De groep-helper van de gebruikersinterface groepeert notify-entiteiten; die accepteren alleen een titel en een bericht, zonder tag, kanaal of knoppen. Gebruik in plaats daarvan de groep in <code>configuration.yaml</code>."
     ],
     "ack_title": "Bevestigen en pauzeren",
     "ack_points": [
