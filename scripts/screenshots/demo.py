@@ -355,6 +355,11 @@ async def log_in(page: Page, ha: HomeAssistant) -> None:
         }""",
         [tokens, URL, CLIENT_ID],
     )
+    # The onboarding page redirects to the start page once it sees the
+    # tokens; wait for that, so it does not interrupt the next navigation.
+    await page.goto(f"{URL}/")
+    await page.get_by_text("Settings").first.wait_for()
+    await settle(page, 2)
 
 
 async def settle(page: Page, seconds: float = 4) -> None:
