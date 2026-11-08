@@ -203,6 +203,7 @@ async def test_low_alarm_acknowledge_and_recheck(scenario: Scenario) -> None:
     assert data["message"] == "65 mg/dL"
     assert data["glucose"] == 65
     assert data["tag"] == f"blood_glucose_monitor_{entry_id}_low"
+    assert data["icon"] == "mdi:arrow-down-circle"
     assert data["ack_action"] == f"BLOOD_GLUCOSE_MONITOR_ACK_{entry_id}_low"
     state = scenario.hass.states.get(LOW_EVENT)
     assert state.attributes["event_type"] == "low_alert"

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-11-08
+
+### Added
+- Alarm, reminder and report events have an `icon` attribute (the Material Design icon of the alarm); the automation builder uses it as notification icon
+
+### Changed
+- Icons: every alarm has a fixed icon on its state sensor and its event entity, so it stays recognizable in every state; urgent low/high use square icons, low/high round ones
+- Automation builder: one trigger per selected event, with the event type as trigger ID and the name Home Assistant shows as alias; each trigger can be moved to its own automation
+- Automation builder: without a notify action it uses `notify.notify`
+- Automation builder: optional Android notification channel, by default the name of the person
+- Automation builder: alarm notifications (started or repeated) have high importance
+
 ## [1.1.1] - 2026-11-08
 
 ### Changed

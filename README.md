@@ -149,7 +149,11 @@ you decide *how*. The **[automation builder](https://earmaster.github.io/home-as
 prepares them for you; open it from the device page of the person
 (**Visit**) or from the **Configure** menu, and it already knows the
 entities of that person and opens in the language of Home Assistant when the
-site has it (else in English). The [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
+site has it (else in English). It makes one trigger per selected event (the
+event type as trigger ID), uses `notify.notify` unless you name the notify
+action of the phone, and sets the icon of the alarm as notification icon and
+an Android notification channel (by default the name of the person). The
+[documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
 lists every event type and value.
 
 Every active alarm has its own **event entity** (for example
@@ -180,6 +184,7 @@ The automation gets the data of the event as attributes of the entity,
 | `data_age_min` | age of the latest reading in minutes |
 | `person_name`, `entry_id` | the entry |
 | `tag` | notification tag, unique per entry and alarm |
+| `icon` | Material Design icon of the alarm, for example `mdi:arrow-down-circle` |
 | `ack_action` | mobile app action id that acknowledges this alarm |
 | `battery` | battery level of the phone (charging reminder only) |
 | `last_change`, `due` | last change and due time (change reminders only) |
@@ -189,14 +194,16 @@ Example for the Home Assistant Companion app:
 ```yaml
 triggers:
   - trigger: event.received
-    id: alert
+    alias: Low alarm started or repeated
+    id: low_alert
     target:
       entity_id: event.alex_low_alarm
     options:
       event_type:
         - low_alert
   - trigger: event.received
-    id: ended
+    alias: Low alarm acknowledged or over
+    id: low_ended
     target:
       entity_id: event.alex_low_alarm
     options:
@@ -208,7 +215,7 @@ actions:
   - choose:
       - conditions:
           - condition: trigger
-            id: alert
+            id: low_alert
         sequence:
           - action: notify.mobile_app_your_phone
             data:
@@ -216,12 +223,15 @@ actions:
               message: "{{ event.message }}"
               data:
                 tag: "{{ event.tag }}"
+                notification_icon: "{{ event.icon }}"
+                channel: Alex
+                importance: high
                 actions:
                   - action: "{{ event.ack_action }}"
                     title: Acknowledge
       - conditions:
           - condition: trigger
-            id: ended
+            id: low_ended
         sequence:
           - action: notify.mobile_app_your_phone
             data:
@@ -287,6 +297,7 @@ works too. When a period ends, the *Report* event entity of the person fires
 | `alarms`, `low_alarms` | number of alarms that started in the period |
 | `title`, `message` | ready-made texts |
 | `tag` | notification tag, unique per entry |
+| `icon` | `mdi:clipboard-text-clock` |
 | `person_name`, `entry_id` | the entry |
 
 The statistics come from the history of the glucose sensor (recorder). A

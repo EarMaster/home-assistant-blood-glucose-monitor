@@ -153,6 +153,23 @@ CONF_REPORT: Final = "report"
 CONF_REPORT_ENTITY: Final = "report_entity"
 TRIGGER_REPORT: Final = "report"
 
+# Icons of the alarms and the report (as in icons.json), also sent with the
+# events, for example as notification icon.
+ALARM_ICONS: Final = {
+    ALARM_URGENT_LOW: "mdi:arrow-down-bold-box",
+    ALARM_LOW: "mdi:arrow-down-circle",
+    ALARM_HIGH: "mdi:arrow-up-circle",
+    ALARM_URGENT_HIGH: "mdi:arrow-up-bold-box",
+    ALARM_RAPID_FALL: "mdi:trending-down",
+    ALARM_RAPID_RISE: "mdi:trending-up",
+    ALARM_DATA_LOSS: "mdi:cloud-alert",
+    ALARM_CHARGING: "mdi:battery-alert",
+    ALARM_CANNULA_CHANGE: "mdi:needle",
+    ALARM_SENSOR_CHANGE: "mdi:access-point",
+    ALARM_RESERVOIR_CHANGE: "mdi:test-tube",
+}
+REPORT_ICON: Final = "mdi:clipboard-text-clock"
+
 # Pause of the pausable alarms, options dict under this key.
 CONF_PAUSE: Final = "pause"
 CONF_DURATION: Final = "duration"

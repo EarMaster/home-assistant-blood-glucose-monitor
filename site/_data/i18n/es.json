@@ -122,7 +122,9 @@
     "manual_note": "Consejo: abre el generador desde Home Assistant (página del dispositivo de la persona → <b>Visitar</b>, o <b>Configurar</b> de la entrada) para obtener los ID de entidad correctos. Aquí se deducen a partir del nombre; compruébalos en <b>Ajustes → Dispositivos y servicios → Entidades</b>.",
     "person": "Persona",
     "notify": "Acción de notificación",
-    "notify_hint": "La acción de notificación del teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>). Varias, separadas por comas.",
+    "notify_hint": "La acción de notificación del teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>). Varias, separadas por comas. Vacío: <code>notify.notify</code>.",
+    "channel": "Canal de notificación",
+    "channel_hint": "Canal de notificación de Android, para ajustar el sonido y la importancia por canal en la app Companion. Vacío: el nombre de la persona.",
     "ack": "Botón para confirmar en las notificaciones de alarma",
     "events_title": "Eventos",
     "events_hint": "Inicio o repetición → notificación. Confirmación o fin → la notificación se vuelve a eliminar.",
@@ -130,7 +132,7 @@
     "copy": "Copiar YAML",
     "paste_hint": "En Home Assistant: <b>Ajustes → Automatizaciones y escenas → Crear automatización → Crear nueva automatización</b>, después <b>⋮ → Editar en YAML</b>, pega y guarda.",
     "shot_automation_alt": "Editor de automatizaciones con el desencadenante Evento recibido en la alarma de glucosa baja y el informe",
-    "shot_automation": "El resultado en el editor de automatizaciones: el desencadenante <i>Evento recibido</i> con los tipos de evento seleccionados.",
+    "shot_automation": "El resultado en el editor de automatizaciones: un desencadenante <i>Evento recibido</i> por cada evento seleccionado.",
     "requirements_title": "Cuándo se dispara"
   },
   "docs": {
@@ -257,6 +259,7 @@
       "person_name": "Nombre de la entrada (la persona).",
       "entry_id": "ID de la entrada de configuración, para las acciones de la integración.",
       "tag": "Etiqueta de la notificación, única por persona y alarma. Sirve para sustituir y eliminar la notificación.",
+      "icon": "Icono de la alarma (Material Design Icons), por ejemplo <code>mdi:arrow-down-circle</code>; el generador lo usa como icono de la notificación.",
       "ack_action": "Acción de notificación de la app móvil que confirma esta alarma.",
       "battery": "Nivel de batería del teléfono en porcentaje.",
       "last_change": "Hora del último cambio (ISO 8601).",
@@ -279,6 +282,7 @@
       "alarms": "Número de alarmas que se iniciaron en el periodo, por alarma.",
       "low_alarms": "Número de alarmas de glucosa baja y baja urgente en el periodo.",
       "tag": "Etiqueta de la notificación, única por persona, para que un informe nuevo sustituya al anterior.",
+      "icon": "Icono del informe: <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Nombre de la entrada (la persona).",
       "entry_id": "ID de la entrada de configuración."
     }

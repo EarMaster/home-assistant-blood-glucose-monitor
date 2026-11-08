@@ -17,7 +17,7 @@ from homeassistant.core import Event, EventStateChangedData, callback
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.util import dt as dt_util
 
-from .const import ALARM_LOW, ALARM_URGENT_LOW, DOMAIN, TRIGGER_REPORT
+from .const import ALARM_LOW, ALARM_URGENT_LOW, DOMAIN, REPORT_ICON, TRIGGER_REPORT
 from .glucose import parse_number
 from .report import ReportStats, compute_stats
 from .source import state_value, to_mg_dl
@@ -134,6 +134,7 @@ class ReportTracker:
             "low_alarms": low_alarms,
             # Same form as the tags of the alarms (monitor.notification_tag).
             "tag": f"{DOMAIN}_{monitor.entry.entry_id}_{TRIGGER_REPORT}",
+            "icon": REPORT_ICON,
         }
         data["title"] = monitor.text("report", name=monitor.entry.title)
         data["message"] = self._message(stats, data, start, end)

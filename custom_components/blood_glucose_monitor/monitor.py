@@ -46,6 +46,7 @@ from .const import (
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
     ALARM_HIGH,
+    ALARM_ICONS,
     ALARM_LOW,
     ALARM_RAPID_FALL,
     ALARM_RAPID_RISE,
@@ -985,6 +986,7 @@ class AlarmMonitor:
             "title": self._text(alarm, name=name),
             "message": message,
             "tag": notification_tag(self.entry.entry_id, alarm),
+            "icon": ALARM_ICONS[alarm],
             "ack_action": acknowledge_action(self.entry.entry_id, alarm),
         }
 

@@ -14,6 +14,7 @@
   const form = document.getElementById("form");
   const nameInput = document.getElementById("name");
   const notifyInput = document.getElementById("notify");
+  const channelInput = document.getElementById("channel");
   const ackInput = document.getElementById("ack");
   const eventsBox = document.getElementById("events");
   const yamlBox = document.getElementById("yaml");
@@ -87,13 +88,21 @@
   // The event data, as variable "event" (see the variables block below).
   const attr = (name) => `"{{ event.${name} }}"`;
 
-  const notifyLines = (action, withAck) => [
+  // Android notification channel: the field, else the name of the person.
+  const channel = () => channelInput?.value.trim() || nameInput.value.trim();
+
+  // Alarm notifications (started or repeated) get high importance and,
+  // if wanted, the acknowledge button.
+  const notifyLines = (action, isAlarm, withAck) => [
     `- action: ${value(action)}`,
     "  data:",
     `    title: ${attr("title")}`,
     `    message: ${attr("message")}`,
     "    data:",
     `      tag: ${attr("tag")}`,
+    `      notification_icon: ${attr("icon")}`,
+    ...(channel() ? [`      channel: ${JSON.stringify(channel())}`] : []),
+    ...(isAlarm ? ["      importance: high"] : []),
     ...(withAck
       ? [
           "      actions:",
@@ -113,13 +122,12 @@
 
   const indent = (lines, spaces) => lines.map((line) => " ".repeat(spaces) + line);
 
-  // One trigger per kind of event, with a trigger ID the actions choose by:
-  // "alert" (started or repeated, with acknowledge button), "ended"
-  // (acknowledged or over: remove the notification), "notify" (everything
-  // else: warnings, reports, alerts without button).
-  const kindOf = (type, ack) => {
+  // Kinds of events the actions choose by: "alert" (started or repeated),
+  // "ended" (acknowledged or over: remove the notification), "notify"
+  // (warnings and reports).
+  const kindOf = (type) => {
     if (type.endsWith("_ended")) return "ended";
-    if (ack && type.endsWith("_alert")) return "alert";
+    if (type.endsWith("_alert")) return "alert";
     return "notify";
   };
   const KINDS = ["alert", "ended", "notify"];
@@ -130,6 +138,7 @@
         .filter((box) => box.checked)
         .map((box) => ({ group, type: box.value })),
     );
+    if (channelInput) channelInput.placeholder = nameInput.value.trim() || "Alex";
     if (!prefilled) {
       for (const group of groups) {
         if (group.entity.dataset.guessed) group.entity.value = guessEntity(group.source);
@@ -145,38 +154,43 @@
       .split(",")
       .map((text) => text.trim())
       .filter(Boolean);
-    if (!actions.length) actions.push("notify.mobile_app_your_phone");
+    if (!actions.length) actions.push("notify.notify");
     const ack = ackInput.checked;
     const kinds = KINDS.map((id) => {
-      const items = selected.filter(({ type }) => kindOf(type, ack) === id);
+      const items = selected.filter(({ type }) => kindOf(type) === id);
       const lines = actions.flatMap((action) =>
-        id === "ended" ? clearLines(action) : notifyLines(action, id === "alert"),
+        id === "ended"
+          ? clearLines(action)
+          : notifyLines(action, id === "alert", ack && id === "alert"),
       );
       return { id, items, lines };
     }).filter(({ items }) => items.length);
 
-    const triggerLines = kinds.flatMap(({ id, items }) => [
-      "  - trigger: event.received",
-      `    id: ${id}`,
-      "    target:",
-      "      entity_id:",
-      ...[...new Set(items.map(({ group }) => group.entity.value.trim()))].map(
-        (entity) => `        - ${value(entity)}`,
-      ),
-      "    options:",
-      "      event_type:",
-      ...items.map(({ type }) => `        - ${type}`),
-    ]);
+    // One trigger per selected event: ID = event type, alias = the name
+    // Home Assistant shows for it. Each can be moved to its own automation.
+    const triggerLines = kinds.flatMap(({ items }) =>
+      items.flatMap(({ group, type }) => [
+        "  - trigger: event.received",
+        `    alias: ${JSON.stringify(HA.event_types[type] || type)}`,
+        `    id: ${type}`,
+        "    target:",
+        `      entity_id: ${value(group.entity.value.trim())}`,
+        "    options:",
+        "      event_type:",
+        `        - ${type}`,
+      ]),
+    );
 
     const actionLines =
       kinds.length === 1
         ? kinds[0].lines
         : [
             "- choose:",
-            ...kinds.flatMap(({ id, lines }) => [
+            ...kinds.flatMap(({ items, lines }) => [
               "    - conditions:",
               "        - condition: trigger",
-              `          id: ${id}`,
+              "          id:",
+              ...items.map(({ type }) => `            - ${type}`),
               "      sequence:",
               ...indent(lines, 8),
             ]),

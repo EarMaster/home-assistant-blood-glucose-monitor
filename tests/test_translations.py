@@ -163,3 +163,24 @@ def test_entities_translated() -> None:
         }
     report = entity["event"]["report"]["state_attributes"]["event_type"]["state"]
     assert set(report) == {"report"}
+
+
+def test_event_icons_match_entity_icons() -> None:
+    """The icons sent with the events are those of the alarm sensors."""
+    icons = json.loads((TRANSLATIONS.parent / "icons.json").read_text("utf-8"))[
+        "entity"
+    ]["sensor"]
+    for alarm, icon in const.ALARM_ICONS.items():
+        assert icons[f"{alarm}_alarm"]["default"] == icon
+    assert icons["last_report"]["default"] == const.REPORT_ICON
+    assert set(const.ALARM_ICONS) == set(const.ALARMS)
+
+
+def test_event_entity_icons() -> None:
+    """Every event entity shows the icon of its alarm or the report."""
+    icons = json.loads((TRANSLATIONS.parent / "icons.json").read_text("utf-8"))[
+        "entity"
+    ]["event"]
+    for alarm, icon in const.ALARM_ICONS.items():
+        assert icons[f"{alarm}_alarm"]["default"] == icon
+    assert icons["report"]["default"] == const.REPORT_ICON
