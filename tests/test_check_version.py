@@ -166,10 +166,54 @@ def test_main(
     )
     assert notes.read_text("utf-8") == "### Added\n- Something new\n"
     assert output.read_text("utf-8") == (
-        "version=1.2.0\ntag=v1.2.0\nprerelease=false\n"
+        "version=1.2.0\ntag=v1.2.0\nprerelease=false\nrelease=true\n"
     )
 
     monkeypatch.setattr(check_version, "_git_tags", lambda: ["v1.2.0"])
     assert check_version.main([]) == 0
     assert check_version.main(["--release"]) == 1
     assert "::error::" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize(
+    ("files", "expected"),
+    [
+        (["README.md", "site/index.html", "tests/test_site.py"], False),
+        (["custom_components/blood_glucose_monitor/monitor.py"], True),
+        (["hacs.json"], True),
+        ([], False),
+    ],
+)
+def test_touches_integration(files: list[str], expected: bool) -> None:
+    """Only files of the integration make a merge a release."""
+    assert check_version.touches_integration(files) is expected
+
+
+def test_docs_update(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """Without integration changes the version may stay: no release."""
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text('{"version": "1.2.0"}', "utf-8")
+    changelog = tmp_path / "CHANGELOG.md"
+    changelog.write_text(CHANGELOG, "utf-8")
+    monkeypatch.setattr(check_version, "MANIFEST", manifest)
+    monkeypatch.setattr(check_version, "CHANGELOG", changelog)
+    monkeypatch.setattr(check_version, "_git_tags", lambda: ["v1.2.0"])
+    monkeypatch.setattr(check_version, "_changed_files", lambda base: ["site/x.html"])
+
+    output = tmp_path / "output"
+    args = ["--release", "--base", "main", "--github-output", str(output)]
+    assert check_version.main(args) == 0
+    assert output.read_text("utf-8").endswith("release=false\n")
+    assert "Docs update" in capsys.readouterr().out
+
+    # Integration changed without a new version: a release is required.
+    monkeypatch.setattr(
+        check_version,
+        "_changed_files",
+        lambda base: ["custom_components/blood_glucose_monitor/const.py"],
+    )
+    assert check_version.main(["--release", "--base", "main"]) == 1
+    # Without --base every merge into main is a release.
+    assert check_version.main(["--release"]) == 1

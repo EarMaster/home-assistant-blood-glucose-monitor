@@ -7,10 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-11-08
+
 ### Changed
 - Automation builder: the event data are a variable `event` (`{{ event.title }}` instead of `{{ trigger.to_state.attributes.title }}`), shorter and easier to adapt
-
-## [1.1.1] - 2026-11-08
+- A pull request that only changes the documentation site, README, scripts or tests can be merged without a new version; it publishes the site without a release
 
 ### Fixed
 - Documentation site: the introduction of the builder and documentation pages no longer ends with a stray "#readme"

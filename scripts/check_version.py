@@ -7,7 +7,13 @@ be lower than the newest release tag.
 With --release (pull requests to main and pushes to main): the version must be
 higher than every release tag and, unless it is a pre-release, have its own
 section in CHANGELOG.md. --notes writes the release notes to a file and
---github-output writes "version" and "tag" for later workflow steps.
+--github-output writes "version", "tag", "prerelease" and "release" for later
+workflow steps.
+
+With --base REVISION, a change that touches nothing of the integration
+(custom_components/, hacs.json) and keeps the version of the newest tag is a
+docs update (README, documentation site, scripts, tests): it passes without a
+new version and "release" is false, so no tag and no release are made.
 """
 
 from __future__ import annotations
@@ -23,6 +29,8 @@ import sys
 ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "custom_components" / "blood_glucose_monitor" / "manifest.json"
 CHANGELOG = ROOT / "CHANGELOG.md"
+# Paths whose change makes a merge into main a release of the integration.
+INTEGRATION_PATHS = ("custom_components/", "hacs.json")
 PRERELEASE_NOTES = (
     "Pre-release for testing. Enable pre-releases for this repository in the "
     "Marketplace to install it."
@@ -124,6 +132,24 @@ def check_release(current: Version, tags: list[Version], changelog: str) -> list
     return errors
 
 
+def touches_integration(changed_files: list[str]) -> bool:
+    """Return True if any changed file belongs to the integration."""
+    return any(
+        path == prefix or path.startswith(prefix)
+        for path in changed_files
+        for prefix in INTEGRATION_PATHS
+    )
+
+
+def is_docs_update(
+    current: Version, tags: list[Version], changed_files: list[str]
+) -> bool:
+    """Return True for a change without integration files and a new version."""
+    return (
+        bool(tags) and current == max(tags) and not touches_integration(changed_files)
+    )
+
+
 def release_notes(changelog: str, version: Version) -> str:
     """Return the release notes for a version."""
     return changelog_section(changelog, version) or PRERELEASE_NOTES
@@ -132,6 +158,17 @@ def release_notes(changelog: str, version: Version) -> str:
 def _git_tags() -> list[str]:
     result = subprocess.run(
         ["git", "tag", "--list", "v*"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+    return result.stdout.split()
+
+
+def _changed_files(base: str) -> list[str]:
+    result = subprocess.run(
+        ["git", "diff", "--name-only", base, "HEAD"],
         cwd=ROOT,
         capture_output=True,
         text=True,
@@ -150,13 +187,23 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--github-output", type=Path, help="append version and tag to this file"
     )
+    parser.add_argument(
+        "--base", help="revision to compare with; allows docs updates without release"
+    )
     args = parser.parse_args(argv)
 
     current = Version.parse(json.loads(MANIFEST.read_text("utf-8"))["version"])
     tags = parse_tags(_git_tags())
     changelog = CHANGELOG.read_text("utf-8")
 
-    if args.release:
+    docs_update = (
+        args.release
+        and args.base is not None
+        and is_docs_update(current, tags, _changed_files(args.base))
+    )
+    if docs_update:
+        errors = []
+    elif args.release:
         errors = check_release(current, tags, changelog)
     else:
         errors = check_push(current, tags)
@@ -170,6 +217,10 @@ def main(argv: list[str] | None = None) -> int:
         with args.github_output.open("a", encoding="utf-8") as output:
             output.write(f"version={current}\ntag=v{current}\n")
             output.write(f"prerelease={str(current.is_prerelease).lower()}\n")
+            output.write(f"release={str(not docs_update).lower()}\n")
+    if docs_update:
+        print(f"Docs update: no integration changes, version stays {current}")
+        return 0
     print(f"Version {current} OK")
     return 0
 

@@ -52,6 +52,14 @@ Never stage with `git add -A`; name the files.
 
 ## 4. Determine the version
 
+- **Docs update:** if the commits since the newest tag (and the new commits)
+  change nothing of the integration (`git diff --name-only <tag> HEAD` has no
+  path under `custom_components/` and no `hacs.json`), this is a docs update:
+  keep the version, add no CHANGELOG section (site-only changes stay under
+  `## [Unreleased]` or are not listed), skip step 6.2–6.5, and open the pull
+  request with the title "Docs update" and a short list of the changes as
+  body. Merging it publishes the site without a tag or release
+  (`check_version.py --release --base` lets it pass).
 - No tag yet: release the version that is already in `manifest.json`.
 - Otherwise apply semver to the commits since the newest tag and the new
   commits: `BREAKING CHANGE` → major, any `feat:` → minor, else patch. While

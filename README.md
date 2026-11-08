@@ -333,6 +333,9 @@ Marketplace (HACS) validation on every push.
   GitHub release automatically.
 - `scripts/check_version.py` makes sure the version only grows; it runs on
   every push and, stricter, on pull requests into `main`.
+- A pull request into `main` that changes nothing of the integration (only
+  README, documentation site, scripts or tests) is a docs update: it keeps
+  the version, and merging it publishes the site without a tag or release.
 
 All glucose values in tests are synthetic. Please do not add real health data
 to issues, tests or fixtures.
