@@ -15,8 +15,12 @@ window.BGM = (() => {
   const fill = (text, values) =>
     text.replace(/\{(\w+)\}/g, (match, key) => values[key] ?? match);
   const menu = (key) => `<b>${T.configure} → ${HA.menu[key]}</b>`;
-  const req = (key, menuKey) =>
-    fill(R[key], { menu: menuKey ? menu(menuKey) : "", pause: HA.pause });
+  const req = (key, menuKey, urgentKey) =>
+    fill(R[key], {
+      menu: menuKey ? menu(menuKey) : "",
+      pause: HA.pause,
+      urgent: urgentKey ? `<i>${HA.names[urgentKey]}</i>` : "",
+    });
 
   const glucoseCommon = [req("reading_time"), req("fresh")];
   const common = (key, pausable = true) => [
@@ -57,7 +61,8 @@ window.BGM = (() => {
     ...extra,
   });
 
-  const threshold = (key, below, pausable = true) =>
+  // urgent: the urgent alarm that supersedes this one (low → urgent low).
+  const threshold = (key, below, pausable = true, urgent = null) =>
     alarm(
       key,
       [
@@ -65,8 +70,12 @@ window.BGM = (() => {
         req(below ? "below_for_delay" : "above_for_delay"),
         ...glucoseCommon,
         ...common(key, pausable),
+        ...(urgent ? [req("not_superseded", null, urgent)] : []),
       ],
-      [req(below ? "back_above" : "back_below")],
+      [
+        ...(urgent ? [req("urgent_acknowledged", null, urgent)] : []),
+        req(below ? "back_above" : "back_below"),
+      ],
     );
 
   const rate = (key, prefix) =>
@@ -102,8 +111,8 @@ window.BGM = (() => {
 
   const alarms = [
     threshold("urgent_low", true, false),
-    threshold("low", true),
-    threshold("high", false),
+    threshold("low", true, true, "urgent_low"),
+    threshold("high", false, true, "urgent_high"),
     threshold("urgent_high", false),
     rate("rapid_fall", "fall"),
     rate("rapid_rise", "rise"),

@@ -5,8 +5,10 @@ glucose data and threshold entities, schedules the time based checks, fires
 the events of the event entities (``event.py``) and keeps the alarm
 states across restarts.
 
-Every config entry has its own monitor. Alarms of different entries, and
-different alarms of one entry, are acknowledged and snoozed independently.
+Every config entry has its own monitor. Alarms of different entries are
+acknowledged and snoozed independently. Within an entry, urgent low holds low
+(urgent high holds high) while it runs, and acknowledging it snoozes low too;
+acknowledging low does not hold urgent low.
 """
 
 from __future__ import annotations
@@ -118,6 +120,13 @@ _LOGGER = logging.getLogger(__name__)
 STORAGE_VERSION = 1
 # Phases of the alert event; the others are the ended event.
 ALERT_PHASES = (Phase.TRIGGERED, Phase.REPEAT)
+# The urgent alarm supersedes the plain one: while it runs (pending, active or
+# snoozed) the plain alarm neither starts nor repeats.
+SUPERSEDED_BY = {ALARM_LOW: ALARM_URGENT_LOW, ALARM_HIGH: ALARM_URGENT_HIGH}
+# Acknowledging the urgent alarm also snoozes the plain one, not the other way
+# round: an urgent alarm still sounds after the plain one was acknowledged.
+SNOOZES_ALSO = {urgent: alarm for alarm, urgent in SUPERSEDED_BY.items()}
+RUNNING_STATES = (AlarmState.PENDING, AlarmState.ACTIVE, AlarmState.SNOOZED)
 TEXT_PREFIX = f"component.{DOMAIN}.selector.alarm_text.options."
 
 type EventListener = Callable[[str, dict[str, Any]], None]
@@ -483,9 +492,29 @@ class AlarmMonitor:
         """Acknowledge one alarm, or all alarms of this entry."""
         now = dt_util.utcnow()
         for name in [alarm] if alarm else list(self.engines):
-            if (engine := self.engines.get(name)) is not None:
-                self._async_notify_all(name, engine.acknowledge(now), now)
+            if name in self.engines:
+                self._async_acknowledge(name, now)
         self._async_update()
+
+    @callback
+    def _async_acknowledge(self, alarm: str, now: datetime) -> None:
+        """Acknowledge an alarm; an urgent one also snoozes the plain one.
+
+        The plain alarm stays silent until the urgent alarm's snooze ends.
+        """
+        engine = self.engines[alarm]
+        if engine.state not in (AlarmState.PENDING, AlarmState.ACTIVE):
+            return
+        until = now + engine.settings.snooze
+        self._async_notify_all(alarm, engine.acknowledge(now, until), now)
+        if (plain := self.engines.get(SNOOZES_ALSO.get(alarm, ""))) is not None:
+            phases = plain.snooze(now, until)
+            self._async_notify_all(SNOOZES_ALSO[alarm], phases, now)
+
+    def _superseded(self, alarm: str) -> bool:
+        """Return True while the urgent alarm superseding ``alarm`` runs."""
+        urgent = self.engines.get(SUPERSEDED_BY.get(alarm, ""))
+        return urgent is not None and urgent.state in RUNNING_STATES
 
     @callback
     def async_pause(self, on: bool) -> None:
@@ -607,7 +636,10 @@ class AlarmMonitor:
             self.pause_until = None
         self._async_update_issue(reading)
 
-        for alarm, engine in self.engines.items():
+        # Urgent alarms first: they decide whether the plain ones may sound.
+        for alarm, engine in sorted(
+            self.engines.items(), key=lambda item: item[0] in SUPERSEDED_BY
+        ):
             if alarm == ALARM_CHARGING:
                 condition = self._charging_condition(now)
             elif alarm in CHANGE_ALARMS:
@@ -617,6 +649,8 @@ class AlarmMonitor:
             else:
                 continue
             phases = engine.update(now, condition, self._may_start(alarm))
+            if self._superseded(alarm):
+                phases = [phase for phase in phases if phase is not Phase.REPEAT]
             self._async_notify_all(alarm, phases, now)
         for alarm in self.engines:
             if alarm in CHANGE_ALARMS:
@@ -830,7 +864,7 @@ class AlarmMonitor:
 
     def _may_start(self, alarm: str) -> bool:
         """Return True if a new alarm may start now."""
-        if alarm in PAUSABLE_ALARMS and self.paused:
+        if (alarm in PAUSABLE_ALARMS and self.paused) or self._superseded(alarm):
             return False
         return not self._options[alarm].get(CONF_ONLY_WHEN_HOME) or self.at_home
 

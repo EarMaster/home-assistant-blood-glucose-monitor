@@ -234,30 +234,89 @@ async def test_low_alarm_acknowledge_and_recheck(scenario: Scenario) -> None:
     assert scenario.state(LOW_SENSOR) == "idle"
 
 
-async def test_urgent_low_is_independent(scenario: Scenario) -> None:
-    """Urgent low starts at once and is acknowledged separately from low."""
+async def acknowledge(scenario: Scenario, alarm: str | None = None) -> None:
+    """Acknowledge one alarm (or all) with the action."""
+    data = {"config_entry_id": scenario.entry.entry_id}
+    if alarm:
+        data["alarm"] = alarm
+    await scenario.hass.services.async_call(DOMAIN, "acknowledge", data, blocking=True)
+    await scenario.hass.async_block_till_done()
+
+
+async def test_urgent_low_holds_low(scenario: Scenario) -> None:
+    """While urgent low runs, low neither starts nor repeats."""
     await scenario.setup()
     await scenario.reading(50)
     assert scenario.phases() == [("urgent_low", "triggered")]
     assert scenario.actions[0].data["title"] == "Alex: urgent low glucose"
-    await scenario.wait(5, 50)
-    assert ("low", "triggered") in scenario.phases()
+    await scenario.wait(30, 50)
+    assert {alarm for alarm, _ in scenario.phases()} == {"urgent_low"}
+    assert scenario.state(LOW_SENSOR) == "idle"
 
-    await scenario.hass.services.async_call(
-        DOMAIN,
-        "acknowledge",
-        {"config_entry_id": scenario.entry.entry_id, "alarm": "low"},
-        blocking=True,
-    )
+
+async def test_urgent_low_silences_repeats_of_low(scenario: Scenario) -> None:
+    """A running low alarm stops repeating once urgent low starts."""
+    await scenario.setup()
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    assert scenario.phases() == [("low", "triggered")]
+    await scenario.reading(50)
+    actions_before = len(scenario.actions)
+    await scenario.wait(20, 50)
+    assert {alarm for alarm, _ in scenario.phases()[actions_before:]} == {"urgent_low"}
+
+
+async def test_acknowledging_urgent_low_snoozes_low(scenario: Scenario) -> None:
+    """Acknowledging urgent low silences low until the same snooze ends."""
+    await scenario.setup()
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    await scenario.reading(50)
+    await acknowledge(scenario, "urgent_low")
+    assert scenario.state(URGENT_SENSOR) == "snoozed"
     assert scenario.state(LOW_SENSOR) == "snoozed"
+    assert scenario.phases(scenario.ends) == [
+        ("urgent_low", "acknowledged"),
+        ("low", "acknowledged"),
+    ]
+
+    # Back above urgent low but still low: silent until urgent low's snooze
+    # (10 minutes) ends, then low again.
+    actions_before = len(scenario.actions)
+    await scenario.wait(5, 62)
+    assert scenario.phases()[actions_before:] == []
+    await scenario.wait(5, 62)
+    assert scenario.phases()[actions_before:] == [("low", "triggered")]
+
+
+async def test_acknowledging_urgent_low_holds_idle_low(scenario: Scenario) -> None:
+    """Low does not start after urgent low was acknowledged, within its snooze."""
+    await scenario.setup()
+    await scenario.reading(50)
+    await acknowledge(scenario, "urgent_low")
+    assert scenario.state(LOW_SENSOR) == "snoozed"
+    assert scenario.phases(scenario.ends) == [("urgent_low", "acknowledged")]
+    # Clear again: low ends quietly, without an "ended" event.
+    await scenario.reading(90)
+    assert scenario.state(LOW_SENSOR) == "idle"
+    assert scenario.phases(scenario.ends) == [
+        ("urgent_low", "acknowledged"),
+        ("urgent_low", "resolved"),
+    ]
+
+
+async def test_acknowledging_low_does_not_hold_urgent_low(scenario: Scenario) -> None:
+    """Urgent low still sounds when low was acknowledged before."""
+    await scenario.setup()
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    await acknowledge(scenario, "low")
+    assert scenario.state(LOW_SENSOR) == "snoozed"
+    await scenario.reading(50)
+    assert scenario.phases()[-1] == ("urgent_low", "triggered")
     assert scenario.state(URGENT_SENSOR) == "active"
 
-    await scenario.hass.services.async_call(
-        DOMAIN,
-        "acknowledge",
-        {"config_entry_id": scenario.entry.entry_id},
-        blocking=True,
-    )
+    await acknowledge(scenario)
     assert scenario.state(URGENT_SENSOR) == "snoozed"
 
 

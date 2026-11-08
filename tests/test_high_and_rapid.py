@@ -83,13 +83,14 @@ async def test_high_alarm(scenario: Scenario) -> None:
 
 
 async def test_urgent_high_has_priority(scenario: Scenario) -> None:
-    """Urgent high starts after its own delay and wins the status over high."""
+    """Urgent high starts after its own delay and holds high while it runs."""
     await scenario.setup(high_options())
     await scenario.reading(260)
     await scenario.wait(15, 260)
     assert ("urgent_high", "triggered") in scenario.phases()
     await scenario.wait(15, 260)
-    assert ("high", "triggered") in scenario.phases()
+    assert {alarm for alarm, _ in scenario.phases()} == {"urgent_high"}
+    assert scenario.state(HIGH_SENSOR) == "idle"
     assert scenario.state(STATUS_SENSOR) == "urgent_high"
 
 

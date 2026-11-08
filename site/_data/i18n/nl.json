@@ -176,7 +176,7 @@
     "values_title": "Waarden",
     "ack_title": "Bevestigen en pauzeren",
     "ack_points": [
-      "<b>Bevestigen</b> dempt een alarm voor de duur van het sluimeren; daarna wordt het opnieuw gecontroleerd en start het meteen als het nog van toepassing is. Manieren: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of een meldingsactie met de ID uit <code>ack_action</code>.",
+      "<b>Bevestigen</b> dempt een alarm voor de duur van het sluimeren; daarna wordt het opnieuw gecontroleerd en start het meteen als het nog van toepassing is. Wie urgent laag bevestigt, dempt voor die tijd ook laag (urgent hoog ook hoog); wie laag bevestigt, dempt urgent laag niet. Manieren: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of een meldingsactie met de ID uit <code>ack_action</code>.",
       "<b>Alarmen pauzeren</b> dempt alle alarmen behalve urgent laag gedurende de ingestelde duur en schakelt daarna vanzelf uit.",
       "<b>Wissel registreren</b> van canule, sensor of reservoir met de knop <i>… gewisseld</i> of de actie <code>blood_glucose_monitor.record_change</code> (optioneel met een tijdstip in het verleden)."
     ]
@@ -210,10 +210,12 @@
       "fresh": "De laatste meting is niet ouder dan de maximale gegevensouderdom van het alarm geen metingen; verouderde gegevens starten en beëindigen geen glucosealarm.",
       "home": "Met <i>Alleen als de persoon thuis is</i> in {menu}: de persoon is thuis wanneer het alarm zou starten. Een lopend alarm gaat door als de persoon vertrekt.",
       "not_acknowledged": "Het alarm is niet bevestigd: na een bevestiging blijft het stil voor de duur van het sluimeren en wordt het daarna opnieuw gecontroleerd.",
+      "not_superseded": "{urgent} loopt niet (in afwachting, actief of sluimerend): zolang het loopt, start dit alarm niet en herhaalt het zich niet. Nadat {urgent} is bevestigd, blijft dit alarm stil tot de sluimertijd van {urgent} afloopt (niet de eigen) en wordt het daarna opnieuw gecontroleerd.",
       "pause_off": "De schakelaar <i>{pause}</i> staat uit.",
       "pause_never": "De pauze geldt niet voor dit alarm.",
       "repeats": "Herhalingen: de gebeurtenis wordt opnieuw geactiveerd na het herhaalinterval zolang het alarm actief is (herhaalinterval 0 = slechts één keer).",
       "acknowledged": "Het alarm wordt bevestigd: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of de meldingsactie <code>ack_action</code>.",
+      "urgent_acknowledged": "{urgent} wordt bevestigd terwijl dit alarm actief is: dit alarm wordt daarmee ook bevestigd.",
       "back_above": "De glucose bereikt de drempelwaarde plus de eindmarge.",
       "back_below": "De glucose daalt tot de drempelwaarde min de eindmarge.",
       "detection_set": "In {menu} is een detectie geselecteerd: <i>Trend van de glucosegegevens</i> of <i>Eigen veranderingssnelheid</i>.",

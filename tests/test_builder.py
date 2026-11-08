@@ -112,18 +112,20 @@ async def test_builder_automation(
         hass, "automation", {"automation": [parse_yaml(BUILDER_YAML)]}
     )
     hass.states.async_set("input_boolean.period", "on")
-    await scenario.reading(50)
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
     entry_id = scenario.entry.entry_id
+    assert calls[-1].data["title"] == "Alex: low glucose"
+
+    await scenario.reading(50)
     assert calls[-1].data["title"] == "Alex: urgent low glucose"
     assert calls[-1].data["data"]["importance"] == "high"
     assert calls[-1].data["data"]["actions"][0]["action"] == (
         f"BLOOD_GLUCOSE_MONITOR_ACK_{entry_id}_urgent_low"
     )
 
-    await scenario.wait(5, 50)
-    titles = [call.data.get("title") for call in calls]
-    assert "Alex: low glucose" in titles
-
+    # The automation clears only urgent low (low_ended is not selected).
+    count = len(calls)
     await hass.services.async_call(
         DOMAIN,
         "acknowledge",
@@ -131,10 +133,12 @@ async def test_builder_automation(
         blocking=True,
     )
     await hass.async_block_till_done()
-    assert calls[-1].data == {
-        "message": "clear_notification",
-        "data": {"tag": f"blood_glucose_monitor_{entry_id}_urgent_low"},
-    }
+    assert [call.data for call in calls[count:]] == [
+        {
+            "message": "clear_notification",
+            "data": {"tag": f"blood_glucose_monitor_{entry_id}_urgent_low"},
+        }
+    ]
 
     count = len(calls)
     hass.states.async_set("input_boolean.period", "off")

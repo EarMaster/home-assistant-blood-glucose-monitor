@@ -14,7 +14,9 @@ States::
                                           snoozed ──snooze over──▶ re-check
 
 A snoozed alarm is checked again when the snooze ends: if the data is still
-in the alarm range, the alarm starts again at once.
+in the alarm range, the alarm starts again at once. ``snooze`` passes the
+snooze of an acknowledged urgent alarm on to the plain one (urgent low to
+low), even when that one is idle.
 """
 
 from __future__ import annotations
@@ -158,8 +160,10 @@ class AlarmEngine:
             return self._activate(now)
 
         if condition is Condition.CLEAR:
+            # Snoozed without ever being on (see ``snooze``): ends quietly.
+            silent = status.state is AlarmState.SNOOZED and status.since is None
             self._set(AlarmState.IDLE)
-            return [Phase.RESOLVED]
+            return [] if silent else [Phase.RESOLVED]
 
         if status.state is AlarmState.ACTIVE:
             repeat = self.settings.repeat
@@ -186,6 +190,25 @@ class AlarmEngine:
         self._set(AlarmState.SNOOZED, now)
         self.status.snoozed_until = until or now + self.settings.snooze
         return [Phase.ACKNOWLEDGED] if was_active else []
+
+    def snooze(self, now: datetime, until: datetime) -> list[Phase]:
+        """Take over the snooze of an acknowledged urgent alarm until ``until``.
+
+        A pending or active alarm is acknowledged, an idle one is held (no
+        alarm starts before ``until``), a snoozed one stays snoozed at least
+        until ``until``.
+        """
+        status = self.status
+        match status.state:
+            case AlarmState.PENDING | AlarmState.ACTIVE:
+                return self.acknowledge(now, until)
+            case AlarmState.IDLE:
+                self._set(AlarmState.SNOOZED)
+                status.snoozed_until = until
+            case AlarmState.SNOOZED:
+                assert status.snoozed_until is not None
+                status.snoozed_until = max(status.snoozed_until, until)
+        return []
 
     def next_check(self) -> datetime | None:
         """Return when the state may change without new data."""
