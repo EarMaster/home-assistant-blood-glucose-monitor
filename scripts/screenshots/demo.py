@@ -391,7 +391,7 @@ async def screenshots(
 
         async def device() -> None:
             # Taller, so the sensors and events of the device are visible.
-            await page.set_viewport_size({"width": 1280, "height": 1500})
+            await page.set_viewport_size({"width": 1280, "height": 1900})
             await page.goto(f"{URL}/config/devices/device/{ids['device_id']}")
             await page.get_by_text("Low alarm").first.wait_for()
             await settle(page)
@@ -400,15 +400,15 @@ async def screenshots(
 
         async def status() -> None:
             await page.goto(f"{URL}/?more-info-entity-id=sensor.alex_status")
-            await page.locator("ha-more-info-dialog").first.wait_for()
+            await page.get_by_text("History").first.wait_for()
             await settle(page)
             await shoot(page, out, "status")
             await page.keyboard.press("Escape")
 
         async def automation() -> None:
             await page.goto(f"{URL}/config/automation/edit/{AUTOMATION_ID}")
-            await page.get_by_text("Event received").first.click()
-            await settle(page, 2)
+            await page.get_by_text("Event received").first.wait_for()
+            await settle(page)
             await shoot(page, out, "automation")
 
         async def options() -> None:
