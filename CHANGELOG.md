@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-11-08
+
 ### Added
 - French, Spanish and Dutch translations
 - The documentation site in English, German, French, Spanish and Dutch: the start page follows the browser language, a switcher changes it, and the builder link from Home Assistant opens the page in its language
 - "Open in Marketplace" button and a "Get involved" section on the documentation site
+- "About this project" section on the documentation site and in the README with support links (Liberapay, Buy Me a Coffee), also as the sponsor button on GitHub
 
 ## [1.0.1] - 2026-11-08
 
