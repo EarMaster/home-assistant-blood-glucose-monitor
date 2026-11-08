@@ -202,7 +202,7 @@
       "report": "Report created"
     },
     "req": {
-      "threshold_set": "A threshold entity is selected in {menu}.",
+      "threshold_set": "A threshold (number or entity) is set in {menu}.",
       "below_for_delay": "The glucose stays below the threshold for the delay.",
       "above_for_delay": "The glucose stays above the threshold for the delay.",
       "reading_time": "The glucose data has a reading time (a reading time sensor or the <code>date</code> attribute of the glucose sensor). Without it there are no glucose alarms and a repair issue tells you so.",

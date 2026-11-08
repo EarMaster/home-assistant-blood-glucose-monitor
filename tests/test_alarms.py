@@ -448,6 +448,58 @@ async def test_mmol_threshold_and_variables(scenario: Scenario) -> None:
     assert data["message"] == "2.9 mmol/L"
 
 
+async def test_threshold_as_number(scenario: Scenario) -> None:
+    """A threshold can be a number in the unit of the glucose data."""
+    await scenario.setup(
+        options(
+            urgent_low=alarm(threshold=55, clear_offset=5, delay=0, repeat=5, snooze=10)
+        )
+    )
+    assert scenario.state(URGENT_SENSOR) == "idle"
+    await scenario.reading(54)
+    assert scenario.phases() == [("urgent_low", "triggered")]
+
+
+async def test_threshold_number_in_mmol(scenario: Scenario) -> None:
+    """The number is read in the unit of the glucose data (mmol/L here)."""
+    hass = scenario.hass
+    await scenario.setup(
+        options(
+            urgent_low=alarm(
+                threshold=3.1, clear_offset=0.3, delay=0, repeat=5, snooze=10
+            )
+        )
+    )
+    hass.states.async_set(GLUCOSE_ENTITY, "3.2", {"unit_of_measurement": "mmol/L"})
+    hass.states.async_set(READING_TIME_ENTITY, dt_util.utcnow().isoformat())
+    await hass.async_block_till_done()
+    assert scenario.phases() == []
+    hass.states.async_set(GLUCOSE_ENTITY, "3.0", {"unit_of_measurement": "mmol/L"})
+    hass.states.async_set(READING_TIME_ENTITY, dt_util.utcnow().isoformat())
+    await hass.async_block_till_done()
+    assert scenario.phases() == [("urgent_low", "triggered")]
+
+
+async def test_threshold_entity_wins(scenario: Scenario) -> None:
+    """With both, the threshold entity counts and the number is ignored."""
+    await scenario.setup(
+        options(
+            urgent_low=alarm(
+                threshold=80,
+                threshold_entity=URGENT_THRESHOLD,
+                clear_offset=5,
+                delay=0,
+                repeat=5,
+                snooze=10,
+            )
+        )
+    )
+    await scenario.reading(60)
+    assert ("urgent_low", "triggered") not in scenario.phases()
+    await scenario.reading(54)
+    assert ("urgent_low", "triggered") in scenario.phases()
+
+
 async def test_unavailable_threshold_holds(scenario: Scenario) -> None:
     """Without a threshold value the alarm neither starts nor ends."""
     await scenario.setup()

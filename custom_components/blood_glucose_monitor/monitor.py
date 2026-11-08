@@ -76,6 +76,7 @@ from .const import (
     CONF_REPORT,
     CONF_REPORT_ENTITY,
     CONF_SNOOZE,
+    CONF_THRESHOLD,
     CONF_THRESHOLD_ENTITY,
     CONF_TIME_ENTITY,
     CONF_TREND_LEVEL,
@@ -161,7 +162,7 @@ def alarm_options(options: Mapping[str, Any], alarm: str) -> dict[str, Any]:
 def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
     """Return the active alarms.
 
-    A threshold alarm is active once it has a threshold entity, a rapid
+    A threshold alarm is active once it has a threshold (number or entity), a rapid
     change alarm once a detection is selected, a change reminder once it has
     a wear duration; the data loss alarm is always active. Notifications are
     the user's automations.
@@ -171,6 +172,7 @@ def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
         for alarm in ALARMS
         if alarm == ALARM_DATA_LOSS
         or options.get(alarm, {}).get(CONF_THRESHOLD_ENTITY)
+        or options.get(alarm, {}).get(CONF_THRESHOLD) is not None
         or options.get(alarm, {}).get(CONF_DETECTION, DETECTION_OFF) != DETECTION_OFF
         or (
             alarm == ALARM_CHARGING
@@ -379,14 +381,17 @@ class AlarmMonitor:
     def range_thresholds(self) -> tuple[float | None, float | None]:
         """Return the target range in mg/dL from the low and high thresholds.
 
-        Uses the low (else urgent low) and high (else urgent high) threshold
-        entities, whether or not those alarms are active.
+        Uses the low (else urgent low) and high (else urgent high) thresholds,
+        whether or not those alarms are active.
         """
 
         def first(alarms: tuple[str, ...]) -> float | None:
             for alarm in alarms:
-                if entity_id := self._options[alarm].get(CONF_THRESHOLD_ENTITY):
-                    return value_mg_dl(self.hass, entity_id, self.source.entities.unit)
+                options = self._options[alarm]
+                if options.get(CONF_THRESHOLD_ENTITY) or (
+                    options.get(CONF_THRESHOLD) is not None
+                ):
+                    return self._threshold(options)
             return None
 
         return first(tuple(reversed(LOW_ALARMS))), first(HIGH_ALARMS)
@@ -642,13 +647,7 @@ class AlarmMonitor:
         if (
             reading.value is None
             or too_old
-            or not (entity_id := options.get(CONF_THRESHOLD_ENTITY))
-            or (
-                threshold := value_mg_dl(
-                    self.hass, entity_id, self.source.entities.unit
-                )
-            )
-            is None
+            or (threshold := self._threshold(options)) is None
         ):
             return Condition.UNKNOWN
         offset = to_mg_dl(float(options.get(CONF_CLEAR_OFFSET) or 0), self._unit()) or 0
@@ -849,6 +848,14 @@ class AlarmMonitor:
             STATE_UNKNOWN,
             STATE_UNAVAILABLE,
         )
+
+    def _threshold(self, options: Mapping[str, Any]) -> float | None:
+        """Return the threshold of an alarm in mg/dL: entity, else number."""
+        if entity_id := options.get(CONF_THRESHOLD_ENTITY):
+            return value_mg_dl(self.hass, entity_id, self.source.entities.unit)
+        if (value := options.get(CONF_THRESHOLD)) is None:
+            return None
+        return to_mg_dl(float(value), self._unit())
 
     def _unit(self) -> str:
         """Return the unit of the glucose data."""

@@ -103,7 +103,8 @@
         "title": "Alarm urgent laag",
         "description": "Alarm wanneer de glucose gedurende de vertraging onder de drempelwaarde blijft. Het alarm eindigt wanneer de glucose de drempelwaarde plus de eindmarge bereikt (in {unit}). De pauze geldt niet voor dit alarm.\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
         "data": {
-          "threshold_entity": "Drempelwaarde",
+          "threshold": "Drempelwaarde",
+          "threshold_entity": "Drempelwaarde-entiteit",
           "clear_offset": "Eindmarge",
           "delay": "Vertraging",
           "repeat": "Herhaalinterval",
@@ -111,7 +112,8 @@
           "only_when_home": "Alleen als de persoon thuis is"
         },
         "data_description": {
-          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "threshold": "Drempelwaarde in {unit}. Laat de drempelwaarde en de drempelwaarde-entiteit leeg om het alarm uit te schakelen.",
+          "threshold_entity": "Optioneel. Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer; heeft voorrang op het veld.",
           "clear_offset": "Het alarm eindigt bij de drempelwaarde plus deze waarde.",
           "delay": "Hoe lang de glucose onder de drempelwaarde moet blijven.",
           "repeat": "0 meldt slechts één keer.",
@@ -123,7 +125,8 @@
         "title": "Alarm laag",
         "description": "Alarm wanneer de glucose gedurende de vertraging onder de drempelwaarde blijft. Het alarm eindigt wanneer de glucose de drempelwaarde plus de eindmarge bereikt (in {unit}).\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
         "data": {
-          "threshold_entity": "Drempelwaarde",
+          "threshold": "Drempelwaarde",
+          "threshold_entity": "Drempelwaarde-entiteit",
           "clear_offset": "Eindmarge",
           "delay": "Vertraging",
           "repeat": "Herhaalinterval",
@@ -131,7 +134,8 @@
           "only_when_home": "Alleen als de persoon thuis is"
         },
         "data_description": {
-          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "threshold": "Drempelwaarde in {unit}. Laat de drempelwaarde en de drempelwaarde-entiteit leeg om het alarm uit te schakelen.",
+          "threshold_entity": "Optioneel. Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer; heeft voorrang op het veld.",
           "clear_offset": "Het alarm eindigt bij de drempelwaarde plus deze waarde.",
           "delay": "Hoe lang de glucose onder de drempelwaarde moet blijven.",
           "repeat": "0 meldt slechts één keer.",
@@ -143,7 +147,8 @@
         "title": "Alarm hoog",
         "description": "Alarm wanneer de glucose gedurende de vertraging boven de drempelwaarde blijft. Het alarm eindigt wanneer de glucose daalt tot de drempelwaarde min de eindmarge (in {unit}).\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
         "data": {
-          "threshold_entity": "Drempelwaarde",
+          "threshold": "Drempelwaarde",
+          "threshold_entity": "Drempelwaarde-entiteit",
           "clear_offset": "Eindmarge",
           "delay": "Vertraging",
           "repeat": "Herhaalinterval",
@@ -151,7 +156,8 @@
           "only_when_home": "Alleen als de persoon thuis is"
         },
         "data_description": {
-          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "threshold": "Drempelwaarde in {unit}. Laat de drempelwaarde en de drempelwaarde-entiteit leeg om het alarm uit te schakelen.",
+          "threshold_entity": "Optioneel. Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer; heeft voorrang op het veld.",
           "clear_offset": "Het alarm eindigt bij de drempelwaarde min deze waarde.",
           "delay": "Hoe lang de glucose boven de drempelwaarde moet blijven.",
           "repeat": "0 meldt slechts één keer.",
@@ -163,7 +169,8 @@
         "title": "Alarm urgent hoog",
         "description": "Alarm wanneer de glucose gedurende de vertraging boven de drempelwaarde blijft. Het alarm eindigt wanneer de glucose daalt tot de drempelwaarde min de eindmarge (in {unit}).\n\nMeldingen zijn automatiseringen met de trigger \"Gebeurtenis ontvangen\" op de gebeurtenisentiteit van dit alarm: \"gestart of herhaald\" en \"bevestigd of voorbij\". De entiteit levert onder meer `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` en `phase` als attributen.",
         "data": {
-          "threshold_entity": "Drempelwaarde",
+          "threshold": "Drempelwaarde",
+          "threshold_entity": "Drempelwaarde-entiteit",
           "clear_offset": "Eindmarge",
           "delay": "Vertraging",
           "repeat": "Herhaalinterval",
@@ -171,7 +178,8 @@
           "only_when_home": "Alleen als de persoon thuis is"
         },
         "data_description": {
-          "threshold_entity": "Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer. Laat leeg om het alarm uit te schakelen.",
+          "threshold": "Drempelwaarde in {unit}. Laat de drempelwaarde en de drempelwaarde-entiteit leeg om het alarm uit te schakelen.",
+          "threshold_entity": "Optioneel. Entiteit met de drempelwaarde, bijvoorbeeld een drempelwaardesensor van de glucose-integratie of een numerieke invoer; heeft voorrang op het veld.",
           "clear_offset": "Het alarm eindigt bij de drempelwaarde min deze waarde.",
           "delay": "Hoe lang de glucose boven de drempelwaarde moet blijven.",
           "repeat": "0 meldt slechts één keer.",

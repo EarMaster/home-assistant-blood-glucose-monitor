@@ -202,7 +202,7 @@
       "report": "Informe creado"
     },
     "req": {
-      "threshold_set": "En {menu} hay seleccionada una entidad de umbral.",
+      "threshold_set": "En {menu} hay un umbral definido (número o entidad).",
       "below_for_delay": "La glucosa permanece por debajo del umbral durante el retraso.",
       "above_for_delay": "La glucosa permanece por encima del umbral durante el retraso.",
       "reading_time": "Los datos de glucosa tienen hora de la lectura (un sensor de hora de la lectura o el atributo <code>date</code> del sensor de glucosa). Sin ella no hay alarmas de glucosa y un problema de reparación te lo indica.",

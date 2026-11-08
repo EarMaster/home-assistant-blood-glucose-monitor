@@ -202,7 +202,7 @@
       "report": "Bericht erstellt"
     },
     "req": {
-      "threshold_set": "In {menu} ist eine Schwellwert-Entität gewählt.",
+      "threshold_set": "In {menu} ist ein Schwellwert gesetzt (Zahl oder Entität).",
       "below_for_delay": "Die Glukose bleibt für die Verzögerung unter dem Schwellwert.",
       "above_for_delay": "Die Glukose bleibt für die Verzögerung über dem Schwellwert.",
       "reading_time": "Die Glukosedaten haben einen Messzeitpunkt (ein Messzeitpunkt-Sensor oder das Attribut <code>date</code> des Glukosesensors). Ohne ihn gibt es keine Glukose-Alarme, und ein Reparaturhinweis weist darauf hin.",

@@ -103,7 +103,8 @@
         "title": "Alarma de glucosa baja urgente",
         "description": "Alarma cuando la glucosa permanece por debajo del umbral durante el retraso. Termina cuando la glucosa alcanza el umbral más el margen de finalización (en {unit}). La pausa no se aplica a esta alarma.\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
         "data": {
-          "threshold_entity": "Umbral",
+          "threshold": "Umbral",
+          "threshold_entity": "Entidad de umbral",
           "clear_offset": "Margen de finalización",
           "delay": "Retraso",
           "repeat": "Intervalo de repetición",
@@ -111,7 +112,8 @@
           "only_when_home": "Solo cuando la persona está en casa"
         },
         "data_description": {
-          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "threshold": "Umbral en {unit}. Deja vacíos el umbral y la entidad de umbral para desactivar la alarma.",
+          "threshold_entity": "Opcional. Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica; tiene prioridad sobre el campo.",
           "clear_offset": "La alarma termina en el umbral más este valor.",
           "delay": "Cuánto tiempo debe permanecer la glucosa por debajo del umbral.",
           "repeat": "0 notifica solo una vez.",
@@ -123,7 +125,8 @@
         "title": "Alarma de glucosa baja",
         "description": "Alarma cuando la glucosa permanece por debajo del umbral durante el retraso. Termina cuando la glucosa alcanza el umbral más el margen de finalización (en {unit}).\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
         "data": {
-          "threshold_entity": "Umbral",
+          "threshold": "Umbral",
+          "threshold_entity": "Entidad de umbral",
           "clear_offset": "Margen de finalización",
           "delay": "Retraso",
           "repeat": "Intervalo de repetición",
@@ -131,7 +134,8 @@
           "only_when_home": "Solo cuando la persona está en casa"
         },
         "data_description": {
-          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "threshold": "Umbral en {unit}. Deja vacíos el umbral y la entidad de umbral para desactivar la alarma.",
+          "threshold_entity": "Opcional. Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica; tiene prioridad sobre el campo.",
           "clear_offset": "La alarma termina en el umbral más este valor.",
           "delay": "Cuánto tiempo debe permanecer la glucosa por debajo del umbral.",
           "repeat": "0 notifica solo una vez.",
@@ -143,7 +147,8 @@
         "title": "Alarma de glucosa alta",
         "description": "Alarma cuando la glucosa permanece por encima del umbral durante el retraso. Termina cuando la glucosa baja hasta el umbral menos el margen de finalización (en {unit}).\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
         "data": {
-          "threshold_entity": "Umbral",
+          "threshold": "Umbral",
+          "threshold_entity": "Entidad de umbral",
           "clear_offset": "Margen de finalización",
           "delay": "Retraso",
           "repeat": "Intervalo de repetición",
@@ -151,7 +156,8 @@
           "only_when_home": "Solo cuando la persona está en casa"
         },
         "data_description": {
-          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "threshold": "Umbral en {unit}. Deja vacíos el umbral y la entidad de umbral para desactivar la alarma.",
+          "threshold_entity": "Opcional. Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica; tiene prioridad sobre el campo.",
           "clear_offset": "La alarma termina en el umbral menos este valor.",
           "delay": "Cuánto tiempo debe permanecer la glucosa por encima del umbral.",
           "repeat": "0 notifica solo una vez.",
@@ -163,7 +169,8 @@
         "title": "Alarma de glucosa alta urgente",
         "description": "Alarma cuando la glucosa permanece por encima del umbral durante el retraso. Termina cuando la glucosa baja hasta el umbral menos el margen de finalización (en {unit}).\n\nLas notificaciones son automatizaciones con el desencadenante «Evento recibido» en la entidad de evento de esta alarma: «iniciada o repetida» y «confirmada o terminada». La entidad proporciona, entre otros, los atributos `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` y `phase`.",
         "data": {
-          "threshold_entity": "Umbral",
+          "threshold": "Umbral",
+          "threshold_entity": "Entidad de umbral",
           "clear_offset": "Margen de finalización",
           "delay": "Retraso",
           "repeat": "Intervalo de repetición",
@@ -171,7 +178,8 @@
           "only_when_home": "Solo cuando la persona está en casa"
         },
         "data_description": {
-          "threshold_entity": "Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica. Déjalo vacío para desactivar la alarma.",
+          "threshold": "Umbral en {unit}. Deja vacíos el umbral y la entidad de umbral para desactivar la alarma.",
+          "threshold_entity": "Opcional. Entidad con el umbral, por ejemplo un sensor de umbral de la integración de glucosa o una entrada numérica; tiene prioridad sobre el campo.",
           "clear_offset": "La alarma termina en el umbral menos este valor.",
           "delay": "Cuánto tiempo debe permanecer la glucosa por encima del umbral.",
           "repeat": "0 notifica solo una vez.",

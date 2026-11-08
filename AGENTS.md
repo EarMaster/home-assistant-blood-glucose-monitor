@@ -20,9 +20,10 @@ Keep it that way.
 
 - **Nothing is guessed.** No reading time → no glucose alarms (a repair issue
   says so), never a `last_changed` fallback. Sensors without a unit are only
-  read once the user set the unit. Thresholds come only from entities
-  (Nightscout threshold sensors or an `input_number`), never from fixed values
-  or own number entities.
+  read once the user set the unit. Thresholds are a number (in the unit of
+  the glucose data) or an entity such as a Nightscout threshold sensor or an
+  `input_number` (the entity wins); no own number entities. No enable
+  switches: an alarm is on when it has what it needs.
 - **Source data belongs to the source integration:** no own status/trend/rate/
   data-age sensors of the source; dedicated source sensors win, attributes of
   the glucose sensor (`direction`, `delta`, `date`) are the fallback.
@@ -38,7 +39,7 @@ Keep it that way.
   entries) get a plain notice, not an error. Acknowledgements are per entry
   and per alarm. No example texts that patronize users.
 - **Every feature can be switched off.** Threshold alarms are on when a
-  threshold entity is set, rapid alarms via detection (off/trend/rate), data
+  threshold (number or entity) is set, rapid alarms via detection (off/trend/rate), data
   loss is always on, change reminders when a wear duration is set, reports
   when a period entity is set. Numbers/times are "field or entity, entity
   wins". "Only when the person is at home" is an option per alarm (default

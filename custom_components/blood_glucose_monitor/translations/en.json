@@ -103,7 +103,8 @@
         "title": "Urgent low alarm",
         "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
-          "threshold_entity": "Threshold",
+          "threshold": "Threshold",
+          "threshold_entity": "Threshold entity",
           "clear_offset": "Clear offset",
           "delay": "Delay",
           "repeat": "Repeat interval",
@@ -111,7 +112,8 @@
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
+          "threshold": "Threshold in {unit}. Leave the threshold and the threshold entity empty to switch the alarm off.",
+          "threshold_entity": "Optional. Entity with the threshold, for example a threshold sensor of the glucose integration or an input number; takes precedence over the field.",
           "clear_offset": "The alarm ends at the threshold plus this value.",
           "delay": "How long the glucose has to stay below the threshold.",
           "repeat": "0 notifies only once.",
@@ -123,7 +125,8 @@
         "title": "Low alarm",
         "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
-          "threshold_entity": "Threshold",
+          "threshold": "Threshold",
+          "threshold_entity": "Threshold entity",
           "clear_offset": "Clear offset",
           "delay": "Delay",
           "repeat": "Repeat interval",
@@ -131,7 +134,8 @@
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
+          "threshold": "Threshold in {unit}. Leave the threshold and the threshold entity empty to switch the alarm off.",
+          "threshold_entity": "Optional. Entity with the threshold, for example a threshold sensor of the glucose integration or an input number; takes precedence over the field.",
           "clear_offset": "The alarm ends at the threshold plus this value.",
           "delay": "How long the glucose has to stay below the threshold.",
           "repeat": "0 notifies only once.",
@@ -143,7 +147,8 @@
         "title": "High alarm",
         "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
-          "threshold_entity": "Threshold",
+          "threshold": "Threshold",
+          "threshold_entity": "Threshold entity",
           "clear_offset": "Clear offset",
           "delay": "Delay",
           "repeat": "Repeat interval",
@@ -151,7 +156,8 @@
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
+          "threshold": "Threshold in {unit}. Leave the threshold and the threshold entity empty to switch the alarm off.",
+          "threshold_entity": "Optional. Entity with the threshold, for example a threshold sensor of the glucose integration or an input number; takes precedence over the field.",
           "clear_offset": "The alarm ends at the threshold minus this value.",
           "delay": "How long the glucose has to stay above the threshold.",
           "repeat": "0 notifies only once.",
@@ -163,7 +169,8 @@
         "title": "Urgent high alarm",
         "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
-          "threshold_entity": "Threshold",
+          "threshold": "Threshold",
+          "threshold_entity": "Threshold entity",
           "clear_offset": "Clear offset",
           "delay": "Delay",
           "repeat": "Repeat interval",
@@ -171,7 +178,8 @@
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "threshold_entity": "Entity with the threshold, for example a threshold sensor of the glucose integration or an input number. Leave empty to switch the alarm off.",
+          "threshold": "Threshold in {unit}. Leave the threshold and the threshold entity empty to switch the alarm off.",
+          "threshold_entity": "Optional. Entity with the threshold, for example a threshold sensor of the glucose integration or an input number; takes precedence over the field.",
           "clear_offset": "The alarm ends at the threshold minus this value.",
           "delay": "How long the glucose has to stay above the threshold.",
           "repeat": "0 notifies only once.",

@@ -114,9 +114,10 @@ entities.
 | Rising fast | fast rise for the delay (see below) | no longer a fast rise |
 | Data loss | no new reading within the maximum data age | a new reading |
 
-- **Thresholds** are entities: for example the threshold sensors of the
-  glucose integration (suggested automatically when available) or an
-  `input_number`. Each alarm has its own threshold.
+- **Thresholds** are a number in the unit of the glucose data or an entity,
+  for example the threshold sensors of the glucose integration (suggested
+  automatically when available) or an `input_number`; the entity takes
+  precedence. Each alarm has its own threshold.
 - **Rapid change** is detected either by the **trend** of the glucose data
   (from "quickly" or only "very quickly") or by the **own rate of change**
   between the last two readings (at most 15 minutes apart) with a limit per

@@ -202,7 +202,7 @@
       "report": "Rapport créé"
     },
     "req": {
-      "threshold_set": "Une entité de seuil est sélectionnée dans {menu}.",
+      "threshold_set": "Un seuil (nombre ou entité) est défini dans {menu}.",
       "below_for_delay": "Le glucose reste sous le seuil pendant le délai.",
       "above_for_delay": "Le glucose reste au-dessus du seuil pendant le délai.",
       "reading_time": "Les données de glucose ont une heure de mesure (un capteur d'heure de mesure ou l'attribut <code>date</code> du capteur de glucose). Sans elle, il n'y a pas d'alarmes de glucose et une réparation vous le signale.",

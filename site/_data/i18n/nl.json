@@ -202,7 +202,7 @@
       "report": "Rapport gemaakt"
     },
     "req": {
-      "threshold_set": "In {menu} is een entiteit voor de drempelwaarde geselecteerd.",
+      "threshold_set": "In {menu} is een drempelwaarde ingesteld (getal of entiteit).",
       "below_for_delay": "De glucose blijft gedurende de vertraging onder de drempelwaarde.",
       "above_for_delay": "De glucose blijft gedurende de vertraging boven de drempelwaarde.",
       "reading_time": "De glucosegegevens hebben een meettijdstip (een sensor voor het meettijdstip of het attribuut <code>date</code> van de glucosesensor). Zonder meettijdstip zijn er geen glucosealarmen en wijst een reparatiemelding je daarop.",
