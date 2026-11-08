@@ -1,0 +1,78 @@
+---
+layout: page
+title: Automation builder
+permalink: /builder.html
+wide: true
+lead: >-
+  Pick the events and the phone; the builder prepares one automation that
+  sends a notification with the ready-made text of the integration. Adjust it
+  in Home Assistant if you want more.
+description: Prepare a notification automation for the events of Blood Glucose Monitor.
+scripts:
+  - /assets/js/data.js
+  - /assets/js/builder.js
+---
+
+<div class="caution" role="note">
+  <strong>Secondary notifications only.</strong>
+  These notifications can be delayed or missing. Keep the alarms of your CGM,
+  insulin pump or medical app switched on.
+</div>
+
+<div class="builder">
+  <form id="form" class="input" autocomplete="off">
+    <p id="prefill-note" class="card prefilled" hidden>
+      Prefilled from Home Assistant: only the events that are set up for this
+      person are shown, with their entity IDs.
+    </p>
+    <p id="manual-note" class="card" hidden>
+      Tip: open the builder from Home Assistant (device page of the person →
+      <b>Visit</b>, or <b>Configure</b> of the entry) to get the right entity
+      IDs. Here they are guessed from the name; check them under
+      <b>Settings → Devices &amp; services → Entities</b>.
+    </p>
+
+    <div class="field">
+      <label for="name">Person</label>
+      <input type="text" id="name" placeholder="Alex">
+    </div>
+
+    <div class="field">
+      <label for="notify">Notify action</label>
+      <input type="text" id="notify" placeholder="notify.mobile_app_your_phone" spellcheck="false">
+      <p class="hint">The notify action of the phone, for example
+        <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools →
+        Actions</b>). Several, separated by commas.</p>
+    </div>
+
+    <div class="field">
+      <label class="check"><input type="checkbox" id="ack" checked>
+        Acknowledge button in alarm notifications</label>
+    </div>
+
+    <h2>Events</h2>
+    <p class="hint">Started or repeated → notification. Acknowledged or over →
+      the notification is removed again.</p>
+    <div id="events"></div>
+  </form>
+
+  <section class="output" aria-labelledby="output-title">
+    <h2 id="output-title">Automation</h2>
+    <div class="toolbar">
+      <button type="button" class="button" id="copy">Copy YAML</button>
+      <span id="copied" class="status" role="status"></span>
+    </div>
+    <pre><code id="yaml"></code></pre>
+    <p class="hint">In Home Assistant: <b>Settings → Automations &amp; scenes →
+      Create automation → Create new automation</b>, then <b>⋮ → Edit in
+      YAML</b>, paste and save.</p>
+
+    <figure class="screenshot">
+      <img src="{{ '/img/automation.png' | relative_url }}" alt="Automation editor with the trigger Event received on the low alarm and the report" loading="lazy" onerror="this.closest('figure').remove()">
+      <figcaption>The result in the automation editor: the trigger <i>Event received</i> with the selected event types.</figcaption>
+    </figure>
+
+    <h2>When it fires</h2>
+    <div id="requirements"><p class="hint">Select at least one event.</p></div>
+  </section>
+</div>

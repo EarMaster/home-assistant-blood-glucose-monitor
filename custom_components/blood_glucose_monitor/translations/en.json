@@ -57,7 +57,7 @@
     "step": {
       "init": {
         "title": "Settings",
-        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.",
+        "description": "Reminder: this integration does not replace the alarms of your CGM, insulin pump or medical app.\n\n[Open the automation builder]({builder_url}) to create notifications for this person.",
         "menu_options": {
           "sources": "Glucose data",
           "urgent_low": "Urgent low alarm",
@@ -101,7 +101,7 @@
       },
       "urgent_low": {
         "title": "Urgent low alarm",
-        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}). The pause does not apply to this alarm.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "threshold_entity": "Threshold",
           "clear_offset": "Clear offset",
@@ -121,7 +121,7 @@
       },
       "low": {
         "title": "Low alarm",
-        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose stays below the threshold for the delay. It ends when the glucose reaches the threshold plus the clear offset (in {unit}).\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "threshold_entity": "Threshold",
           "clear_offset": "Clear offset",
@@ -141,7 +141,7 @@
       },
       "high": {
         "title": "High alarm",
-        "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "threshold_entity": "Threshold",
           "clear_offset": "Clear offset",
@@ -161,7 +161,7 @@
       },
       "urgent_high": {
         "title": "Urgent high alarm",
-        "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose stays above the threshold for the delay. It ends when the glucose falls to the threshold minus the clear offset (in {unit}).\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "threshold_entity": "Threshold",
           "clear_offset": "Clear offset",
@@ -181,7 +181,7 @@
       },
       "rapid_fall": {
         "title": "Rapid fall alarm",
-        "description": "Alarm when the glucose falls fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose falls fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "detection": "Detection",
           "trend_level": "Trend from",
@@ -205,7 +205,7 @@
       },
       "rapid_rise": {
         "title": "Rapid rise alarm",
-        "description": "Alarm when the glucose rises fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Alarm when the glucose rises fast: by the trend of the glucose data, or by the own rate of change between the last two readings. The rate limit is in {unit} per minute; an entity with the unit mg/dL/min or mmol/L/min takes precedence over the number.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "detection": "Detection",
           "trend_level": "Trend from",
@@ -229,7 +229,7 @@
       },
       "data_loss": {
         "title": "Data loss alarm",
-        "description": "This alarm is always active. Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "This alarm is always active. Alarm when no new reading arrives within the maximum data age. Older readings are also ignored by the other alarms, even if this alarm is switched off.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "max_age": "Maximum data age",
           "repeat": "Repeat interval",
@@ -245,7 +245,7 @@
       },
       "charging": {
         "title": "Charging reminder",
-        "description": "Reminder from the reminder time until midnight while the phone is not charging and the battery is at or below the limit. It ends as soon as the phone charges. An entity for the time or the limit takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "description": "Reminder from the reminder time until midnight while the phone is not charging and the battery is at or below the limit. It ends as soon as the phone charges. An entity for the time or the limit takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this alarm: \"started or repeated\" and \"acknowledged or over\". The entity provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase` as attributes, among others.",
         "data": {
           "battery_entity": "Battery level",
           "charging_entity": "Charging state",
@@ -269,7 +269,7 @@
       },
       "cannula_change": {
         "title": "Cannula change",
-        "description": "Reminder when the cannula is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Cannula changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The trigger provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase`, among others.",
+        "description": "Reminder when the cannula is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Cannula changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
         "data": {
           "wear_duration": "Wear duration",
           "wear_duration_entity": "Wear duration entity",
@@ -287,7 +287,7 @@
           "last_change_entity": "Optional. Entity with the time of the last change. Without it, changes are recorded with the button or the action.",
           "due_time": "Optional. Remind at this time on the due day instead of exactly at the end of the wear duration.",
           "time_entity": "Optional. Entity with the fixed time, for example an input datetime; takes precedence over the field.",
-          "warning": "Optional. Fires the trigger \"due soon\" this long before the reminder.",
+          "warning": "Optional. Fires the event \"due soon\" this long before the reminder.",
           "repeat": "0 notifies only once.",
           "snooze": "How long an acknowledged reminder stays silent. Afterwards it starts again if the change is still due.",
           "only_when_home": "New reminders and warnings only start while the person is at home. A running reminder continues."
@@ -295,7 +295,7 @@
       },
       "sensor_change": {
         "title": "Sensor change",
-        "description": "Reminder when the sensor is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Sensor changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The trigger provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase`, among others.",
+        "description": "Reminder when the sensor is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Sensor changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
         "data": {
           "wear_duration": "Wear duration",
           "wear_duration_entity": "Wear duration entity",
@@ -313,7 +313,7 @@
           "last_change_entity": "Optional. Entity with the time of the last change. Without it, changes are recorded with the button or the action.",
           "due_time": "Optional. Remind at this time on the due day instead of exactly at the end of the wear duration.",
           "time_entity": "Optional. Entity with the fixed time, for example an input datetime; takes precedence over the field.",
-          "warning": "Optional. Fires the trigger \"due soon\" this long before the reminder.",
+          "warning": "Optional. Fires the event \"due soon\" this long before the reminder.",
           "repeat": "0 notifies only once.",
           "snooze": "How long an acknowledged reminder stays silent. Afterwards it starts again if the change is still due.",
           "only_when_home": "New reminders and warnings only start while the person is at home. A running reminder continues."
@@ -321,7 +321,7 @@
       },
       "reservoir_change": {
         "title": "Reservoir change",
-        "description": "Reminder when the reservoir is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Reservoir changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The trigger provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase`, among others.",
+        "description": "Reminder when the reservoir is due: at the last change plus the wear duration, or at a fixed time on that day. The last change comes from an entity, for example of the glucose integration; without one it is recorded with the button \"Reservoir changed\" or the action \"Record change\". The reminder ends with the next change. An entity for the wear duration or the time takes precedence over the field.\n\nNotifications are automations with the trigger \"Event received\" on the event entity of this reminder: \"started or repeated\", \"acknowledged or over\" and, with a warning, \"due soon\". The entity provides `title`, `message`, `tag`, `ack_action`, `due`, `last_change` and `phase` as attributes, among others.",
         "data": {
           "wear_duration": "Wear duration",
           "wear_duration_entity": "Wear duration entity",
@@ -339,7 +339,7 @@
           "last_change_entity": "Optional. Entity with the time of the last change. Without it, changes are recorded with the button or the action.",
           "due_time": "Optional. Remind at this time on the due day instead of exactly at the end of the wear duration.",
           "time_entity": "Optional. Entity with the fixed time, for example an input datetime; takes precedence over the field.",
-          "warning": "Optional. Fires the trigger \"due soon\" this long before the reminder.",
+          "warning": "Optional. Fires the event \"due soon\" this long before the reminder.",
           "repeat": "0 notifies only once.",
           "snooze": "How long an acknowledged reminder stays silent. Afterwards it starts again if the change is still due.",
           "only_when_home": "New reminders and warnings only start while the person is at home. A running reminder continues."
@@ -347,14 +347,14 @@
       },
       "report": {
         "title": "Reports",
-        "description": "One report per period in which the selected entity is on, for example per block of a schedule. When a period ends, the trigger \"Report\" of this person's device fires with the statistics, the start and the end of the period, and the sensor \"Last report\" is updated. The statistics come from the history (recorder).",
+        "description": "One report per period in which the selected entity is on, for example per block of a schedule. When a period ends, the event entity \"Report\" of this person fires with the statistics, the start and the end of the period, and the sensor \"Last report\" is updated. The statistics come from the history (recorder).",
         "data": {
           "report_entity": "Periods",
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
           "report_entity": "Schedule, input boolean or binary sensor. Leave empty to switch the reports off.",
-          "only_when_home": "The trigger \"Report\" only fires while the person is at home. The report and the sensor \"Last report\" are updated anyway."
+          "only_when_home": "The event \"Report\" only fires while the person is at home. The report and the sensor \"Last report\" are updated anyway."
         }
       },
       "pause": {
@@ -430,55 +430,136 @@
       }
     },
     "event": {
-      "alarm": {
-        "name": "Alarm",
+      "urgent_low_alarm": {
+        "name": "Urgent low alarm",
         "state_attributes": {
           "event_type": {
             "state": {
-              "urgent_low_triggered": "Urgent low: alarm",
-              "urgent_low_repeat": "Urgent low: repeat",
-              "urgent_low_acknowledged": "Urgent low: acknowledged",
-              "urgent_low_resolved": "Urgent low: over",
-              "low_triggered": "Low: alarm",
-              "low_repeat": "Low: repeat",
-              "low_acknowledged": "Low: acknowledged",
-              "low_resolved": "Low: over",
-              "data_loss_triggered": "Data loss: alarm",
-              "data_loss_repeat": "Data loss: repeat",
-              "data_loss_acknowledged": "Data loss: acknowledged",
-              "data_loss_resolved": "Data loss: over",
-              "high_triggered": "High: alarm",
-              "high_repeat": "High: repeat",
-              "high_acknowledged": "High: acknowledged",
-              "high_resolved": "High: over",
-              "urgent_high_triggered": "Urgent high: alarm",
-              "urgent_high_repeat": "Urgent high: repeat",
-              "urgent_high_acknowledged": "Urgent high: acknowledged",
-              "urgent_high_resolved": "Urgent high: over",
-              "rapid_fall_triggered": "Rapid fall: alarm",
-              "rapid_fall_repeat": "Rapid fall: repeat",
-              "rapid_fall_acknowledged": "Rapid fall: acknowledged",
-              "rapid_fall_resolved": "Rapid fall: over",
-              "rapid_rise_triggered": "Rapid rise: alarm",
-              "rapid_rise_repeat": "Rapid rise: repeat",
-              "rapid_rise_acknowledged": "Rapid rise: acknowledged",
-              "rapid_rise_resolved": "Rapid rise: over",
-              "charging_triggered": "Charging: alarm",
-              "charging_repeat": "Charging: repeat",
-              "charging_acknowledged": "Charging: acknowledged",
-              "charging_resolved": "Charging: over",
-              "cannula_change_triggered": "Cannula change: reminder",
-              "cannula_change_repeat": "Cannula change: repeat",
-              "cannula_change_acknowledged": "Cannula change: acknowledged",
-              "cannula_change_resolved": "Cannula change: done",
-              "sensor_change_triggered": "Sensor change: reminder",
-              "sensor_change_repeat": "Sensor change: repeat",
-              "sensor_change_acknowledged": "Sensor change: acknowledged",
-              "sensor_change_resolved": "Sensor change: done",
-              "reservoir_change_triggered": "Reservoir change: reminder",
-              "reservoir_change_repeat": "Reservoir change: repeat",
-              "reservoir_change_acknowledged": "Reservoir change: acknowledged",
-              "reservoir_change_resolved": "Reservoir change: done"
+              "urgent_low_alert": "Urgent low alarm started or repeated",
+              "urgent_low_ended": "Urgent low alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "low_alarm": {
+        "name": "Low alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "low_alert": "Low alarm started or repeated",
+              "low_ended": "Low alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "high_alarm": {
+        "name": "High alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "high_alert": "High alarm started or repeated",
+              "high_ended": "High alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Urgent high alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_high_alert": "Urgent high alarm started or repeated",
+              "urgent_high_ended": "Urgent high alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Rapid fall alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_fall_alert": "Rapid fall alarm started or repeated",
+              "rapid_fall_ended": "Rapid fall alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Rapid rise alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_rise_alert": "Rapid rise alarm started or repeated",
+              "rapid_rise_ended": "Rapid rise alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Data loss alarm",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "data_loss_alert": "Data loss alarm started or repeated",
+              "data_loss_ended": "Data loss alarm acknowledged or over"
+            }
+          }
+        }
+      },
+      "charging_alarm": {
+        "name": "Charging reminder",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "charging_alert": "Charging reminder started or repeated",
+              "charging_ended": "Charging reminder acknowledged or over"
+            }
+          }
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Cannula change reminder",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "cannula_change_alert": "Cannula change reminder started or repeated",
+              "cannula_change_ended": "Cannula change reminder acknowledged or over",
+              "cannula_change_soon": "Cannula change due soon"
+            }
+          }
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Sensor change reminder",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "sensor_change_alert": "Sensor change reminder started or repeated",
+              "sensor_change_ended": "Sensor change reminder acknowledged or over",
+              "sensor_change_soon": "Sensor change due soon"
+            }
+          }
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Reservoir change reminder",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "reservoir_change_alert": "Reservoir change reminder started or repeated",
+              "reservoir_change_ended": "Reservoir change reminder acknowledged or over",
+              "reservoir_change_soon": "Reservoir change due soon"
+            }
+          }
+        }
+      },
+      "report": {
+        "name": "Report",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "report": "Report created"
             }
           }
         }
@@ -828,36 +909,6 @@
           "description": "Optional. Leave empty for now."
         }
       }
-    }
-  },
-  "device_automation": {
-    "trigger_type": {
-      "urgent_low_alert": "Urgent low alarm started or repeated",
-      "urgent_low_ended": "Urgent low alarm acknowledged or over",
-      "low_alert": "Low alarm started or repeated",
-      "low_ended": "Low alarm acknowledged or over",
-      "data_loss_alert": "Data loss alarm started or repeated",
-      "data_loss_ended": "Data loss alarm acknowledged or over",
-      "high_alert": "High alarm started or repeated",
-      "high_ended": "High alarm acknowledged or over",
-      "urgent_high_alert": "Urgent high alarm started or repeated",
-      "urgent_high_ended": "Urgent high alarm acknowledged or over",
-      "rapid_fall_alert": "Rapid fall alarm started or repeated",
-      "rapid_fall_ended": "Rapid fall alarm acknowledged or over",
-      "rapid_rise_alert": "Rapid rise alarm started or repeated",
-      "rapid_rise_ended": "Rapid rise alarm acknowledged or over",
-      "charging_alert": "Charging reminder started or repeated",
-      "charging_ended": "Charging reminder acknowledged or over",
-      "cannula_change_alert": "Cannula change reminder started or repeated",
-      "cannula_change_ended": "Cannula change reminder acknowledged or over",
-      "cannula_change_soon": "Cannula change due soon",
-      "sensor_change_alert": "Sensor change reminder started or repeated",
-      "sensor_change_ended": "Sensor change reminder acknowledged or over",
-      "sensor_change_soon": "Sensor change due soon",
-      "reservoir_change_alert": "Reservoir change reminder started or repeated",
-      "reservoir_change_ended": "Reservoir change reminder acknowledged or over",
-      "reservoir_change_soon": "Reservoir change due soon",
-      "report": "Report"
     }
   }
 }

@@ -1,0 +1,90 @@
+---
+layout: page
+title: Documentation
+permalink: /docs.html
+lead: >-
+  Which events there are, when they fire and which values they bring along.
+  For setup and options see the README on GitHub.
+description: Event entities, event types, requirements and attributes of Blood Glucose Monitor.
+scripts:
+  - /assets/js/data.js
+  - /assets/js/docs.js
+---
+
+<h2 id="events">Events and automations</h2>
+<p>
+  Every active alarm and reminder has its own <b>event entity</b> next to
+  its state sensor and its acknowledge button, for example
+  <code>event.alex_low_alarm</code> (<i>Low alarm</i>). The report has the
+  event entity <i>Report</i>. Automations use the trigger
+  <b>Event received</b> with one or more event types:
+</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>Event type</th><th>Fires when</th></tr></thead>
+    <tbody>
+      <tr><td><code>&lt;alarm&gt;_alert</code></td><td>the alarm starts and on every repeat</td></tr>
+      <tr><td><code>&lt;alarm&gt;_ended</code></td><td>the alarm is acknowledged or over</td></tr>
+      <tr><td><code>&lt;change&gt;_soon</code></td><td>the warning of a change reminder</td></tr>
+      <tr><td><code>report</code></td><td>a report period ends</td></tr>
+    </tbody>
+  </table>
+</div>
+<p>
+  The event types are unique per person, so an automation can target the
+  entity or the whole device of the person. The values of an event are
+  the attributes of the entity, in templates
+  <code>trigger.to_state.attributes.&lt;name&gt;</code>; the event type is
+  <code>trigger.to_state.attributes.event_type</code>.
+</p>
+{% raw %}<pre><code>triggers:
+  - trigger: event.received
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
+        - low_alert
+actions:
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "{{ trigger.to_state.attributes.title }}"
+      message: "{{ trigger.to_state.attributes.message }}"</code></pre>{% endraw %}
+<figure class="screenshot">
+  <img src="{{ '/img/automation.png' | relative_url }}" alt="Automation editor with the trigger Event received" loading="lazy" onerror="this.closest('figure').remove()">
+  <figcaption>The trigger <i>Event received</i> in the automation editor.</figcaption>
+</figure>
+<p>
+  The state sensors of the alarms are for dashboards and conditions; they
+  do not change on a repeat, so they are not suited as triggers.
+</p>
+
+<h2 id="alarm-values">Values of the alarms</h2>
+<p>All alarm and reminder events have these attributes; values that do
+  not apply are empty.</p>
+<div class="table-wrap"><table id="alarm-attributes"></table></div>
+
+<h2 id="alarms">Alarms and reminders</h2>
+<ul class="toc" id="toc"></ul>
+<div id="alarm-sections"></div>
+
+<h2 id="report">Report</h2>
+<p>Entity <i>Report</i>, event type <code>report</code>.</p>
+<h3>When it fires</h3>
+<ul class="requirements" id="report-requirements"></ul>
+<h3>Values</h3>
+<div class="table-wrap"><table id="report-attributes"></table></div>
+
+<h2 id="acknowledge">Acknowledge and pause</h2>
+<ul>
+  <li><b>Acknowledge</b> silences an alarm for its snooze time; then it is
+    checked again and starts at once if it still applies. Ways: the
+    <i>Acknowledge …</i> button, the action
+    <code>blood_glucose_monitor.acknowledge</code> or a notification action
+    with the id from <code>ack_action</code>.</li>
+  <li><b>Pause alarms</b> silences all alarms except urgent low for the
+    configured duration and turns off by itself.</li>
+  <li><b>Record a change</b> of cannula, sensor or reservoir with the
+    <i>… changed</i> button or the action
+    <code>blood_glucose_monitor.record_change</code> (optionally with a time
+    in the past).</li>
+</ul>

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-08
+
+### Added
+- One event entity per alarm and one for the report: automations use the trigger "Event received" with the event types `<alarm>_alert`, `<alarm>_ended`, `<change>_soon` and `report`; the event data are attributes of the entity (`trigger.to_state.attributes`)
+- Report: `tag` attribute, unique per entry, so a new report notification replaces the last one
+- Documentation site with an automation builder; the device page (Visit) and the Configure menu link to it with the entities of the person, and the documentation link of the integration opens it
+
+### Removed
+- **Breaking:** the device triggers and the shared "Alarm" event entity; move automations to the new event entities (`trigger.event.data.x` becomes `trigger.to_state.attributes.x`)
+
 ## [0.5.1] - 2026-11-08
 
 ### Added

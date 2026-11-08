@@ -1,0 +1,20 @@
+# Documentation site of Blood Glucose Monitor, built with Jekyll and the
+# Serif theme by Zerostatic (MIT, see LICENSE-serif-theme.txt).
+title: "Blood Glucose Monitor"
+description: "Extra glucose hints for Home Assistant. Not a medical device."
+baseurl: "/home-assistant-blood-glucose-monitor"
+url: "https://earmaster.github.io"
+repository_url: "https://github.com/EarMaster/home-assistant-blood-glucose-monitor"
+
+logo:
+  image: "images/icon.png"
+  size: "36px"
+
+sass:
+  style: compressed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+  - LICENSE-serif-theme.txt

@@ -7,6 +7,7 @@ from typing import Any
 
 from homeassistant.config_entries import (
     ConfigEntry,
+    ConfigEntryState,
     ConfigFlow,
     ConfigFlowResult,
     OptionsFlowWithReload,
@@ -46,6 +47,7 @@ from .const import (
     ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
+    BUILDER_URL,
     CHANGE_ALARMS,
     CONF_BATTERY_ENTITY,
     CONF_BATTERY_LIMIT,
@@ -95,6 +97,7 @@ from .const import (
     TREND_LEVELS,
 )
 from .glucose import parse_number, parse_timestamp, parse_trend
+from .links import builder_url
 from .monitor import AlarmMonitor, duration
 from .source import (
     MG_DL,
@@ -577,8 +580,17 @@ class OptionsFlowHandler(OptionsFlowWithReload):
     ) -> ConfigFlowResult:
         """Show what can be configured."""
         return self.async_show_menu(
-            step_id="init", menu_options=["sources", *ALARMS, CONF_REPORT, CONF_PAUSE]
+            step_id="init",
+            menu_options=["sources", *ALARMS, CONF_REPORT, CONF_PAUSE],
+            description_placeholders={"builder_url": self._builder_url()},
         )
+
+    def _builder_url(self) -> str:
+        """Return the automation builder link, prefilled while the entry runs."""
+        entry = self.config_entry
+        if entry.state is ConfigEntryState.LOADED:
+            return builder_url(self.hass, entry)
+        return BUILDER_URL
 
     async def async_step_sources(
         self, user_input: dict[str, Any] | None = None

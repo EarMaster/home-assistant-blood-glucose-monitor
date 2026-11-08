@@ -28,29 +28,16 @@ configurable hints for everyday life: one entry per person, every feature can
 be switched off, and you decide with any Home Assistant action how you want to
 be notified.
 
-## Status
+- **Glucose alarms:** urgent low, low, high, urgent high, rapid fall, rapid
+  rise and data loss, with delay, repeat, acknowledge, snooze and pause
+- **Reminders:** charging the phone, changing cannula, CGM sensor and insulin
+  reservoir
+- **Reports:** a summary per period of a schedule, for example the night
+- **Your notifications:** one event entity per alarm; the
+  [automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)
+  prepares the automations
 
-Work in progress. The current version (0.1) contains:
-
-- Setup with a mandatory acknowledgement of the notice above
-- One entry per person: glucose sensor and optional person
-- Optional trend, change and reading time sensors, suggested automatically
-  from the same device as the glucose sensor
-- Fallback to the `direction`, `delta` and `date` attributes of the glucose
-  sensor (as provided by Nightscout)
-- Any glucose source: every sensor can be selected, its current value is
-  checked during setup
-- Alarms for urgent low, low, high, urgent high, rapid fall, rapid rise and
-  data loss with acknowledge, snooze, re-check and pause; notifications as
-  automations with device triggers
-- Status sensor per person
-- Charging reminder for the phone, as alarm with the same acknowledge,
-  snooze and pause
-- Change reminders for cannula, CGM sensor and insulin reservoir, with due
-  sensor, "changed" button and optional warning
-- Reports per period of a schedule (for example night, school): statistics
-  of the period as trigger and sensor
-- Diagnostics download showing how the glucose data and alarms are read
+More on the [documentation site](https://earmaster.github.io/home-assistant-blood-glucose-monitor/).
 
 ## Requirements
 
@@ -110,10 +97,11 @@ when the current value of a selected sensor cannot be read.
 ## Alarms
 
 Under **Configure** each entry has a menu: glucose data, one item per alarm
-and the pause. The threshold alarms are active once they have a threshold
-(leave it empty to switch them off), the rapid change alarms once a detection
-is selected; the data loss alarm is always active. Without an automation on
-their triggers, alarms only change their state sensors.
+and reminder, reports and the pause. The threshold alarms are active once
+they have a threshold (leave it empty to switch them off), the rapid change
+alarms once a detection is selected; the data loss alarm is always active.
+Without an automation on their event entities, alarms only change their
+entities.
 
 | Alarm | Starts | Ends |
 | --- | --- | --- |
@@ -134,7 +122,7 @@ their triggers, alarms only change their state sensors.
   minute. The limit is a number in the unit of the glucose data per minute,
   or an entity with the unit `mg/dL/min` or `mmol/L/min`, which takes
   precedence.
-- **Repeat:** an active alarm fires its trigger again in this interval
+- **Repeat:** an active alarm fires its event again in this interval
   (0 = once).
 - **Acknowledge** silences an alarm for its snooze time. Afterwards the alarm
   is checked again and starts at once if it still applies. Ways to
@@ -156,18 +144,31 @@ their triggers, alarms only change their state sensors.
 ### Notifications
 
 Notifications are automations: the integration only decides *when* to alarm,
-you decide *how*. Every active alarm adds two triggers to the device of the
-person (in the automation editor under **Device**):
+you decide *how*. The **[automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)**
+prepares them for you; open it from the device page of the person
+(**Visit**) or from the **Configure** menu, and it already knows the
+entities of that person. The [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
+lists every event type and value.
 
-| Trigger | Fires when |
+Every active alarm has its own **event entity** (for example
+*Low alarm*, `event.<person>_low_alarm`), next to its state sensor and its
+acknowledge button. In the automation editor pick the person or the entity as
+target and the trigger **Event received** with one or more event types:
+
+| Event type | Fires when |
 | --- | --- |
-| *… alarm started or repeated* | the alarm starts and on every repeat |
-| *… alarm acknowledged or over* | the alarm is acknowledged or ends |
+| `<alarm>_alert` (*… started or repeated*) | the alarm starts and on every repeat |
+| `<alarm>_ended` (*… acknowledged or over*) | the alarm is acknowledged or ends |
+| `<change>_soon` (*… due soon*) | the warning of a change reminder |
+| `report` (*Report created*, entity *Report*) | a report period ends |
 
-The automation gets the alarm data as `trigger.event.data`:
+The event types are unique per person, so the whole device can be the target.
+The automation gets the data of the event as attributes of the entity,
+`trigger.to_state.attributes`:
 
-| Field | Content |
+| Attribute | Content |
 | --- | --- |
+| `event_type` | the event type, for example `low_alert` |
 | `title`, `message` | ready-made texts in the language of Home Assistant |
 | `alarm` | `urgent_low`, `low`, `high`, `urgent_high`, `rapid_fall`, `rapid_rise`, `data_loss`, `charging`, `cannula_change`, `sensor_change` or `reservoir_change` |
 | `phase` | `triggered`, `repeat`, `acknowledged` or `resolved` (`soon` for the warning of a change reminder) |
@@ -181,42 +182,43 @@ The automation gets the alarm data as `trigger.event.data`:
 | `battery` | battery level of the phone (charging reminder only) |
 | `last_change`, `due` | last change and due time (change reminders only) |
 
-Example for the Home Assistant Companion app (select the device and the
-trigger in the editor, then switch the action to YAML):
+Example for the Home Assistant Companion app:
 
 ```yaml
 triggers:
-  - trigger: device
-    domain: blood_glucose_monitor
-    device_id: <device of the person>
-    type: low_alert
+  - trigger: event.received
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
+        - low_alert
+        - low_ended
 actions:
-  - action: notify.mobile_app_your_phone
-    data:
-      title: "{{ trigger.event.data.title }}"
-      message: "{{ trigger.event.data.message }}"
-      data:
-        tag: "{{ trigger.event.data.tag }}"
-        actions:
-          - action: "{{ trigger.event.data.ack_action }}"
-            title: Acknowledge
-```
-
-And to remove the notification again (trigger type `low_ended`):
-
-```yaml
-actions:
-  - action: notify.mobile_app_your_phone
-    data:
-      message: clear_notification
-      data:
-        tag: "{{ trigger.event.data.tag }}"
+  - if:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type.endswith('_alert') }}"
+    then:
+      - action: notify.mobile_app_your_phone
+        data:
+          title: "{{ trigger.to_state.attributes.title }}"
+          message: "{{ trigger.to_state.attributes.message }}"
+          data:
+            tag: "{{ trigger.to_state.attributes.tag }}"
+            actions:
+              - action: "{{ trigger.to_state.attributes.ack_action }}"
+                title: Acknowledge
+    else:
+      - action: notify.mobile_app_your_phone
+        data:
+          message: clear_notification
+          data:
+            tag: "{{ trigger.to_state.attributes.tag }}"
 ```
 
 ### Charging reminder
 
 The charging reminder is an alarm like the others (acknowledge, snooze,
-repeat, pause, triggers): from the reminder time until midnight it starts
+repeat, pause, events): from the reminder time until midnight it starts
 while the phone is not charging and the battery is at or below the limit, and
 it ends as soon as the phone charges. After midnight a running reminder waits
 for charging; no new one starts before the next reminder time.
@@ -247,7 +249,7 @@ starts when the change is due:
   physical button.
 - The reminder ends with the next change. Acknowledge, snooze, repeat, pause
   and "only when home" work as for the alarms.
-- **Warning:** optionally the *… change due soon* trigger fires once this long
+- **Warning:** optionally the *… change due soon* event fires once this long
   before the reminder; while the person is away or alarms are paused it is
   sent as soon as possible before the due time.
 
@@ -256,8 +258,8 @@ starts when the change is due:
 Select an entity that is on during the periods you want a report for,
 typically a **schedule** helper with several blocks (for example night
 22:00–07:00 and school 08:00–13:00); an `input_boolean` or a binary sensor
-works too. When a period ends, the *Report* trigger of the person's device
-fires and the *Last report* sensor (share of time in range) is updated:
+works too. When a period ends, the *Report* event entity of the person fires
+(event type `report`) and the *Last report* sensor (share of time in range) is updated:
 
 | Field | Content |
 | --- | --- |
@@ -267,10 +269,12 @@ fires and the *Last report* sensor (share of time in range) is updated:
 | `coverage` | share of the period with glucose data in percent |
 | `alarms`, `low_alarms` | number of alarms that started in the period |
 | `title`, `message` | ready-made texts |
+| `tag` | notification tag, unique per entry |
+| `person_name`, `entry_id` | the entry |
 
 The statistics come from the history of the glucose sensor (recorder). A
 period that ends while Home Assistant is restarting is reported afterwards.
-With **only when the person is at home**, the trigger only fires while the
+With **only when the person is at home**, the event only fires while the
 person is at home; the report and the *Last report* sensor are updated anyway.
 
 Every entry has a *Status* sensor with the most important current state:
@@ -279,9 +283,10 @@ Every entry has a *Status* sensor with the most important current state:
 attributes hold the latest glucose value with unit, trend arrow and rate of
 change, the reading time and the active and snoozed alarms.
 
-Per entry there are also a state sensor per alarm (`idle`, `pending`,
-`active`, `snoozed`) and an *Alarm* event entity that records every alarm
-event in the logbook and can trigger automations.
+Per alarm there are a state sensor (`idle`, `pending`, `active`,
+`snoozed`) for dashboards and conditions, an event entity for automations
+and an acknowledge button. The state sensor does not change on a repeat, so
+use the event entity to trigger notifications.
 
 ## Development
 
@@ -296,6 +301,13 @@ pip install -r requirements_test.txt
 ruff check . && ruff format --check .
 pytest --cov
 ```
+
+The documentation site with the automation builder lives in `site/`
+(Jekyll with the [Serif theme](https://github.com/zerostaticthemes/jekyll-serif-theme);
+preview with `bundle install` and `bundle exec jekyll serve` in `site/`). The
+event types, requirements and values are in `site/assets/js/data.js`. The
+*Pages* workflow takes screenshots of a demo Home Assistant with synthetic data
+(`scripts/screenshots/`), builds the site and publishes it from `main`.
 
 `scripts/test.sh` runs the same in a Docker container. GitHub Actions run the
 tests, [hassfest](https://github.com/home-assistant/actions) and the

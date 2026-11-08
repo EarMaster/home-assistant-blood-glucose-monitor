@@ -57,7 +57,7 @@
     "step": {
       "init": {
         "title": "Einstellungen",
-        "description": "Zur Erinnerung: Diese Integration ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.",
+        "description": "Zur Erinnerung: Diese Integration ersetzt nicht die Alarme deines CGM, deiner Insulinpumpe oder deiner Medizin-App.\n\n[Automation-Builder öffnen]({builder_url}), um Benachrichtigungen für diese Person zu erstellen.",
         "menu_options": {
           "sources": "Glukosedaten",
           "urgent_low": "Alarm sehr niedrig",
@@ -101,7 +101,7 @@
       },
       "urgent_low": {
         "title": "Alarm sehr niedrig",
-        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}). Die Pause gilt für diesen Alarm nicht.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}). Die Pause gilt für diesen Alarm nicht.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "threshold_entity": "Schwellwert",
           "clear_offset": "Abstand zum Beenden",
@@ -121,7 +121,7 @@
       },
       "low": {
         "title": "Alarm niedrig",
-        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}).\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung unter dem Schwellwert bleibt. Er endet, wenn die Glukose den Schwellwert plus den Abstand zum Beenden erreicht (in {unit}).\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "threshold_entity": "Schwellwert",
           "clear_offset": "Abstand zum Beenden",
@@ -141,7 +141,7 @@
       },
       "high": {
         "title": "Alarm hoch",
-        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung über dem Schwellwert bleibt. Er endet, wenn die Glukose auf den Schwellwert minus den Abstand zum Beenden fällt (in {unit}).\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung über dem Schwellwert bleibt. Er endet, wenn die Glukose auf den Schwellwert minus den Abstand zum Beenden fällt (in {unit}).\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "threshold_entity": "Schwellwert",
           "clear_offset": "Abstand zum Beenden",
@@ -161,7 +161,7 @@
       },
       "urgent_high": {
         "title": "Alarm sehr hoch",
-        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung über dem Schwellwert bleibt. Er endet, wenn die Glukose auf den Schwellwert minus den Abstand zum Beenden fällt (in {unit}).\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose für die Dauer der Verzögerung über dem Schwellwert bleibt. Er endet, wenn die Glukose auf den Schwellwert minus den Abstand zum Beenden fällt (in {unit}).\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "threshold_entity": "Schwellwert",
           "clear_offset": "Abstand zum Beenden",
@@ -181,7 +181,7 @@
       },
       "rapid_fall": {
         "title": "Alarm schnell fallend",
-        "description": "Alarm, wenn die Glukose schnell fällt: nach dem Trend der Glukosedaten oder nach der eigenen Änderungsrate zwischen den letzten beiden Messwerten. Der Grenzwert ist in {unit} pro Minute; eine Entität mit der Einheit mg/dL/min oder mmol/L/min hat Vorrang vor der Zahl.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose schnell fällt: nach dem Trend der Glukosedaten oder nach der eigenen Änderungsrate zwischen den letzten beiden Messwerten. Der Grenzwert ist in {unit} pro Minute; eine Entität mit der Einheit mg/dL/min oder mmol/L/min hat Vorrang vor der Zahl.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "detection": "Erkennung",
           "trend_level": "Trend ab",
@@ -205,7 +205,7 @@
       },
       "rapid_rise": {
         "title": "Alarm schnell steigend",
-        "description": "Alarm, wenn die Glukose schnell steigt: nach dem Trend der Glukosedaten oder nach der eigenen Änderungsrate zwischen den letzten beiden Messwerten. Der Grenzwert ist in {unit} pro Minute; eine Entität mit der Einheit mg/dL/min oder mmol/L/min hat Vorrang vor der Zahl.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Alarm, wenn die Glukose schnell steigt: nach dem Trend der Glukosedaten oder nach der eigenen Änderungsrate zwischen den letzten beiden Messwerten. Der Grenzwert ist in {unit} pro Minute; eine Entität mit der Einheit mg/dL/min oder mmol/L/min hat Vorrang vor der Zahl.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "detection": "Erkennung",
           "trend_level": "Trend ab",
@@ -229,7 +229,7 @@
       },
       "data_loss": {
         "title": "Alarm Datenausfall",
-        "description": "Dieser Alarm ist immer aktiv. Alarm, wenn innerhalb des maximalen Datenalters kein neuer Messwert kommt. Ältere Messwerte ignorieren auch die anderen Alarme, selbst wenn dieser Alarm ausgeschaltet ist.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Dieser Alarm ist immer aktiv. Alarm, wenn innerhalb des maximalen Datenalters kein neuer Messwert kommt. Ältere Messwerte ignorieren auch die anderen Alarme, selbst wenn dieser Alarm ausgeschaltet ist.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "max_age": "Maximales Datenalter",
           "repeat": "Wiederholen alle",
@@ -245,7 +245,7 @@
       },
       "charging": {
         "title": "Lade-Erinnerung",
-        "description": "Erinnerung ab der Uhrzeit bis Mitternacht, solange das Handy nicht lädt und der Akku bei oder unter der Grenze ist. Sie endet, sobald das Handy lädt. Eine Entität für Uhrzeit oder Grenze hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "description": "Erinnerung ab der Uhrzeit bis Mitternacht, solange das Handy nicht lädt und der Akku bei oder unter der Grenze ist. Sie endet, sobald das Handy lädt. Eine Entität für Uhrzeit oder Grenze hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieses Alarms: „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase` als Attribute.",
         "data": {
           "battery_entity": "Akkustand",
           "charging_entity": "Ladezustand",
@@ -269,7 +269,7 @@
       },
       "cannula_change": {
         "title": "Kanülenwechsel",
-        "description": "Erinnerung, wenn der Kanülenwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Kanüle gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase`.",
+        "description": "Erinnerung, wenn der Kanülenwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Kanüle gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
         "data": {
           "wear_duration": "Tragedauer",
           "wear_duration_entity": "Entität mit der Tragedauer",
@@ -287,7 +287,7 @@
           "last_change_entity": "Optional. Entität mit dem Zeitpunkt des letzten Wechsels. Ohne sie werden Wechsel mit dem Button oder der Aktion erfasst.",
           "due_time": "Optional. Am Tag der Fälligkeit zu dieser Uhrzeit erinnern statt genau am Ende der Tragedauer.",
           "time_entity": "Optional. Entität mit der festen Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
-          "warning": "Optional. Löst so lange vor der Erinnerung den Auslöser „bald fällig“ aus.",
+          "warning": "Optional. Löst so lange vor der Erinnerung das Ereignis „bald fällig“ aus.",
           "repeat": "0 benachrichtigt nur einmal.",
           "snooze": "Wie lange eine bestätigte Erinnerung still bleibt. Danach startet sie erneut, wenn der Wechsel noch fällig ist.",
           "only_when_home": "Neue Erinnerungen und Vorwarnungen starten nur, während die Person zu Hause ist. Eine laufende Erinnerung läuft weiter."
@@ -295,7 +295,7 @@
       },
       "sensor_change": {
         "title": "Sensorwechsel",
-        "description": "Erinnerung, wenn der Sensorwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Sensor gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase`.",
+        "description": "Erinnerung, wenn der Sensorwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Sensor gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
         "data": {
           "wear_duration": "Tragedauer",
           "wear_duration_entity": "Entität mit der Tragedauer",
@@ -313,7 +313,7 @@
           "last_change_entity": "Optional. Entität mit dem Zeitpunkt des letzten Wechsels. Ohne sie werden Wechsel mit dem Button oder der Aktion erfasst.",
           "due_time": "Optional. Am Tag der Fälligkeit zu dieser Uhrzeit erinnern statt genau am Ende der Tragedauer.",
           "time_entity": "Optional. Entität mit der festen Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
-          "warning": "Optional. Löst so lange vor der Erinnerung den Auslöser „bald fällig“ aus.",
+          "warning": "Optional. Löst so lange vor der Erinnerung das Ereignis „bald fällig“ aus.",
           "repeat": "0 benachrichtigt nur einmal.",
           "snooze": "Wie lange eine bestätigte Erinnerung still bleibt. Danach startet sie erneut, wenn der Wechsel noch fällig ist.",
           "only_when_home": "Neue Erinnerungen und Vorwarnungen starten nur, während die Person zu Hause ist. Eine laufende Erinnerung läuft weiter."
@@ -321,7 +321,7 @@
       },
       "reservoir_change": {
         "title": "Reservoirwechsel",
-        "description": "Erinnerung, wenn der Reservoirwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Reservoir gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase`.",
+        "description": "Erinnerung, wenn der Reservoirwechsel fällig ist: zum letzten Wechsel plus Tragedauer oder zu einer festen Uhrzeit an diesem Tag. Der letzte Wechsel kommt aus einer Entität, zum Beispiel der Glukose-Integration; ohne sie wird er mit dem Button „Reservoir gewechselt“ oder der Aktion „Wechsel erfassen“ erfasst. Die Erinnerung endet mit dem nächsten Wechsel. Eine Entität für Tragedauer oder Uhrzeit hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit dem Auslöser „Ereignis empfangen“ auf der Ereignis-Entität dieser Erinnerung: „ausgelöst oder wiederholt“, „bestätigt oder vorbei“ und, mit Vorwarnung, „bald fällig“. Die Entität liefert unter anderem `title`, `message`, `tag`, `ack_action`, `due`, `last_change` und `phase` als Attribute.",
         "data": {
           "wear_duration": "Tragedauer",
           "wear_duration_entity": "Entität mit der Tragedauer",
@@ -339,7 +339,7 @@
           "last_change_entity": "Optional. Entität mit dem Zeitpunkt des letzten Wechsels. Ohne sie werden Wechsel mit dem Button oder der Aktion erfasst.",
           "due_time": "Optional. Am Tag der Fälligkeit zu dieser Uhrzeit erinnern statt genau am Ende der Tragedauer.",
           "time_entity": "Optional. Entität mit der festen Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
-          "warning": "Optional. Löst so lange vor der Erinnerung den Auslöser „bald fällig“ aus.",
+          "warning": "Optional. Löst so lange vor der Erinnerung das Ereignis „bald fällig“ aus.",
           "repeat": "0 benachrichtigt nur einmal.",
           "snooze": "Wie lange eine bestätigte Erinnerung still bleibt. Danach startet sie erneut, wenn der Wechsel noch fällig ist.",
           "only_when_home": "Neue Erinnerungen und Vorwarnungen starten nur, während die Person zu Hause ist. Eine laufende Erinnerung läuft weiter."
@@ -347,14 +347,14 @@
       },
       "report": {
         "title": "Berichte",
-        "description": "Ein Bericht je Zeitraum, in dem die gewählte Entität an ist, zum Beispiel je Abschnitt eines Zeitplans. Endet ein Zeitraum, feuert der Auslöser „Bericht“ am Gerät dieser Person mit der Statistik, dem Beginn und dem Ende des Zeitraums, und der Sensor „Letzter Bericht“ wird aktualisiert. Die Statistik stammt aus dem Verlauf (Recorder).",
+        "description": "Ein Bericht je Zeitraum, in dem die gewählte Entität an ist, zum Beispiel je Abschnitt eines Zeitplans. Endet ein Zeitraum, feuert die Ereignis-Entität „Bericht“ dieser Person mit der Statistik, dem Beginn und dem Ende des Zeitraums, und der Sensor „Letzter Bericht“ wird aktualisiert. Die Statistik stammt aus dem Verlauf (Recorder).",
         "data": {
           "report_entity": "Zeiträume",
           "only_when_home": "Nur wenn die Person zu Hause ist"
         },
         "data_description": {
           "report_entity": "Zeitplan, Schalter-Helfer oder Binärsensor. Leer lassen, um die Berichte auszuschalten.",
-          "only_when_home": "Der Auslöser „Bericht“ feuert nur, während die Person zu Hause ist. Bericht und Sensor „Letzter Bericht“ werden trotzdem aktualisiert."
+          "only_when_home": "Das Ereignis „Bericht“ feuert nur, während die Person zu Hause ist. Bericht und Sensor „Letzter Bericht“ werden trotzdem aktualisiert."
         }
       },
       "pause": {
@@ -430,55 +430,136 @@
       }
     },
     "event": {
-      "alarm": {
-        "name": "Alarm",
+      "urgent_low_alarm": {
+        "name": "Alarm sehr niedrig",
         "state_attributes": {
           "event_type": {
             "state": {
-              "urgent_low_triggered": "Sehr niedrig: Alarm",
-              "urgent_low_repeat": "Sehr niedrig: Wiederholung",
-              "urgent_low_acknowledged": "Sehr niedrig: bestätigt",
-              "urgent_low_resolved": "Sehr niedrig: vorbei",
-              "low_triggered": "Niedrig: Alarm",
-              "low_repeat": "Niedrig: Wiederholung",
-              "low_acknowledged": "Niedrig: bestätigt",
-              "low_resolved": "Niedrig: vorbei",
-              "data_loss_triggered": "Datenausfall: Alarm",
-              "data_loss_repeat": "Datenausfall: Wiederholung",
-              "data_loss_acknowledged": "Datenausfall: bestätigt",
-              "data_loss_resolved": "Datenausfall: vorbei",
-              "high_triggered": "Hoch: Alarm",
-              "high_repeat": "Hoch: Wiederholung",
-              "high_acknowledged": "Hoch: bestätigt",
-              "high_resolved": "Hoch: vorbei",
-              "urgent_high_triggered": "Sehr hoch: Alarm",
-              "urgent_high_repeat": "Sehr hoch: Wiederholung",
-              "urgent_high_acknowledged": "Sehr hoch: bestätigt",
-              "urgent_high_resolved": "Sehr hoch: vorbei",
-              "rapid_fall_triggered": "Schnell fallend: Alarm",
-              "rapid_fall_repeat": "Schnell fallend: Wiederholung",
-              "rapid_fall_acknowledged": "Schnell fallend: bestätigt",
-              "rapid_fall_resolved": "Schnell fallend: vorbei",
-              "rapid_rise_triggered": "Schnell steigend: Alarm",
-              "rapid_rise_repeat": "Schnell steigend: Wiederholung",
-              "rapid_rise_acknowledged": "Schnell steigend: bestätigt",
-              "rapid_rise_resolved": "Schnell steigend: vorbei",
-              "charging_triggered": "Laden: Alarm",
-              "charging_repeat": "Laden: Wiederholung",
-              "charging_acknowledged": "Laden: bestätigt",
-              "charging_resolved": "Laden: vorbei",
-              "cannula_change_triggered": "Kanülenwechsel: Erinnerung",
-              "cannula_change_repeat": "Kanülenwechsel: Wiederholung",
-              "cannula_change_acknowledged": "Kanülenwechsel: bestätigt",
-              "cannula_change_resolved": "Kanülenwechsel: erledigt",
-              "sensor_change_triggered": "Sensorwechsel: Erinnerung",
-              "sensor_change_repeat": "Sensorwechsel: Wiederholung",
-              "sensor_change_acknowledged": "Sensorwechsel: bestätigt",
-              "sensor_change_resolved": "Sensorwechsel: erledigt",
-              "reservoir_change_triggered": "Reservoirwechsel: Erinnerung",
-              "reservoir_change_repeat": "Reservoirwechsel: Wiederholung",
-              "reservoir_change_acknowledged": "Reservoirwechsel: bestätigt",
-              "reservoir_change_resolved": "Reservoirwechsel: erledigt"
+              "urgent_low_alert": "Alarm sehr niedrig ausgelöst oder wiederholt",
+              "urgent_low_ended": "Alarm sehr niedrig bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "low_alarm": {
+        "name": "Alarm niedrig",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "low_alert": "Alarm niedrig ausgelöst oder wiederholt",
+              "low_ended": "Alarm niedrig bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "high_alarm": {
+        "name": "Alarm hoch",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "high_alert": "Alarm hoch ausgelöst oder wiederholt",
+              "high_ended": "Alarm hoch bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarm sehr hoch",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_high_alert": "Alarm sehr hoch ausgelöst oder wiederholt",
+              "urgent_high_ended": "Alarm sehr hoch bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarm schnell fallend",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_fall_alert": "Alarm schnell fallend ausgelöst oder wiederholt",
+              "rapid_fall_ended": "Alarm schnell fallend bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarm schnell steigend",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_rise_alert": "Alarm schnell steigend ausgelöst oder wiederholt",
+              "rapid_rise_ended": "Alarm schnell steigend bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarm Datenausfall",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "data_loss_alert": "Alarm Datenausfall ausgelöst oder wiederholt",
+              "data_loss_ended": "Alarm Datenausfall bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "charging_alarm": {
+        "name": "Lade-Erinnerung",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "charging_alert": "Lade-Erinnerung ausgelöst oder wiederholt",
+              "charging_ended": "Lade-Erinnerung bestätigt oder vorbei"
+            }
+          }
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Erinnerung Kanülenwechsel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "cannula_change_alert": "Erinnerung Kanülenwechsel ausgelöst oder wiederholt",
+              "cannula_change_ended": "Erinnerung Kanülenwechsel bestätigt oder vorbei",
+              "cannula_change_soon": "Kanülenwechsel bald fällig"
+            }
+          }
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Erinnerung Sensorwechsel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "sensor_change_alert": "Erinnerung Sensorwechsel ausgelöst oder wiederholt",
+              "sensor_change_ended": "Erinnerung Sensorwechsel bestätigt oder vorbei",
+              "sensor_change_soon": "Sensorwechsel bald fällig"
+            }
+          }
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Erinnerung Reservoirwechsel",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "reservoir_change_alert": "Erinnerung Reservoirwechsel ausgelöst oder wiederholt",
+              "reservoir_change_ended": "Erinnerung Reservoirwechsel bestätigt oder vorbei",
+              "reservoir_change_soon": "Reservoirwechsel bald fällig"
+            }
+          }
+        }
+      },
+      "report": {
+        "name": "Bericht",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "report": "Bericht erstellt"
             }
           }
         }
@@ -828,36 +909,6 @@
           "description": "Optional. Leer lassen für jetzt."
         }
       }
-    }
-  },
-  "device_automation": {
-    "trigger_type": {
-      "urgent_low_alert": "Alarm sehr niedrig ausgelöst oder wiederholt",
-      "urgent_low_ended": "Alarm sehr niedrig bestätigt oder vorbei",
-      "low_alert": "Alarm niedrig ausgelöst oder wiederholt",
-      "low_ended": "Alarm niedrig bestätigt oder vorbei",
-      "data_loss_alert": "Alarm Datenausfall ausgelöst oder wiederholt",
-      "data_loss_ended": "Alarm Datenausfall bestätigt oder vorbei",
-      "high_alert": "Alarm hoch ausgelöst oder wiederholt",
-      "high_ended": "Alarm hoch bestätigt oder vorbei",
-      "urgent_high_alert": "Alarm sehr hoch ausgelöst oder wiederholt",
-      "urgent_high_ended": "Alarm sehr hoch bestätigt oder vorbei",
-      "rapid_fall_alert": "Alarm schnell fallend ausgelöst oder wiederholt",
-      "rapid_fall_ended": "Alarm schnell fallend bestätigt oder vorbei",
-      "rapid_rise_alert": "Alarm schnell steigend ausgelöst oder wiederholt",
-      "rapid_rise_ended": "Alarm schnell steigend bestätigt oder vorbei",
-      "charging_alert": "Lade-Erinnerung ausgelöst oder wiederholt",
-      "charging_ended": "Lade-Erinnerung bestätigt oder vorbei",
-      "cannula_change_alert": "Erinnerung Kanülenwechsel ausgelöst oder wiederholt",
-      "cannula_change_ended": "Erinnerung Kanülenwechsel bestätigt oder vorbei",
-      "cannula_change_soon": "Kanülenwechsel bald fällig",
-      "sensor_change_alert": "Erinnerung Sensorwechsel ausgelöst oder wiederholt",
-      "sensor_change_ended": "Erinnerung Sensorwechsel bestätigt oder vorbei",
-      "sensor_change_soon": "Sensorwechsel bald fällig",
-      "reservoir_change_alert": "Erinnerung Reservoirwechsel ausgelöst oder wiederholt",
-      "reservoir_change_ended": "Erinnerung Reservoirwechsel bestätigt oder vorbei",
-      "reservoir_change_soon": "Reservoirwechsel bald fällig",
-      "report": "Bericht"
     }
   }
 }

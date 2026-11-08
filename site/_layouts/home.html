@@ -1,0 +1,28 @@
+---
+layout: default
+bodyClass: "page-home"
+---
+
+<div class="intro">
+  <div class="container">
+    <div class="row justify-content-start">
+      <div class="col-12 col-md-8">
+        <h1>{{ page.headline }}</h1>
+        <p>{{ page.lead }}</p>
+        <p class="intro-actions">
+          <a class="button" href="{{ '/builder.html' | relative_url }}">Automation builder</a>
+          <a class="button button-secondary" href="{{ '/docs.html' | relative_url }}">Documentation</a>
+        </p>
+      </div>
+      <div class="col-12 col-md-4 d-none d-md-block text-center">
+        <img class="intro-logo" alt="" src="{{ '/images/icon.png' | relative_url }}" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="strip">
+  <div class="container pt-6 pb-6 pb-md-10">
+    <div class="content">{{ content }}</div>
+  </div>
+</div>

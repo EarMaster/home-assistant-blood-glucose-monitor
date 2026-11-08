@@ -6,10 +6,10 @@
   "codeowners": ["@EarMaster"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/EarMaster/home-assistant-blood-glucose-monitor",
+  "documentation": "https://earmaster.github.io/home-assistant-blood-glucose-monitor/",
   "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/EarMaster/home-assistant-blood-glucose-monitor/issues",
   "requirements": [],
-  "version": "0.5.1"
+  "version": "1.0.0"
 }

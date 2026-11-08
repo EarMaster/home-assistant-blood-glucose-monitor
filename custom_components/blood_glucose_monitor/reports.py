@@ -2,7 +2,7 @@
 
 The report entity is typically a schedule helper with several blocks (e.g.
 night and school). When a block ends, the glucose history of the block is
-summarized (``report.py``) and the "report" device trigger fires with the
+summarized (``report.py``) and the report event entity fires with the
 statistics, the start and the end of the block.
 """
 
@@ -17,7 +17,7 @@ from homeassistant.core import Event, EventStateChangedData, callback
 from homeassistant.helpers.event import async_track_state_change_event
 from homeassistant.util import dt as dt_util
 
-from .const import ALARM_LOW, ALARM_URGENT_LOW, TRIGGER_REPORT
+from .const import ALARM_LOW, ALARM_URGENT_LOW, DOMAIN, TRIGGER_REPORT
 from .glucose import parse_number
 from .report import ReportStats, compute_stats
 from .source import state_value, to_mg_dl
@@ -38,7 +38,7 @@ class ReportTracker:
         self.monitor = monitor
         self.hass = monitor.hass
         self.entity_id = entity_id
-        # The report is always made; only the trigger depends on presence.
+        # The report is always made; only the event depends on presence.
         self.only_when_home = only_when_home
         self.start: datetime | None = None
         self.counts: dict[str, int] = {}
@@ -110,7 +110,7 @@ class ReportTracker:
     async def _async_report(
         self, start: datetime, end: datetime, counts: dict[str, int]
     ) -> None:
-        """Summarize a period and fire the report trigger."""
+        """Summarize a period and fire the report event."""
         stats = await self._async_stats(start, end)
         monitor = self.monitor
         unit = monitor.unit
@@ -132,6 +132,8 @@ class ReportTracker:
             "coverage": None if stats is None else stats.coverage,
             "alarms": dict(counts),
             "low_alarms": low_alarms,
+            # Same form as the tags of the alarms (monitor.notification_tag).
+            "tag": f"{DOMAIN}_{monitor.entry.entry_id}_{TRIGGER_REPORT}",
         }
         data["title"] = monitor.text("report", name=monitor.entry.title)
         data["message"] = self._message(stats, data, start, end)

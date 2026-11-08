@@ -1,0 +1,249 @@
+// Components of the Blood Glucose Monitor site on top of the Serif theme.
+
+$code-background: #f3f1f2;
+$border: #e6e1e3;
+$warn-background: #fff4e5;
+$warn-border: #e8a33d;
+$warn-text: #5c3b00;
+$ok: #1a7f37;
+
+.header .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: $black;
+  font-family: $font-family-heading;
+  font-weight: bold;
+  font-size: 1.15rem;
+  text-decoration: none;
+  img {
+    width: 36px;
+    height: 36px;
+  }
+  span {
+    display: none;
+    @include media-breakpoint-up(sm) {
+      display: inline;
+    }
+  }
+}
+
+.intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.intro-logo {
+  width: 70%;
+  max-width: 220px;
+}
+
+.button-secondary {
+  background: transparent;
+  color: $primary;
+  border: 1px solid $primary;
+  line-height: 38px;
+  &:hover {
+    color: #ffffff;
+  }
+}
+
+button.button {
+  border: none;
+  cursor: pointer;
+}
+
+.lead {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  color: $steel;
+}
+
+.caution {
+  background: $warn-background;
+  border: 1px solid $warn-border;
+  border-left-width: 6px;
+  color: $warn-text;
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 24px 0;
+  line-height: 1.5;
+  strong:first-child {
+    display: block;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+}
+
+.content {
+  code {
+    font-size: 0.9em;
+    background: $code-background;
+    color: $black;
+    padding: 1px 5px;
+    border-radius: 4px;
+    overflow-wrap: anywhere;
+  }
+  pre {
+    background: $code-background;
+    border: 1px solid $border;
+    border-radius: 6px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    code {
+      padding: 0;
+      background: none;
+      overflow-wrap: normal;
+    }
+  }
+  td,
+  th {
+    border-color: $border;
+  }
+  .card ul,
+  ul.requirements,
+  ul.toc {
+    padding-left: 0;
+  }
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.card {
+  background: #ffffff;
+  border: 1px solid $border;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  h3 {
+    margin-top: 0;
+  }
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  .card {
+    margin: 0;
+  }
+}
+
+.toc {
+  columns: 2 220px;
+}
+
+.screenshot {
+  margin: 24px 0;
+  img {
+    border: 1px solid $border;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(47, 47, 65, 0.08);
+    margin: 0;
+  }
+  figcaption {
+    color: $steel;
+    font-size: 0.92rem;
+    margin-top: 8px;
+  }
+}
+
+// Automation builder
+
+.builder {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  .output {
+    position: sticky;
+    top: 16px;
+  }
+  @include media-breakpoint-down(lg) {
+    grid-template-columns: minmax(0, 1fr);
+    .output {
+      position: static;
+    }
+  }
+  label {
+    font-weight: bold;
+    color: $black;
+  }
+  input[type="text"] {
+    width: 100%;
+    font: inherit;
+    border: 1px solid $border;
+    border-radius: 6px;
+    padding: 8px 10px;
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 1px;
+    }
+  }
+  fieldset {
+    border: 1px solid $border;
+    border-radius: 8px;
+    background: #ffffff;
+    margin: 12px 0;
+    padding: 12px 16px;
+  }
+  legend {
+    float: none;
+    width: auto;
+    font-size: 1rem;
+    font-weight: bold;
+    padding: 0 6px;
+    margin: 0;
+  }
+}
+
+.field {
+  margin: 14px 0;
+}
+
+.hint {
+  color: $steel;
+  font-size: 0.92rem;
+  margin: 4px 0 0;
+}
+
+.builder .check {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-weight: normal;
+  margin: 4px 0;
+  color: $steel;
+}
+
+.entity-row input {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.status {
+  color: $ok;
+  font-weight: bold;
+}
+
+.prefilled {
+  border-left: 4px solid $ok;
+}
+
+// Less space between the intro and the content than the theme default.
+.page-home .intro {
+  @include media-breakpoint-up(md) {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+}

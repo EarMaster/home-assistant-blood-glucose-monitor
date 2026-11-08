@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="{{ page.description | default: site.description }}" />
+  <meta property="og:title" content="{{ page.title | default: site.title }}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:description" content="{{ page.description | default: site.description }}" />
+  <link rel="icon" type="image/png" href="{{ '/images/icon.png' | relative_url }}">
+  <link rel="preload" href="{{ '/assets/fonts/playfair-display.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
+  <link href="{{ '/assets/css/style.css' | relative_url }}" rel="stylesheet">
+  {% for script in page.scripts %}
+  <script src="{{ script | relative_url }}" defer></script>
+  {% endfor %}
+</head>
+
+<body class='page {{ layout.bodyClass }}'>
+  {% include main-menu-mobile.html %}
+  <div id="wrapper" class="wrapper">
+    {% include header.html %}
+    {{ content }}
+  </div>
+  {% include footer.html %}
+  {% include sub-footer.html %}
+  <script src="{{ '/assets/js/scripts.js' | relative_url }}"></script>
+</body>
+</html>

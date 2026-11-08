@@ -1,0 +1,106 @@
+name: Pages
+
+# Takes screenshots of a demo Home Assistant with synthetic data, builds the
+# documentation site (site/, Jekyll with the Serif theme) with them and
+# publishes it. Deployed from main only, so the site matches the released
+# version; on develop the screenshots and the built site (github-pages) are
+# only artifacts to review.
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "site/**"
+      - "scripts/screenshots/**"
+      - "custom_components/**"
+      - ".github/workflows/pages.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  screenshots:
+    name: Screenshots
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - name: Start Home Assistant
+        run: |
+          mkdir -p "$RUNNER_TEMP/ha/custom_components"
+          cp scripts/screenshots/configuration.yaml scripts/screenshots/automations.yaml "$RUNNER_TEMP/ha/"
+          cp -r custom_components/blood_glucose_monitor "$RUNNER_TEMP/ha/custom_components/"
+          docker run -d --name homeassistant -p 8123:8123 -e TZ=Europe/Berlin \
+            -v "$RUNNER_TEMP/ha:/config" ghcr.io/home-assistant/home-assistant:stable
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - name: Install Playwright
+        run: |
+          pip install aiohttp playwright
+          python -m playwright install --with-deps chromium
+      - name: Set up demo and take screenshots
+        run: python scripts/screenshots/demo.py --out site/img --debug screenshots-debug
+      - name: Home Assistant log
+        if: always()
+        run: docker logs homeassistant 2>&1 | grep -v " DEBUG " | tail -n 200
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: site/img
+          if-no-files-found: warn
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots-debug
+          path: screenshots-debug
+          if-no-files-found: ignore
+
+  build:
+    name: Build site
+    needs: screenshots
+    # A failed screenshot must not block the site; the pages hide missing images.
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: screenshots
+          path: site/img
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+          working-directory: site
+      - name: Build with Jekyll
+        working-directory: site
+        run: bundle exec jekyll build --destination ../_site
+        env:
+          JEKYLL_ENV: production
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    name: Deploy
+    needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

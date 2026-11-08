@@ -1,7 +1,16 @@
-"""Alarm event entity of the Blood Glucose Monitor integration.
+"""Event entities of the Blood Glucose Monitor integration.
 
-Every alarm notification (triggered, repeat, acknowledged, resolved) is an
-event, so the alarms show up in the logbook and can trigger automations.
+Notifications are automations on these entities ("Event received"): every
+enabled alarm has its own event entity with the event types "started or
+repeated" (``{alarm}_alert``), "acknowledged or over" (``{alarm}_ended``) and,
+for change reminders with a warning, "due soon" (``{alarm}_soon``). The
+report has its own event entity with the event type ``report``. The data of
+an event (``title``, ``message``, ``tag``, ``ack_action``, ``glucose``, ...)
+are the attributes of the entity, in automations
+``trigger.to_state.attributes``.
+
+The event types are unique per person, so an automation can also target the
+whole device and filter by event type.
 """
 
 from __future__ import annotations
@@ -13,22 +22,17 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import BloodGlucoseMonitorConfigEntry
-from .alarm import Phase
+from .const import (
+    CHANGE_ALARMS,
+    TRIGGER_ALERT,
+    TRIGGER_ENDED,
+    TRIGGER_REPORT,
+    TRIGGER_SOON,
+)
 from .entity import BloodGlucoseMonitorEntity
+from .monitor import warning_alarms
 
 PARALLEL_UPDATES = 0
-
-# Variables of the user's actions that are also event attributes.
-EVENT_ATTRIBUTES = (
-    "alarm",
-    "phase",
-    "glucose",
-    "unit",
-    "trend",
-    "delta",
-    "rate",
-    "data_age_min",
-)
 
 
 async def async_setup_entry(
@@ -36,31 +40,51 @@ async def async_setup_entry(
     entry: BloodGlucoseMonitorConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add the alarm event entity (the data loss alarm is always active)."""
-    async_add_entities([AlarmEventEntity(entry)])
+    """Add an event entity per enabled alarm and one for the report."""
+    monitor = entry.runtime_data.monitor
+    warnings = warning_alarms(entry.options)
+    entities: list[MonitorEventEntity] = [
+        MonitorEventEntity(
+            entry,
+            f"{alarm}_alarm",
+            [
+                f"{alarm}_{TRIGGER_ALERT}",
+                f"{alarm}_{TRIGGER_ENDED}",
+                *(
+                    [f"{alarm}_{TRIGGER_SOON}"]
+                    if alarm in CHANGE_ALARMS and alarm in warnings
+                    else []
+                ),
+            ],
+        )
+        for alarm in monitor.alarms
+    ]
+    if monitor.report is not None:
+        entities.append(MonitorEventEntity(entry, "report", [TRIGGER_REPORT]))
+    async_add_entities(entities)
 
 
-class AlarmEventEntity(BloodGlucoseMonitorEntity, EventEntity):
-    """Events of all alarms of one person."""
+class MonitorEventEntity(BloodGlucoseMonitorEntity, EventEntity):
+    """Events of one alarm or of the report of one person."""
 
-    _attr_translation_key = "alarm"
-
-    def __init__(self, entry: BloodGlucoseMonitorConfigEntry) -> None:
+    def __init__(
+        self,
+        entry: BloodGlucoseMonitorConfigEntry,
+        key: str,
+        event_types: list[str],
+    ) -> None:
         """Initialize."""
-        super().__init__(entry, "alarm")
-        self._attr_event_types = [
-            f"{alarm}_{phase.value}" for alarm in self.monitor.alarms for phase in Phase
-        ]
+        super().__init__(entry, f"{key}_event")
+        self._attr_translation_key = key
+        self._attr_event_types = event_types
 
     async def async_added_to_hass(self) -> None:
-        """Listen to alarm events instead of state updates."""
+        """Listen to the events of the monitor instead of state updates."""
         self.async_on_remove(self.monitor.async_add_event_listener(self._async_event))
 
     @callback
-    def _async_event(self, alarm: str, phase: Phase, variables: dict[str, Any]) -> None:
-        """Record an alarm event."""
-        self._trigger_event(
-            f"{alarm}_{phase.value}",
-            {key: variables[key] for key in EVENT_ATTRIBUTES},
-        )
-        self.async_write_ha_state()
+    def _async_event(self, event_type: str, data: dict[str, Any]) -> None:
+        """Record an event of this entity."""
+        if event_type in self.event_types:
+            self._trigger_event(event_type, data)
+            self.async_write_ha_state()
