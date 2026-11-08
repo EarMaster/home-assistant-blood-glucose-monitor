@@ -1,3 +1,4 @@
+{% include lang.html %}
 <div class="footer">
   <div class="container">
     <div class="row">
@@ -5,10 +6,9 @@
         <div class="footer-inner">
           <h2 class="footer-title">{{ site.title }}</h2>
           <ul>
-            {% assign footermenu = site.data.menus.main | sort: 'weight' %}
-            {% for item in footermenu %}
-            <li><a href="{{ item.url | relative_url }}">{{ item.name }}</a></li>
-            {% endfor %}
+            <li><a href="{{ home_url }}">{{ t.menu.info }}</a></li>
+            <li><a href="{{ builder_url }}">{{ t.menu.builder }}</a></li>
+            <li><a href="{{ docs_url }}">{{ t.menu.docs }}</a></li>
             <li><a href="{{ site.repository_url }}">GitHub</a></li>
           </ul>
         </div>

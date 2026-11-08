@@ -4,7 +4,7 @@
 "use strict";
 
 (() => {
-  const { alarms, report, eventTypes } = window.BGM;
+  const { T, HA, alarms, report, eventTypes, entityId } = window.BGM;
   const params = new URLSearchParams(location.search);
   const prefilled = [...alarms.map((a) => a.key), report.key].some((key) =>
     params.has(key),
@@ -32,22 +32,11 @@
     })),
     {
       source: report,
-      types: [["report", "created", report.report]],
+      types: [["report", HA.event_types.report, report.report]],
     },
   ].filter(({ source }) => !prefilled || params.has(source.key));
 
-  const slug = (text) =>
-    text
-      .normalize("NFKD")
-      .replace(/[̀-ͯ]/g, "")
-      .toLowerCase()
-      .replace(/ß/g, "ss")
-      .replace(/[^a-z0-9]+/g, "_")
-      .replace(/^_+|_+$/g, "");
-
-  const guessEntity = (source) =>
-    `event.${slug(nameInput.value) || "person"}_${source.entity}`;
-
+  const guessEntity = (source) => entityId(nameInput.value, source);
   // Build the inputs.
   for (const group of groups) {
     const { source, types } = group;
@@ -61,7 +50,7 @@
       const box = document.createElement("input");
       box.type = "checkbox";
       box.value = type;
-      row.append(box, ` ${source.name} ${label} `);
+      row.append(box, ` ${label} `);
       const code = document.createElement("code");
       code.textContent = type;
       row.append(code);
@@ -73,7 +62,7 @@
     const id = `entity-${source.key}`;
     const label = document.createElement("label");
     label.htmlFor = id;
-    label.textContent = "Event entity";
+    label.textContent = T.event_entity;
     const input = document.createElement("input");
     input.type = "text";
     input.id = id;
@@ -108,7 +97,7 @@
       ? [
           "      actions:",
           `        - action: ${attr("ack_action")}`,
-          "          title: Acknowledge",
+          `          title: ${JSON.stringify(T.ack_title)}`,
         ]
       : []),
   ];
@@ -139,7 +128,7 @@
     }
     renderRequirements(selected);
     if (!selected.length) {
-      yamlBox.textContent = "# Select at least one event.";
+      yamlBox.textContent = `# ${T.select_event}`;
       return;
     }
 
@@ -193,8 +182,8 @@
 
     const name = nameInput.value.trim();
     const lines = [
-      `alias: ${JSON.stringify(`Blood glucose notifications${name ? `: ${name}` : ""}`)}`,
-      'description: "Created with the Blood Glucose Monitor automation builder."',
+      `alias: ${JSON.stringify(`${T.alias}${name ? `: ${name}` : ""}`)}`,
+      `description: ${JSON.stringify(T.automation_description)}`,
       "mode: queued",
       "triggers:",
       "  - trigger: event.received",
@@ -215,7 +204,7 @@
     if (!selected.length) {
       const hint = document.createElement("p");
       hint.className = "hint";
-      hint.textContent = "Select at least one event.";
+      hint.textContent = T.select_event;
       requirementsBox.append(hint);
       return;
     }
@@ -228,10 +217,10 @@
       title.textContent = group.source.name;
       card.append(title);
       for (const { type } of picked) {
-        const [, label, requirements] = group.types.find(([t]) => t === type);
+        const [, , requirements] = group.types.find(([t]) => t === type);
         const head = document.createElement("p");
         const strong = document.createElement("strong");
-        strong.textContent = `${label[0].toUpperCase()}${label.slice(1)}`;
+        strong.textContent = T.labels[type === "report" ? "report" : type.split("_").pop()];
         const code = document.createElement("code");
         code.textContent = type;
         head.append(strong, " ", code);
@@ -249,10 +238,10 @@
     const status = document.getElementById("copied");
     try {
       await navigator.clipboard.writeText(yamlBox.textContent);
-      status.textContent = "Copied";
+      status.textContent = T.copied;
     } catch {
       getSelection().selectAllChildren(yamlBox);
-      status.textContent = "Press Ctrl+C to copy";
+      status.textContent = T.copy_fallback;
     }
     setTimeout(() => (status.textContent = ""), 2500);
   });

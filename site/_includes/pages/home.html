@@ -1,0 +1,66 @@
+{% include lang.html %}
+{%- assign h = t.home -%}
+{%- assign issues_url = site.repository_url | append: "/issues" -%}
+{% include caution.html title=t.caution.title text=t.caution.text %}
+
+<h2>{{ h.what_title }}</h2>
+<div class="cards">
+  {%- for card in h.cards %}
+  <section class="card">
+    <h3>{{ card.title }}</h3>
+    <p>{{ card.text | replace: "%builder%", builder_url }}</p>
+  </section>
+  {%- endfor %}
+</div>
+
+{% include screenshot.html file="device.png" alt=h.shot_device_alt caption=h.shot_device %}
+{% include screenshot.html file="notifications.png" alt=h.shot_notifications_alt caption=h.shot_notifications %}
+
+<h2>{{ h.secondary_title }}</h2>
+<p>{{ h.secondary_text }}</p>
+<ul>
+  {%- for point in h.secondary_points %}
+  <li>{{ point }}</li>
+  {%- endfor %}
+</ul>
+
+<h2>{{ h.start_title }}</h2>
+<ol>
+  {%- for step in h.start_steps %}
+  <li>{{ step | replace: "%builder%", builder_url }}{% if forloop.first %}<br>{% include my-ha.html alt=h.my_ha_alt %}{% endif %}</li>
+  {%- endfor %}
+</ol>
+
+{% include screenshot.html file="setup.png" alt=h.shot_setup_alt caption=h.shot_setup %}
+{% include screenshot.html file="options.png" alt=h.shot_options_alt caption=h.shot_options %}
+
+<h2>{{ h.entities_title }}</h2>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr><th>{{ h.entities_head[0] }}</th><th>{{ h.entities_head[1] }}</th></tr>
+    </thead>
+    <tbody>
+      {%- for row in h.entities %}
+      <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td></tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% include screenshot.html file="status.png" alt=h.shot_status_alt caption=h.shot_status %}
+{%- if page.lang != "en" %}
+<p class="hint">{{ h.screenshots_note }}</p>
+{%- endif %}
+
+<h2 id="about">{{ h.about_title }}</h2>
+<p>{{ h.about_text | replace: "%liberapay%", "https://liberapay.com/EarMaster/" | replace: "%buymeacoffee%", "https://buymeacoffee.com/EarMaster" }}</p>
+
+<h2 id="contribute">{{ h.contribute_title }}</h2>
+<p>{{ h.contribute_text }}</p>
+<ul>
+  {%- for point in h.contribute_points %}
+  <li>{{ point }}</li>
+  {%- endfor %}
+</ul>
+<p>{{ h.contribute_link | replace: "%issues%", issues_url }}</p>

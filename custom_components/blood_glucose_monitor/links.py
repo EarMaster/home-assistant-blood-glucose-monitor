@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import device_registry as dr, entity_registry as er
 
-from .const import BUILDER_URL, CONF_REPORT, DOMAIN
+from .const import CONF_REPORT, DOCS_LANGUAGES, DOCS_URL, DOMAIN
 from .monitor import warning_alarms
 
 if TYPE_CHECKING:
@@ -34,7 +34,15 @@ def builder_url(hass: HomeAssistant, entry: BloodGlucoseMonitorConfigEntry) -> s
         alarm for alarm in warning_alarms(entry.options) if alarm in params
     ]:
         params["soon"] = ",".join(warnings)
-    return f"{BUILDER_URL}?{urlencode(params)}"
+    return f"{builder_page(hass)}?{urlencode(params)}"
+
+
+@callback
+def builder_page(hass: HomeAssistant) -> str:
+    """Return the builder page in the language of Home Assistant if available."""
+    language = (hass.config.language or "en").split("-")[0].lower()
+    prefix = f"{language}/" if language in DOCS_LANGUAGES else ""
+    return f"{DOCS_URL}{prefix}builder.html"
 
 
 @callback

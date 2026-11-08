@@ -1,0 +1,6 @@
+<nav class="language-switch" aria-label="{{ t.menu.language }}">
+  {%- for language in site.data.languages %}
+  {%- assign texts = site.data.i18n[language.code] %}
+  <a href="{{ language.root | append: page.ref | relative_url }}" hreflang="{{ language.code }}" lang="{{ language.code }}" data-language="{{ language.code }}"{% if language.code == page.lang %} aria-current="true"{% endif %} title="{{ texts.language }}">{{ language.code | upcase }}</a>
+  {%- endfor %}
+</nav>

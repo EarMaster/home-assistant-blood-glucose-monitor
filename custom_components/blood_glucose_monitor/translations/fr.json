@@ -1,0 +1,914 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Important : ceci n'est pas un dispositif médical",
+        "description": "Blood Glucose Monitor ajoute à Home Assistant des indications et informations **supplémentaires**, basées sur les données de glucose d'une autre intégration (par exemple Nightscout).\n\n**Cette intégration n'est pas un dispositif médical et ne remplace pas les alarmes de votre système de mesure continue du glucose (MCG), de votre pompe à insuline ou de votre application médicale** (par exemple Dexcom, LibreLink, CamAPS FX ou xDrip+). Laissez ces alarmes activées en permanence.\n\nLes notifications de Home Assistant peuvent être retardées ou ne jamais arriver, par exemple lorsque Home Assistant, votre réseau ou la source des données de glucose est en panne. Ne comptez jamais uniquement sur elles.",
+        "data": {
+          "disclaimer_accepted": "Je comprends que cette intégration ne remplace pas les alarmes de mon MCG, de ma pompe ou de mon application médicale"
+        }
+      },
+      "person": {
+        "title": "Personne et capteur de glucose",
+        "description": "Créez une entrée par personne dont le glucose doit être surveillé.",
+        "data": {
+          "name": "Nom",
+          "glucose_entity": "Capteur de glucose",
+          "person_entity": "Personne"
+        },
+        "data_description": {
+          "name": "Utilisé dans les noms d'entités et les messages, par exemple « Alex ».",
+          "glucose_entity": "Le capteur avec la valeur de glucose actuelle, fourni par l'intégration qui lit le MCG (par exemple Nightscout ou Dexcom).",
+          "person_entity": "Facultatif. Nécessaire pour les fonctions qui ne doivent fonctionner que lorsque la personne est à la maison."
+        }
+      },
+      "already_monitored": {
+        "title": "Capteur de glucose déjà surveillé",
+        "description": "`{entity_id}` est déjà surveillé par : {entries}.\n\nLes deux entrées fonctionnent indépendamment l'une de l'autre.\n\nSoumettez pour continuer, ou fermez cette boîte de dialogue pour annuler."
+      },
+      "sources": {
+        "title": "Données de glucose supplémentaires pour {name}",
+        "description": "Sélectionnez les capteurs de l'intégration de glucose qui fournissent la tendance, la variation par rapport à la mesure précédente et l'heure de la mesure. Les capteurs correspondants du même appareil sont proposés automatiquement.\n\nSi un champ reste vide, les attributs du capteur de glucose sont utilisés à la place (`direction`, `delta` et `date`, tels que fournis par Nightscout).\n\nSans heure de mesure (capteur ou attribut `date`), l'âge des données est inconnu et aucune alarme n'est possible.",
+        "data": {
+          "trend_entity": "Capteur de tendance",
+          "change_entity": "Capteur de variation",
+          "reading_time_entity": "Capteur d'heure de mesure",
+          "glucose_unit": "Unité"
+        },
+        "data_description": {
+          "trend_entity": "Capteur avec la tendance du glucose, par exemple « Tendance du glucose ».",
+          "change_entity": "Capteur avec la variation par rapport à la mesure précédente, par exemple « Variation du glucose ».",
+          "reading_time_entity": "Capteur avec l'heure de la dernière mesure, par exemple « Heure de mesure du glucose ».",
+          "glucose_unit": "Nécessaire uniquement si le capteur de glucose ou de variation n'indique pas d'unité."
+        }
+      }
+    },
+    "error": {
+      "disclaimer_required": "Veuillez confirmer que vous avez lu et compris l'avertissement.",
+      "name_required": "Veuillez saisir un nom.",
+      "unsupported_unit": "Ce capteur a une unité non prise en charge. Les unités prises en charge sont mg/dL et mmol/L.",
+      "not_numeric": "La valeur actuelle de ce capteur n'est pas un nombre.",
+      "unknown_trend": "La valeur actuelle de ce capteur n'est pas une tendance de glucose reconnue par cette intégration.",
+      "invalid_reading_time": "La valeur actuelle de ce capteur n'est pas un horodatage.",
+      "unit_required": "Le capteur de glucose ou de variation n'indique pas d'unité. Veuillez sélectionner l'unité."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Paramètres",
+        "description": "Pour rappel : cette intégration ne remplace pas les alarmes de votre MCG, de votre pompe à insuline ou de votre application médicale.\n\n[Ouvrez le générateur d'automatisations]({builder_url}) pour créer des notifications pour cette personne.",
+        "menu_options": {
+          "sources": "Données de glucose",
+          "urgent_low": "Alarme d'urgence glucose bas",
+          "low": "Alarme de glucose bas",
+          "high": "Alarme de glucose élevé",
+          "urgent_high": "Alarme d'urgence glucose élevé",
+          "rapid_fall": "Alarme de chute rapide",
+          "rapid_rise": "Alarme de hausse rapide",
+          "data_loss": "Alarme d'absence de données",
+          "charging": "Rappel de charge",
+          "cannula_change": "Changement de canule",
+          "sensor_change": "Changement de capteur",
+          "reservoir_change": "Changement de réservoir",
+          "report": "Rapports",
+          "pause": "Pause"
+        }
+      },
+      "sources": {
+        "title": "Données de glucose",
+        "description": "Si un champ facultatif reste vide, les attributs du capteur de glucose sont utilisés à la place. Sans heure de mesure, aucune alarme n'est possible.",
+        "data": {
+          "glucose_entity": "Capteur de glucose",
+          "person_entity": "Personne",
+          "trend_entity": "Capteur de tendance",
+          "change_entity": "Capteur de variation",
+          "reading_time_entity": "Capteur d'heure de mesure",
+          "glucose_unit": "Unité"
+        },
+        "data_description": {
+          "glucose_entity": "Le capteur avec la valeur de glucose actuelle.",
+          "person_entity": "Facultatif. Nécessaire pour les fonctions qui ne doivent fonctionner que lorsque la personne est à la maison.",
+          "trend_entity": "Facultatif. Capteur avec la tendance du glucose.",
+          "change_entity": "Facultatif. Capteur avec la variation par rapport à la mesure précédente.",
+          "reading_time_entity": "Facultatif. Capteur avec l'heure de la dernière mesure.",
+          "glucose_unit": "Facultatif. Nécessaire uniquement si le capteur de glucose ou de variation n'indique pas d'unité."
+        }
+      },
+      "already_monitored": {
+        "title": "Capteur de glucose déjà surveillé",
+        "description": "`{entity_id}` est déjà surveillé par : {entries}.\n\nLes deux entrées fonctionnent indépendamment l'une de l'autre.\n\nSoumettez pour enregistrer, ou fermez cette boîte de dialogue pour annuler."
+      },
+      "urgent_low": {
+        "title": "Alarme d'urgence glucose bas",
+        "description": "Alarme lorsque le glucose reste sous le seuil pendant le délai. Elle se termine lorsque le glucose atteint le seuil plus l'écart de fin (en {unit}). La pause ne s'applique pas à cette alarme.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "threshold_entity": "Seuil",
+          "clear_offset": "Écart de fin",
+          "delay": "Délai",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "clear_offset": "L'alarme se termine au seuil plus cette valeur.",
+          "delay": "Durée pendant laquelle le glucose doit rester sous le seuil.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "low": {
+        "title": "Alarme de glucose bas",
+        "description": "Alarme lorsque le glucose reste sous le seuil pendant le délai. Elle se termine lorsque le glucose atteint le seuil plus l'écart de fin (en {unit}).\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "threshold_entity": "Seuil",
+          "clear_offset": "Écart de fin",
+          "delay": "Délai",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "clear_offset": "L'alarme se termine au seuil plus cette valeur.",
+          "delay": "Durée pendant laquelle le glucose doit rester sous le seuil.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "high": {
+        "title": "Alarme de glucose élevé",
+        "description": "Alarme lorsque le glucose reste au-dessus du seuil pendant le délai. Elle se termine lorsque le glucose redescend au seuil moins l'écart de fin (en {unit}).\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "threshold_entity": "Seuil",
+          "clear_offset": "Écart de fin",
+          "delay": "Délai",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "clear_offset": "L'alarme se termine au seuil moins cette valeur.",
+          "delay": "Durée pendant laquelle le glucose doit rester au-dessus du seuil.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "urgent_high": {
+        "title": "Alarme d'urgence glucose élevé",
+        "description": "Alarme lorsque le glucose reste au-dessus du seuil pendant le délai. Elle se termine lorsque le glucose redescend au seuil moins l'écart de fin (en {unit}).\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "threshold_entity": "Seuil",
+          "clear_offset": "Écart de fin",
+          "delay": "Délai",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "threshold_entity": "Entité avec le seuil, par exemple un capteur de seuil de l'intégration de glucose ou une entrée numérique. Laissez vide pour désactiver l'alarme.",
+          "clear_offset": "L'alarme se termine au seuil moins cette valeur.",
+          "delay": "Durée pendant laquelle le glucose doit rester au-dessus du seuil.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "rapid_fall": {
+        "title": "Alarme de chute rapide",
+        "description": "Alarme lorsque le glucose chute rapidement : selon la tendance des données de glucose, ou selon la vitesse de variation calculée entre les deux dernières mesures. Le seuil de vitesse est en {unit} par minute ; une entité avec l'unité mg/dL/min ou mmol/L/min est prioritaire sur le nombre.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "detection": "Détection",
+          "trend_level": "Tendance à partir de",
+          "rate_limit": "Seuil de vitesse",
+          "rate_entity": "Entité du seuil de vitesse",
+          "delay": "Délai",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "detection": "Désactivée, la tendance des données de glucose ou la vitesse de variation calculée.",
+          "trend_level": "Utilisé avec la détection par tendance.",
+          "rate_limit": "Variation par minute, utilisée avec la détection par vitesse.",
+          "rate_entity": "Facultatif. Entité avec le seuil de vitesse ; prioritaire sur le nombre.",
+          "delay": "Durée pendant laquelle la variation rapide doit persister.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "rapid_rise": {
+        "title": "Alarme de hausse rapide",
+        "description": "Alarme lorsque le glucose monte rapidement : selon la tendance des données de glucose, ou selon la vitesse de variation calculée entre les deux dernières mesures. Le seuil de vitesse est en {unit} par minute ; une entité avec l'unité mg/dL/min ou mmol/L/min est prioritaire sur le nombre.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "detection": "Détection",
+          "trend_level": "Tendance à partir de",
+          "rate_limit": "Seuil de vitesse",
+          "rate_entity": "Entité du seuil de vitesse",
+          "delay": "Délai",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "detection": "Désactivée, la tendance des données de glucose ou la vitesse de variation calculée.",
+          "trend_level": "Utilisé avec la détection par tendance.",
+          "rate_limit": "Variation par minute, utilisée avec la détection par vitesse.",
+          "rate_entity": "Facultatif. Entité avec le seuil de vitesse ; prioritaire sur le nombre.",
+          "delay": "Durée pendant laquelle la variation rapide doit persister.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "data_loss": {
+        "title": "Alarme d'absence de données",
+        "description": "Cette alarme est toujours active. Alarme lorsqu'aucune nouvelle mesure n'arrive dans le délai défini par l'âge maximal des données. Les mesures plus anciennes sont aussi ignorées par les autres alarmes, même si cette alarme est désactivée.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de cette alarme : « déclenchée ou répétée » et « acquittée ou terminée ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "max_age": "Âge maximal des données",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "max_age": "Durée sans nouvelle mesure avant l'alarme.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle une alarme acquittée reste silencieuse. Ensuite, elle se déclenche à nouveau si elle s'applique toujours.",
+          "only_when_home": "Les nouvelles alarmes ne se déclenchent que lorsque la personne est à la maison. Une alarme en cours continue."
+        }
+      },
+      "charging": {
+        "title": "Rappel de charge",
+        "description": "Rappel à partir de l'heure du rappel jusqu'à minuit, tant que le téléphone ne charge pas et que la batterie est égale ou inférieure à la limite. Il se termine dès que le téléphone charge. Une entité pour l'heure ou la limite est prioritaire sur le champ.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de ce rappel : « déclenché ou répété » et « acquitté ou terminé ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` et `phase` comme attributs.",
+        "data": {
+          "battery_entity": "Niveau de batterie",
+          "charging_entity": "État de charge",
+          "reminder_time": "Heure du rappel",
+          "time_entity": "Entité de l'heure du rappel",
+          "battery_limit": "Limite de batterie",
+          "battery_limit_entity": "Entité de la limite de batterie",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "battery_entity": "Capteur avec le niveau de batterie du téléphone en pourcentage. Laissez les deux capteurs vides pour désactiver le rappel.",
+          "charging_entity": "Capteur ou capteur binaire qui indique si le téléphone charge.",
+          "time_entity": "Facultatif. Entité avec l'heure du rappel, par exemple une entrée date/heure ; prioritaire sur le champ.",
+          "battery_limit_entity": "Facultatif. Entité avec la limite en pourcentage ; prioritaire sur le champ.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle un rappel acquitté reste silencieux. Ensuite, il se déclenche à nouveau s'il s'applique toujours.",
+          "only_when_home": "Les nouveaux rappels ne se déclenchent que lorsque la personne est à la maison. Un rappel en cours continue."
+        }
+      },
+      "cannula_change": {
+        "title": "Changement de canule",
+        "description": "Rappel lorsque le changement de canule (cathéter ou set de perfusion, aussi appelé changement de site ; avec une pompe patch, le pod) est dû : au dernier changement plus la durée de port, ou à une heure fixe ce jour-là. Le dernier changement provient d'une entité, par exemple de l'intégration de glucose ; sans entité, il est enregistré avec le bouton « Canule changée » ou l'action « Enregistrer un changement ». Le rappel se termine au changement suivant. Une entité pour la durée de port ou l'heure est prioritaire sur le champ.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de ce rappel : « déclenché ou répété », « acquitté ou terminé » et, avec un préavis, « imminent ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `due`, `last_change` et `phase` comme attributs.",
+        "data": {
+          "wear_duration": "Durée de port",
+          "wear_duration_entity": "Entité de la durée de port",
+          "last_change_entity": "Entité du dernier changement",
+          "due_time": "Heure fixe",
+          "time_entity": "Entité de l'heure fixe",
+          "warning": "Préavis",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "wear_duration": "Durée de port de la canule. Laissez vide pour désactiver le rappel.",
+          "wear_duration_entity": "Facultatif. Entité avec la durée de port en d, h ou min ; prioritaire sur le champ.",
+          "last_change_entity": "Facultatif. Entité avec l'heure du dernier changement. Sans elle, les changements sont enregistrés avec le bouton ou l'action.",
+          "due_time": "Facultatif. Rappeler à cette heure le jour de l'échéance au lieu d'exactement à la fin de la durée de port.",
+          "time_entity": "Facultatif. Entité avec l'heure fixe, par exemple une entrée date/heure ; prioritaire sur le champ.",
+          "warning": "Facultatif. Déclenche l'événement « imminent » ce laps de temps avant le rappel.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle un rappel acquitté reste silencieux. Ensuite, il se déclenche à nouveau si le changement est toujours dû.",
+          "only_when_home": "Les nouveaux rappels et préavis ne se déclenchent que lorsque la personne est à la maison. Un rappel en cours continue."
+        }
+      },
+      "sensor_change": {
+        "title": "Changement de capteur",
+        "description": "Rappel lorsque le changement de capteur est dû : au dernier changement plus la durée de port, ou à une heure fixe ce jour-là. Le dernier changement provient d'une entité, par exemple de l'intégration de glucose ; sans entité, il est enregistré avec le bouton « Capteur changé » ou l'action « Enregistrer un changement ». Le rappel se termine au changement suivant. Une entité pour la durée de port ou l'heure est prioritaire sur le champ.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de ce rappel : « déclenché ou répété », « acquitté ou terminé » et, avec un préavis, « imminent ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `due`, `last_change` et `phase` comme attributs.",
+        "data": {
+          "wear_duration": "Durée de port",
+          "wear_duration_entity": "Entité de la durée de port",
+          "last_change_entity": "Entité du dernier changement",
+          "due_time": "Heure fixe",
+          "time_entity": "Entité de l'heure fixe",
+          "warning": "Préavis",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "wear_duration": "Durée de port du capteur. Laissez vide pour désactiver le rappel.",
+          "wear_duration_entity": "Facultatif. Entité avec la durée de port en d, h ou min ; prioritaire sur le champ.",
+          "last_change_entity": "Facultatif. Entité avec l'heure du dernier changement. Sans elle, les changements sont enregistrés avec le bouton ou l'action.",
+          "due_time": "Facultatif. Rappeler à cette heure le jour de l'échéance au lieu d'exactement à la fin de la durée de port.",
+          "time_entity": "Facultatif. Entité avec l'heure fixe, par exemple une entrée date/heure ; prioritaire sur le champ.",
+          "warning": "Facultatif. Déclenche l'événement « imminent » ce laps de temps avant le rappel.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle un rappel acquitté reste silencieux. Ensuite, il se déclenche à nouveau si le changement est toujours dû.",
+          "only_when_home": "Les nouveaux rappels et préavis ne se déclenchent que lorsque la personne est à la maison. Un rappel en cours continue."
+        }
+      },
+      "reservoir_change": {
+        "title": "Changement de réservoir",
+        "description": "Rappel lorsque le changement de réservoir (aussi appelé cartouche) est dû : au dernier changement plus la durée de port, ou à une heure fixe ce jour-là. Le dernier changement provient d'une entité, par exemple de l'intégration de glucose ; sans entité, il est enregistré avec le bouton « Réservoir changé » ou l'action « Enregistrer un changement ». Le rappel se termine au changement suivant. Une entité pour la durée de port ou l'heure est prioritaire sur le champ.\n\nLes notifications sont des automatisations avec le déclencheur « Un événement a été reçu » sur l'entité d'événement de ce rappel : « déclenché ou répété », « acquitté ou terminé » et, avec un préavis, « imminent ». L'entité fournit notamment `title`, `message`, `tag`, `ack_action`, `due`, `last_change` et `phase` comme attributs.",
+        "data": {
+          "wear_duration": "Durée de port",
+          "wear_duration_entity": "Entité de la durée de port",
+          "last_change_entity": "Entité du dernier changement",
+          "due_time": "Heure fixe",
+          "time_entity": "Entité de l'heure fixe",
+          "warning": "Préavis",
+          "repeat": "Intervalle de répétition",
+          "snooze": "Mise en sourdine",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "wear_duration": "Durée de port du réservoir. Laissez vide pour désactiver le rappel.",
+          "wear_duration_entity": "Facultatif. Entité avec la durée de port en d, h ou min ; prioritaire sur le champ.",
+          "last_change_entity": "Facultatif. Entité avec l'heure du dernier changement. Sans elle, les changements sont enregistrés avec le bouton ou l'action.",
+          "due_time": "Facultatif. Rappeler à cette heure le jour de l'échéance au lieu d'exactement à la fin de la durée de port.",
+          "time_entity": "Facultatif. Entité avec l'heure fixe, par exemple une entrée date/heure ; prioritaire sur le champ.",
+          "warning": "Facultatif. Déclenche l'événement « imminent » ce laps de temps avant le rappel.",
+          "repeat": "0 ne notifie qu'une seule fois.",
+          "snooze": "Durée pendant laquelle un rappel acquitté reste silencieux. Ensuite, il se déclenche à nouveau si le changement est toujours dû.",
+          "only_when_home": "Les nouveaux rappels et préavis ne se déclenchent que lorsque la personne est à la maison. Un rappel en cours continue."
+        }
+      },
+      "report": {
+        "title": "Rapports",
+        "description": "Un rapport par période pendant laquelle l'entité sélectionnée est activée, par exemple par bloc d'une planification. À la fin d'une période, l'entité d'événement « Rapport » de cette personne se déclenche avec les statistiques, le début et la fin de la période, et le capteur « Dernier rapport » est mis à jour. Les statistiques proviennent de l'historique (recorder).",
+        "data": {
+          "report_entity": "Périodes",
+          "only_when_home": "Uniquement lorsque la personne est à la maison"
+        },
+        "data_description": {
+          "report_entity": "Planification, entrée booléenne ou capteur binaire. Laissez vide pour désactiver les rapports.",
+          "only_when_home": "L'événement « Rapport » n'est déclenché que lorsque la personne est à la maison. Le rapport et le capteur « Dernier rapport » sont tout de même mis à jour."
+        }
+      },
+      "pause": {
+        "title": "Pause",
+        "description": "L'interrupteur de pause rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant cette durée. L'alarme d'urgence glucose bas n'est jamais mise en pause. À la fin de la pause, les alarmes sont immédiatement vérifiées à nouveau.",
+        "data": {
+          "duration": "Durée de la pause"
+        }
+      }
+    },
+    "error": {
+      "unsupported_unit": "Ce capteur a une unité non prise en charge. Les unités prises en charge sont mg/dL et mmol/L.",
+      "not_numeric": "La valeur actuelle de ce capteur n'est pas un nombre.",
+      "unknown_trend": "La valeur actuelle de ce capteur n'est pas une tendance de glucose reconnue par cette intégration.",
+      "invalid_reading_time": "La valeur actuelle de ce capteur n'est pas un horodatage.",
+      "unit_required": "Le capteur de glucose ou de variation n'indique pas d'unité. Veuillez sélectionner l'unité.",
+      "threshold_unit_required": "Cette entité n'indique pas d'unité. Définissez l'unité dans Données de glucose.",
+      "person_required": "Sélectionnez d'abord une personne dans Données de glucose.",
+      "rate_unit_required": "Cette entité doit indiquer l'unité mg/dL/min ou mmol/L/min.",
+      "rate_limit_required": "Saisissez un seuil de vitesse ou sélectionnez une entité.",
+      "charging_entities_required": "Sélectionnez à la fois le capteur de batterie et le capteur de charge, ou aucun des deux.",
+      "unknown_charging_state": "L'état actuel de cette entité n'indique pas si le téléphone charge.",
+      "invalid_time": "La valeur actuelle de cette entité n'est pas une heure.",
+      "not_on_off": "Cette entité doit être activée ou désactivée.",
+      "invalid_datetime": "La valeur actuelle de cette entité n'est pas une date et une heure.",
+      "duration_unit_required": "Cette entité doit indiquer l'unité d, h ou min.",
+      "wear_duration_required": "Saisissez une durée de port ou sélectionnez une entité."
+    }
+  },
+  "entity": {
+    "button": {
+      "acknowledge_urgent_low": {
+        "name": "Acquitter l'alarme d'urgence glucose bas"
+      },
+      "acknowledge_low": {
+        "name": "Acquitter l'alarme de glucose bas"
+      },
+      "acknowledge_data_loss": {
+        "name": "Acquitter l'alarme d'absence de données"
+      },
+      "acknowledge_high": {
+        "name": "Acquitter l'alarme de glucose élevé"
+      },
+      "acknowledge_urgent_high": {
+        "name": "Acquitter l'alarme d'urgence glucose élevé"
+      },
+      "acknowledge_rapid_fall": {
+        "name": "Acquitter l'alarme de chute rapide"
+      },
+      "acknowledge_rapid_rise": {
+        "name": "Acquitter l'alarme de hausse rapide"
+      },
+      "acknowledge_charging": {
+        "name": "Acquitter le rappel de charge"
+      },
+      "acknowledge_cannula_change": {
+        "name": "Acquitter le rappel de changement de canule"
+      },
+      "acknowledge_sensor_change": {
+        "name": "Acquitter le rappel de changement de capteur"
+      },
+      "acknowledge_reservoir_change": {
+        "name": "Acquitter le rappel de changement de réservoir"
+      },
+      "cannula_change_changed": {
+        "name": "Canule changée"
+      },
+      "sensor_change_changed": {
+        "name": "Capteur changé"
+      },
+      "reservoir_change_changed": {
+        "name": "Réservoir changé"
+      }
+    },
+    "event": {
+      "urgent_low_alarm": {
+        "name": "Alarme d'urgence glucose bas",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_low_alert": "Alarme d'urgence glucose bas déclenchée ou répétée",
+              "urgent_low_ended": "Alarme d'urgence glucose bas acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "low_alarm": {
+        "name": "Alarme de glucose bas",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "low_alert": "Alarme de glucose bas déclenchée ou répétée",
+              "low_ended": "Alarme de glucose bas acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "high_alarm": {
+        "name": "Alarme de glucose élevé",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "high_alert": "Alarme de glucose élevé déclenchée ou répétée",
+              "high_ended": "Alarme de glucose élevé acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarme d'urgence glucose élevé",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "urgent_high_alert": "Alarme d'urgence glucose élevé déclenchée ou répétée",
+              "urgent_high_ended": "Alarme d'urgence glucose élevé acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarme de chute rapide",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_fall_alert": "Alarme de chute rapide déclenchée ou répétée",
+              "rapid_fall_ended": "Alarme de chute rapide acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarme de hausse rapide",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "rapid_rise_alert": "Alarme de hausse rapide déclenchée ou répétée",
+              "rapid_rise_ended": "Alarme de hausse rapide acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarme d'absence de données",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "data_loss_alert": "Alarme d'absence de données déclenchée ou répétée",
+              "data_loss_ended": "Alarme d'absence de données acquittée ou terminée"
+            }
+          }
+        }
+      },
+      "charging_alarm": {
+        "name": "Rappel de charge",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "charging_alert": "Rappel de charge déclenché ou répété",
+              "charging_ended": "Rappel de charge acquitté ou terminé"
+            }
+          }
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Rappel de changement de canule",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "cannula_change_alert": "Rappel de changement de canule déclenché ou répété",
+              "cannula_change_ended": "Rappel de changement de canule acquitté ou terminé",
+              "cannula_change_soon": "Changement de canule imminent"
+            }
+          }
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Rappel de changement de capteur",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "sensor_change_alert": "Rappel de changement de capteur déclenché ou répété",
+              "sensor_change_ended": "Rappel de changement de capteur acquitté ou terminé",
+              "sensor_change_soon": "Changement de capteur imminent"
+            }
+          }
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Rappel de changement de réservoir",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "reservoir_change_alert": "Rappel de changement de réservoir déclenché ou répété",
+              "reservoir_change_ended": "Rappel de changement de réservoir acquitté ou terminé",
+              "reservoir_change_soon": "Changement de réservoir imminent"
+            }
+          }
+        }
+      },
+      "report": {
+        "name": "Rapport",
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "report": "Rapport créé"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "status": {
+        "name": "Statut",
+        "state": {
+          "no_data": "Aucune donnée",
+          "urgent_low": "Urgence glucose bas",
+          "low": "Glucose bas",
+          "rapid_fall": "Chute rapide",
+          "urgent_high": "Urgence glucose élevé",
+          "high": "Glucose élevé",
+          "rapid_rise": "Hausse rapide",
+          "paused": "En pause",
+          "ok": "OK"
+        },
+        "state_attributes": {
+          "glucose": {
+            "name": "Glucose"
+          },
+          "unit": {
+            "name": "Unité"
+          },
+          "trend_arrow": {
+            "name": "Tendance"
+          },
+          "reading_time": {
+            "name": "Heure de mesure"
+          },
+          "active_alarms": {
+            "name": "Alarmes actives"
+          },
+          "snoozed_alarms": {
+            "name": "Alarmes en sourdine"
+          },
+          "rate": {
+            "name": "Vitesse de variation"
+          }
+        }
+      },
+      "urgent_low_alarm": {
+        "name": "Alarme d'urgence glucose bas",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "low_alarm": {
+        "name": "Alarme de glucose bas",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "data_loss_alarm": {
+        "name": "Alarme d'absence de données",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "high_alarm": {
+        "name": "Alarme de glucose élevé",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "urgent_high_alarm": {
+        "name": "Alarme d'urgence glucose élevé",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "rapid_fall_alarm": {
+        "name": "Alarme de chute rapide",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "rapid_rise_alarm": {
+        "name": "Alarme de hausse rapide",
+        "state": {
+          "idle": "Inactive",
+          "pending": "En attente",
+          "active": "Active",
+          "snoozed": "En sourdine"
+        }
+      },
+      "charging_alarm": {
+        "name": "Rappel de charge",
+        "state": {
+          "idle": "Inactif",
+          "pending": "En attente",
+          "active": "Actif",
+          "snoozed": "En sourdine"
+        }
+      },
+      "cannula_change_alarm": {
+        "name": "Rappel de changement de canule",
+        "state": {
+          "idle": "Inactif",
+          "pending": "En attente",
+          "active": "Actif",
+          "snoozed": "En sourdine"
+        }
+      },
+      "sensor_change_alarm": {
+        "name": "Rappel de changement de capteur",
+        "state": {
+          "idle": "Inactif",
+          "pending": "En attente",
+          "active": "Actif",
+          "snoozed": "En sourdine"
+        }
+      },
+      "reservoir_change_alarm": {
+        "name": "Rappel de changement de réservoir",
+        "state": {
+          "idle": "Inactif",
+          "pending": "En attente",
+          "active": "Actif",
+          "snoozed": "En sourdine"
+        }
+      },
+      "cannula_change_due": {
+        "name": "Échéance du changement de canule",
+        "state_attributes": {
+          "last_change": {
+            "name": "Dernier changement"
+          },
+          "wear_duration_h": {
+            "name": "Durée de port"
+          }
+        }
+      },
+      "sensor_change_due": {
+        "name": "Échéance du changement de capteur",
+        "state_attributes": {
+          "last_change": {
+            "name": "Dernier changement"
+          },
+          "wear_duration_h": {
+            "name": "Durée de port"
+          }
+        }
+      },
+      "reservoir_change_due": {
+        "name": "Échéance du changement de réservoir",
+        "state_attributes": {
+          "last_change": {
+            "name": "Dernier changement"
+          },
+          "wear_duration_h": {
+            "name": "Durée de port"
+          }
+        }
+      },
+      "last_report": {
+        "name": "Dernier rapport",
+        "state_attributes": {
+          "start": {
+            "name": "Début"
+          },
+          "end": {
+            "name": "Fin"
+          },
+          "duration_min": {
+            "name": "Durée"
+          },
+          "glucose_min": {
+            "name": "Minimum"
+          },
+          "glucose_max": {
+            "name": "Maximum"
+          },
+          "glucose_mean": {
+            "name": "Moyenne"
+          },
+          "unit": {
+            "name": "Unité"
+          },
+          "below": {
+            "name": "Sous la cible"
+          },
+          "in_range": {
+            "name": "Dans la cible"
+          },
+          "above": {
+            "name": "Au-dessus de la cible"
+          },
+          "coverage": {
+            "name": "Couverture des données"
+          },
+          "alarms": {
+            "name": "Alarmes"
+          },
+          "low_alarms": {
+            "name": "Alarmes de glucose bas"
+          },
+          "message": {
+            "name": "Message"
+          }
+        }
+      }
+    },
+    "switch": {
+      "pause": {
+        "name": "Mettre les alarmes en pause"
+      }
+    }
+  },
+  "exceptions": {
+    "entry_not_found": {
+      "message": "Aucune entrée Blood Glucose Monitor avec l'ID {entry_id}."
+    },
+    "entry_not_loaded": {
+      "message": "L'entrée {name} n'est pas chargée."
+    },
+    "change_not_enabled": {
+      "message": "Ce rappel de changement de {name} n'a pas de durée de port."
+    },
+    "change_from_entity": {
+      "message": "Le dernier changement de ce rappel de {name} provient d'une entité et ne peut pas être enregistré."
+    },
+    "change_in_future": {
+      "message": "Le changement ne peut pas être dans le futur."
+    }
+  },
+  "issues": {
+    "no_reading_time": {
+      "title": "Aucune heure de mesure pour {name}",
+      "description": "Les données de glucose de {name} n'ont pas d'heure de mesure. Sans elle, l'âge des données est inconnu et aucune alarme n'est possible.\n\nSélectionnez un capteur d'heure de mesure sous **Configurer → Données de glucose**."
+    }
+  },
+  "selector": {
+    "alarm": {
+      "options": {
+        "urgent_low": "Urgence glucose bas",
+        "low": "Glucose bas",
+        "data_loss": "Absence de données",
+        "high": "Glucose élevé",
+        "urgent_high": "Urgence glucose élevé",
+        "rapid_fall": "Chute rapide",
+        "rapid_rise": "Hausse rapide",
+        "charging": "Rappel de charge",
+        "cannula_change": "Changement de canule",
+        "sensor_change": "Changement de capteur",
+        "reservoir_change": "Changement de réservoir"
+      }
+    },
+    "change": {
+      "options": {
+        "cannula_change": "Canule",
+        "sensor_change": "Capteur",
+        "reservoir_change": "Réservoir"
+      }
+    },
+    "alarm_text": {
+      "options": {
+        "high": "{name} : glucose élevé",
+        "urgent_high": "{name} : urgence glucose élevé",
+        "rapid_fall": "{name} : chute rapide du glucose",
+        "rapid_rise": "{name} : hausse rapide du glucose",
+        "urgent_low": "{name} : urgence glucose bas",
+        "low": "{name} : glucose bas",
+        "data_loss": "{name} : aucune donnée de glucose",
+        "data_loss_message": "Aucune nouvelle mesure depuis {minutes} min.",
+        "acknowledged": "Acquitté.",
+        "resolved": "Terminé.",
+        "charging": "{name} : charger le téléphone",
+        "charging_message": "Batterie à {battery} % et pas en charge.",
+        "report": "{name} : rapport",
+        "report_message": "{period} : {in_range} % dans la cible, {below} % en dessous, {above} % au-dessus. Moyenne {mean} {unit} ({min}–{max}). Alarmes de glucose bas : {low_alarms}.",
+        "report_message_no_range": "{period} : moyenne {mean} {unit} ({min}–{max}). Alarmes de glucose bas : {low_alarms}.",
+        "report_no_data": "{period} : aucune donnée de glucose.",
+        "cannula_change": "{name} : changer la canule",
+        "cannula_change_soon": "{name} : changement de canule imminent",
+        "sensor_change": "{name} : changer le capteur",
+        "sensor_change_soon": "{name} : changement de capteur imminent",
+        "reservoir_change": "{name} : changer le réservoir",
+        "reservoir_change_soon": "{name} : changement de réservoir imminent",
+        "change_message": "Porté depuis {duration}.",
+        "change_soon_message": "Échéance dans {duration}."
+      }
+    },
+    "detection": {
+      "options": {
+        "off": "Désactivée",
+        "trend": "Tendance des données de glucose",
+        "rate": "Vitesse de variation calculée"
+      }
+    },
+    "trend_level": {
+      "options": {
+        "quickly": "Rapide ou plus rapide",
+        "very_quickly": "Uniquement très rapide"
+      }
+    }
+  },
+  "services": {
+    "acknowledge": {
+      "name": "Acquitter une alarme",
+      "description": "Acquitte une ou toutes les alarmes d'une personne. Les alarmes des autres entrées ne sont pas affectées.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Personne",
+          "description": "L'entrée de la personne."
+        },
+        "alarm": {
+          "name": "Alarme",
+          "description": "Laissez vide pour acquitter toutes les alarmes de la personne."
+        }
+      }
+    },
+    "record_change": {
+      "name": "Enregistrer un changement",
+      "description": "Enregistre un changement de canule, de capteur ou de réservoir d'une personne, maintenant ou à l'heure indiquée. Impossible lorsque le dernier changement provient d'une entité.",
+      "fields": {
+        "config_entry_id": {
+          "name": "Personne",
+          "description": "L'entrée de la personne."
+        },
+        "change": {
+          "name": "Changement",
+          "description": "Ce qui a été changé."
+        },
+        "time": {
+          "name": "Heure",
+          "description": "Facultatif. Laissez vide pour maintenant."
+        }
+      }
+    }
+  }
+}

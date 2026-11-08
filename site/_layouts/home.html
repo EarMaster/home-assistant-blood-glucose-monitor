@@ -2,16 +2,17 @@
 layout: default
 bodyClass: "page-home"
 ---
-
+{% include lang.html %}
 <div class="intro">
   <div class="container">
     <div class="row justify-content-start">
       <div class="col-12 col-md-8">
-        <h1>{{ page.headline }}</h1>
-        <p>{{ page.lead }}</p>
+        <h1>{{ t.home.headline }}</h1>
+        <p>{{ t.home.lead }}</p>
         <p class="intro-actions">
-          <a class="button" href="{{ '/builder.html' | relative_url }}">Automation builder</a>
-          <a class="button button-secondary" href="{{ '/docs.html' | relative_url }}">Documentation</a>
+          <a class="button" href="{{ builder_url }}">{{ t.home.button_builder }}</a>
+          <a class="button button-secondary" href="{{ docs_url }}">{{ t.home.button_docs }}</a>
+          {% include my-ha.html alt=t.home.my_ha_alt %}
         </p>
       </div>
       <div class="col-12 col-md-4 d-none d-md-block text-center">

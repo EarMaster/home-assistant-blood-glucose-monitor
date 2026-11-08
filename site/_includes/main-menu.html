@@ -1,10 +1,8 @@
+{% include lang.html %}
 <div id="main-menu" class="main-menu">
-  {% assign mainmenu = site.data.menus.main | sort: 'weight'  %}
   <ul>
-    {% for item in mainmenu %}
-    <li class="{% if item.url == page.url %}active{% endif %}">
-      <a href="{{ item.url | relative_url }}">{{ item.name }}</a>
-    </li>
-    {% endfor %}
+    <li class="{% if page.key == 'home' %}active{% endif %}"><a href="{{ home_url }}">{{ t.menu.info }}</a></li>
+    <li class="{% if page.key == 'builder' %}active{% endif %}"><a href="{{ builder_url }}">{{ t.menu.builder }}</a></li>
+    <li class="{% if page.key == 'docs' %}active{% endif %}"><a href="{{ docs_url }}">{{ t.menu.docs }}</a></li>
   </ul>
 </div>

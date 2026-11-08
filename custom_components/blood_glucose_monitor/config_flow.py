@@ -47,7 +47,6 @@ from .const import (
     ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
-    BUILDER_URL,
     CHANGE_ALARMS,
     CONF_BATTERY_ENTITY,
     CONF_BATTERY_LIMIT,
@@ -97,7 +96,7 @@ from .const import (
     TREND_LEVELS,
 )
 from .glucose import parse_number, parse_timestamp, parse_trend
-from .links import builder_url
+from .links import builder_page, builder_url
 from .monitor import AlarmMonitor, duration
 from .source import (
     MG_DL,
@@ -590,7 +589,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         entry = self.config_entry
         if entry.state is ConfigEntryState.LOADED:
             return builder_url(self.hass, entry)
-        return BUILDER_URL
+        return builder_page(self.hass)
 
     async def async_step_sources(
         self, user_input: dict[str, Any] | None = None

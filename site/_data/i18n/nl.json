@@ -1,0 +1,286 @@
+{
+  "language": "Nederlands",
+  "menu": {
+    "info": "Informatie",
+    "builder": "Automatiseringsbouwer",
+    "docs": "Documentatie",
+    "language": "Taal"
+  },
+  "footer": {
+    "disclaimer": "Geen medisch hulpmiddel. Vervangt niet de alarmen van je CGM, insulinepomp of medische app.",
+    "theme": "Thema: %theme% van Zerostatic (MIT)"
+  },
+  "caution": {
+    "title": "Geen medisch hulpmiddel. Geen vervanging voor echte alarmen.",
+    "text": "Blood Glucose Monitor voegt alleen <em>extra</em> aanwijzingen toe aan Home Assistant. Het vervangt <b>niet</b> de alarmen van je CGM, insulinepomp of medische app (bijvoorbeeld Dexcom, LibreLink, CamAPS FX of xDrip+). Laat die alarmen altijd ingeschakeld. Meldingen van Home Assistant kunnen vertraagd zijn of helemaal niet aankomen, bijvoorbeeld als Home Assistant, je netwerk of de bron van de glucosegegevens uitvalt. Vertrouw er nooit alleen op. Gebruik op eigen risico; er is geen enkele garantie."
+  },
+  "home": {
+    "title": "Informatie",
+    "description": "Extra glucose-aanwijzingen voor Home Assistant: alarmen, herinneringen en rapporten als bouwstenen voor je eigen meldingen. Geen medisch hulpmiddel.",
+    "headline": "Extra glucose-aanwijzingen voor Home Assistant",
+    "lead": "Blood Glucose Monitor maakt van de glucosegegevens van een andere integratie (bijvoorbeeld Nightscout of Dexcom) optionele alarmen, herinneringen en rapporten, één item per persoon. De integratie bepaalt wanneer; jij bepaalt hoe je een melding krijgt.",
+    "what_title": "Wat de integratie doet",
+    "cards": [
+      {
+        "title": "Glucosealarmen",
+        "text": "Urgent laag, laag, hoog, urgent hoog, snel dalend, snel stijgend en geen metingen, elk met vertraging, herhaling, bevestigen, sluimeren en opnieuw controleren. Urgent laag wordt nooit gepauzeerd."
+      },
+      {
+        "title": "Herinneringen",
+        "text": "Oplaadherinnering voor de telefoon in de avond, en wisselherinneringen voor canule, CGM-sensor en insulinereservoir met een optionele waarschuwing vooraf."
+      },
+      {
+        "title": "Rapporten",
+        "text": "Een samenvatting per periode van een schema (bijvoorbeeld nacht of school): minimum, maximum, gemiddelde, tijd binnen bereik en de alarmen van de periode."
+      },
+      {
+        "title": "Jouw meldingen",
+        "text": "Elk alarm en het rapport hebben een gebeurtenisentiteit. Je eigen automatiseringen bepalen hoe je een melding krijgt: telefoon, speaker, lamp. De <a href=\"%builder%\">automatiseringsbouwer</a> bereidt ze voor."
+      }
+    ],
+    "shot_device_alt": "Apparaatpagina van de persoon Alex met status, alarmsensoren, gebeurtenisentiteiten en knoppen",
+    "shot_device": "Eén apparaat per persoon: status, per alarm een statussensor, een gebeurtenisentiteit en een bevestigknop, de wisselherinneringen en het laatste rapport.",
+    "shot_notifications_alt": "Meldingen van een alarm laag en een rapport met de kant-en-klare teksten",
+    "shot_notifications": "Meldingen van een automatisering uit de bouwer, met de kant-en-klare teksten van de integratie (hier als Home Assistant-meldingen).",
+    "secondary_title": "Bewust aanvullend",
+    "secondary_text": "De integratie is bedoeld als tweede lijn: extra informatie voor het huishouden, een aanwijzing via de speaker 's nachts, een herinnering dat de telefoon moet worden opgeladen. Ze is afhankelijk van Home Assistant, het netwerk, de glucose-integratie en de telefoon, en elk daarvan kan zonder waarschuwing uitvallen. De primaire alarmen horen bij de CGM, de pomp of de medische app.",
+    "secondary_points": [
+      "Zonder meettijdstip van de glucosegegevens zijn er geen glucosealarmen; een reparatiemelding wijst je daarop. Er wordt niets gegokt.",
+      "Verouderde gegevens starten en beëindigen geen glucosealarm; ontbrekende gegevens vallen onder het alarm geen metingen.",
+      "Alarmstatussen blijven behouden bij een herstart van Home Assistant."
+    ],
+    "start_title": "Aan de slag",
+    "start_steps": [
+      "Installeer <b>Blood Glucose Monitor</b> via de Marketplace: voeg <code>EarMaster/home-assistant-blood-glucose-monitor</code> toe als aangepaste repository van het type <i>Integratie</i>, download hem en herstart Home Assistant.",
+      "Voeg de integratie toe onder <b>Instellingen → Apparaten &amp; diensten</b>, één keer per persoon: bevestig de mededeling, voer de naam in en selecteer de glucosesensor en, optioneel, de persoon.",
+      "Schakel onder <b>Configureren</b> in wat je nodig hebt: drempelwaarden voor de alarmen, de oplaad- en wisselherinneringen, de periodes voor rapporten.",
+      "Maak de meldingen: open de <a href=\"%builder%\">automatiseringsbouwer</a> via de apparaatpagina van de persoon (<b>Bezoeken</b>) of via het menu <b>Configureren</b>. De bouwer kent de entiteiten van die persoon al."
+    ],
+    "button_builder": "Automatiseringsbouwer",
+    "button_docs": "Documentatie",
+    "shot_setup_alt": "Installatievenster met de mededeling dat de integratie geen medisch hulpmiddel is",
+    "shot_setup": "De installatie begint met de mededeling, die bevestigd moet worden.",
+    "shot_options_alt": "Menu Configureren met één onderdeel per alarm en de link naar de automatiseringsbouwer",
+    "shot_options": "Configureren: één onderdeel per alarm, de herinneringen, rapporten en pauze, en de link naar de automatiseringsbouwer.",
+    "entities_title": "Entiteiten per persoon",
+    "entities_head": [
+      "Entiteit",
+      "Doel"
+    ],
+    "entities": [
+      [
+        "Sensor <i>Status</i>",
+        "De belangrijkste huidige status, met de laatste glucosewaarde, de trend en de actieve alarmen als attributen."
+      ],
+      [
+        "Gebeurtenis <i>Alarm …</i> / <i>Herinnering …</i>",
+        "<b>Trigger voor meldingen.</b> Eén per alarm; wordt geactiveerd bij start, herhaling, bevestiging en einde, en vóór een nodige wissel (optionele waarschuwing vooraf)."
+      ],
+      [
+        "Sensor <i>Alarm …</i> / <i>Herinnering …</i>",
+        "Status van het alarm (<code>idle</code>, <code>pending</code>, <code>active</code>, <code>snoozed</code>) voor dashboards en voorwaarden. Verandert niet bij een herhaling."
+      ],
+      [
+        "Knop <i>… bevestigen</i>",
+        "Bevestigt het alarm voor de duur van het sluimeren."
+      ],
+      [
+        "Schakelaar <i>Alarmen pauzeren</i>",
+        "Dempt alle alarmen behalve urgent laag gedurende de ingestelde tijd."
+      ],
+      [
+        "Sensor <i>… nodig</i>, knop <i>… gewisseld</i>",
+        "Tijdstip waarop een wissel nodig is, en het registreren van een wissel."
+      ],
+      [
+        "Gebeurtenis <i>Rapport</i>, sensor <i>Laatste rapport</i>",
+        "Het rapport van elke periode; de sensor bevat de tijd binnen bereik van het laatste rapport."
+      ]
+    ],
+    "shot_status_alt": "Statussensor van Alex met een lage glucose",
+    "shot_status": "De statussensor met de belangrijkste huidige status (verzonnen gegevens).",
+    "screenshots_note": "De screenshots tonen de Engelse interface van Home Assistant.",
+    "about_title": "Over dit project",
+    "about_text": "Ik ontwikkel Blood Glucose Monitor voor mezelf en mijn gezin, en hoop dat het ook anderen helpt. Wil je mijn werk steunen? Dat kan via <a href=\"%liberapay%\">Liberapay</a> of <a href=\"%buymeacoffee%\">Buy Me a Coffee</a>.",
+    "contribute_title": "Doe mee",
+    "contribute_text": "Blood Glucose Monitor is een open project, en bijdragen zijn welkom:",
+    "contribute_points": [
+      "<b>Ideeën en wensen</b>: wat zou je helpen in het dagelijks leven met diabetes?",
+      "<b>Foutmeldingen</b>: werkt iets niet zoals beschreven? Beschrijf wat je verwachtte en wat er gebeurde.",
+      "<b>Vertalingen</b>: verbeteringen aan de bestaande talen of een nieuwe taal voor de integratie en deze site."
+    ],
+    "contribute_link": "Open een <a href=\"%issues%\">issue op GitHub</a> of stuur een pull request.",
+    "my_ha_alt": "Open je Home Assistant-instantie en open deze repository in de Marketplace."
+  },
+  "builder": {
+    "title": "Automatiseringsbouwer",
+    "description": "Bereid een meldingsautomatisering voor de gebeurtenissen van Blood Glucose Monitor voor.",
+    "lead": "Kies de gebeurtenissen en de telefoon; de bouwer bereidt één automatisering voor die een melding stuurt met de kant-en-klare tekst van de integratie. Pas haar in Home Assistant aan als je meer wilt.",
+    "caution_title": "Alleen aanvullende meldingen.",
+    "caution_text": "Deze meldingen kunnen vertraagd zijn of ontbreken. Laat de alarmen van je CGM, insulinepomp of medische app ingeschakeld.",
+    "prefill_note": "Vooraf ingevuld vanuit Home Assistant: alleen de gebeurtenissen die voor deze persoon zijn ingesteld worden getoond, met hun entiteit-ID's.",
+    "manual_note": "Tip: open de bouwer vanuit Home Assistant (apparaatpagina van de persoon → <b>Bezoeken</b>, of <b>Configureren</b> van het item), dan kloppen de entiteit-ID's. Hier worden ze afgeleid uit de naam; controleer ze onder <b>Instellingen → Apparaten &amp; diensten → Entiteiten</b>.",
+    "person": "Persoon",
+    "notify": "Meldingsactie",
+    "notify_hint": "De notify-actie van de telefoon, bijvoorbeeld <code>notify.mobile_app_pixel_8</code> (zie <b>Ontwikkelhulpmiddelen → Acties</b>). Meerdere gescheiden door komma's.",
+    "ack": "Bevestigknop in alarmmeldingen",
+    "events_title": "Gebeurtenissen",
+    "events_hint": "Gestart of herhaald → melding. Bevestigd of voorbij → de melding wordt weer verwijderd.",
+    "output_title": "Automatisering",
+    "copy": "YAML kopiëren",
+    "paste_hint": "In Home Assistant: <b>Instellingen → Automatiseringen &amp; scènes → Automatisering maken → Nieuwe automatisering maken</b>, dan <b>⋮ → Bewerken in YAML</b>, plakken en opslaan.",
+    "shot_automation_alt": "Automatiseringseditor met de trigger Gebeurtenis ontvangen op het alarm laag en het rapport",
+    "shot_automation": "Het resultaat in de automatiseringseditor: de trigger <i>Gebeurtenis ontvangen</i> met de geselecteerde gebeurtenistypes.",
+    "requirements_title": "Wanneer het wordt geactiveerd"
+  },
+  "docs": {
+    "title": "Documentatie",
+    "description": "Gebeurtenisentiteiten, gebeurtenistypes, voorwaarden en attributen van Blood Glucose Monitor.",
+    "lead": "Welke gebeurtenissen er zijn, wanneer ze worden geactiveerd en welke waarden ze meebrengen. Voor installatie en opties zie de <a href=\"%readme%\">README op GitHub</a>.",
+    "events_title": "Gebeurtenissen en automatiseringen",
+    "events_text": "Elk actief alarm en elke herinnering heeft een eigen <b>gebeurtenisentiteit</b> naast de statussensor en de bevestigknop, bijvoorbeeld <i>Alarm laag</i>. Het rapport heeft de gebeurtenisentiteit <i>Rapport</i>. Automatiseringen gebruiken de trigger <b>Gebeurtenis ontvangen</b> met één of meer gebeurtenistypes:",
+    "types_head": [
+      "Gebeurtenistype",
+      "Wordt geactiveerd wanneer"
+    ],
+    "types": [
+      [
+        "<code>&lt;alarm&gt;_alert</code>",
+        "het alarm start en bij elke herhaling"
+      ],
+      [
+        "<code>&lt;alarm&gt;_ended</code>",
+        "het alarm wordt bevestigd of voorbij is"
+      ],
+      [
+        "<code>&lt;change&gt;_soon</code>",
+        "de waarschuwing vooraf van een wisselherinnering"
+      ],
+      [
+        "<code>report</code>",
+        "een rapportperiode eindigt"
+      ]
+    ],
+    "values_text": "De gebeurtenistypes zijn uniek per persoon, dus een automatisering kan de entiteit of het hele apparaat van de persoon als doel hebben. De waarden van een gebeurtenis zijn de attributen van de entiteit, in templates <code>trigger.to_state.attributes.&lt;name&gt;</code>; het gebeurtenistype is <code>trigger.to_state.attributes.event_type</code>.",
+    "shot_automation_alt": "Automatiseringseditor met de trigger Gebeurtenis ontvangen",
+    "shot_automation": "De trigger <i>Gebeurtenis ontvangen</i> in de automatiseringseditor.",
+    "sensors_text": "De statussensoren van de alarmen zijn bedoeld voor dashboards en voorwaarden; ze veranderen niet bij een herhaling en zijn daarom niet geschikt als trigger.",
+    "alarm_values_title": "Waarden van de alarmen",
+    "alarm_values_text": "Alle gebeurtenissen van alarmen en herinneringen hebben deze attributen; waarden die niet van toepassing zijn, zijn leeg.",
+    "alarms_title": "Alarmen en herinneringen",
+    "report_title": "Rapport",
+    "report_text": "Entiteit <i>Rapport</i>, gebeurtenistype <code>report</code>.",
+    "when_title": "Wanneer het wordt geactiveerd",
+    "values_title": "Waarden",
+    "ack_title": "Bevestigen en pauzeren",
+    "ack_points": [
+      "<b>Bevestigen</b> dempt een alarm voor de duur van het sluimeren; daarna wordt het opnieuw gecontroleerd en start het meteen als het nog van toepassing is. Manieren: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of een meldingsactie met de ID uit <code>ack_action</code>.",
+      "<b>Alarmen pauzeren</b> dempt alle alarmen behalve urgent laag gedurende de ingestelde duur en schakelt daarna vanzelf uit.",
+      "<b>Wissel registreren</b> van canule, sensor of reservoir met de knop <i>… gewisseld</i> of de actie <code>blood_glucose_monitor.record_change</code> (optioneel met een tijdstip in het verleden)."
+    ]
+  },
+  "js": {
+    "configure": "Configureren",
+    "attribute": "Attribuut",
+    "content": "Inhoud",
+    "additional_values": "Aanvullende waarden",
+    "entity_note": "Entiteit <code>{entity}</code>; de entiteit-ID hangt af van de taal van Home Assistant op het moment dat het item werd ingesteld.",
+    "event_type_value": "Het gebeurtenistype, bijvoorbeeld <code>low_alert</code>.",
+    "event_entity": "Gebeurtenisentiteit",
+    "select_event": "Selecteer ten minste één gebeurtenis.",
+    "copied": "Gekopieerd",
+    "copy_fallback": "Druk op Ctrl+C om te kopiëren",
+    "ack_title": "Bevestigen",
+    "alias": "Bloedglucosemeldingen",
+    "automation_description": "Gemaakt met de automatiseringsbouwer van Blood Glucose Monitor.",
+    "labels": {
+      "alert": "Gestart of herhaald",
+      "ended": "Bevestigd of voorbij",
+      "soon": "Binnenkort nodig",
+      "report": "Rapport gemaakt"
+    },
+    "req": {
+      "threshold_set": "In {menu} is een entiteit voor de drempelwaarde geselecteerd.",
+      "below_for_delay": "De glucose blijft gedurende de vertraging onder de drempelwaarde.",
+      "above_for_delay": "De glucose blijft gedurende de vertraging boven de drempelwaarde.",
+      "reading_time": "De glucosegegevens hebben een meettijdstip (een sensor voor het meettijdstip of het attribuut <code>date</code> van de glucosesensor). Zonder meettijdstip zijn er geen glucosealarmen en wijst een reparatiemelding je daarop.",
+      "reading_time_short": "De glucosegegevens hebben een meettijdstip (een sensor voor het meettijdstip of het attribuut <code>date</code> van de glucosesensor).",
+      "fresh": "De laatste meting is niet ouder dan de maximale gegevensouderdom van het alarm geen metingen; verouderde gegevens starten en beëindigen geen glucosealarm.",
+      "home": "Met <i>Alleen als de persoon thuis is</i> in {menu}: de persoon is thuis wanneer het alarm zou starten. Een lopend alarm gaat door als de persoon vertrekt.",
+      "not_acknowledged": "Het alarm is niet bevestigd: na een bevestiging blijft het stil voor de duur van het sluimeren en wordt het daarna opnieuw gecontroleerd.",
+      "pause_off": "De schakelaar <i>{pause}</i> staat uit.",
+      "pause_never": "De pauze geldt niet voor dit alarm.",
+      "repeats": "Herhalingen: de gebeurtenis wordt opnieuw geactiveerd na het herhaalinterval zolang het alarm actief is (herhaalinterval 0 = slechts één keer).",
+      "acknowledged": "Het alarm wordt bevestigd: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of de meldingsactie <code>ack_action</code>.",
+      "back_above": "De glucose bereikt de drempelwaarde plus de eindmarge.",
+      "back_below": "De glucose daalt tot de drempelwaarde min de eindmarge.",
+      "detection_set": "In {menu} is een detectie geselecteerd: <i>Trend van de glucosegegevens</i> of <i>Eigen veranderingssnelheid</i>.",
+      "fall_trend": "Trend: de trend van de glucosegegevens (trendsensor of attribuut <code>direction</code>) daalt snel (of, afhankelijk van de instelling, pas zeer snel).",
+      "fall_rate": "Eigen snelheid: twee metingen die hoogstens 15 minuten uit elkaar liggen, dalen sneller dan de snelheidsgrens per minuut.",
+      "fall_delay": "De snelle daling houdt aan gedurende de vertraging.",
+      "fall_over": "De glucose daalt niet meer snel.",
+      "rise_trend": "Trend: de trend van de glucosegegevens (trendsensor of attribuut <code>direction</code>) stijgt snel (of, afhankelijk van de instelling, pas zeer snel).",
+      "rise_rate": "Eigen snelheid: twee metingen die hoogstens 15 minuten uit elkaar liggen, stijgen sneller dan de snelheidsgrens per minuut.",
+      "rise_delay": "De snelle stijging houdt aan gedurende de vertraging.",
+      "rise_over": "De glucose stijgt niet meer snel.",
+      "always_active": "Altijd actief.",
+      "no_reading": "Binnen de maximale gegevensouderdom komt geen nieuwe meting binnen.",
+      "new_reading": "Er komt een nieuwe meting binnen.",
+      "charging_set": "In {menu} zijn een sensor voor het batterijniveau en een sensor voor de oplaadstatus geselecteerd.",
+      "charging_time": "Het is tussen het herinneringstijdstip en middernacht.",
+      "charging_state": "De telefoon laadt niet op en de batterij zit op of onder de grens.",
+      "charging_over": "De telefoon laadt op. Na middernacht wacht een lopende herinnering op het opladen; vóór het volgende herinneringstijdstip start er geen nieuwe.",
+      "change_duration": "In {menu} is een draagduur ingesteld (veld of entiteit).",
+      "change_last": "De laatste wissel is bekend: uit de geselecteerde entiteit voor de laatste wissel, of geregistreerd met de knop <i>… gewisseld</i> of de actie <code>blood_glucose_monitor.record_change</code>.",
+      "change_due": "Het tijdstip van de wissel is bereikt: laatste wissel plus draagduur, of het vaste tijdstip op de dag van de wissel.",
+      "change_next": "De volgende wissel wordt geregistreerd (knop, actie of een nieuw tijdstip van de entiteit voor de laatste wissel).",
+      "soon_set": "In {menu} is een <i>Waarschuwing vooraf</i> ingesteld.",
+      "soon_once": "Wordt één keer per wisseltijdstip geactiveerd, zo lang vóór het wisseltijdstip.",
+      "soon_away": "Zolang de persoon weg is (met <i>Alleen als de persoon thuis is</i>) of de alarmen gepauzeerd zijn, wordt de waarschuwing zo snel mogelijk vóór het wisseltijdstip verstuurd.",
+      "report_entity": "In {menu} is een entiteit met de periodes geselecteerd (bijvoorbeeld een schema-helper).",
+      "report_end": "Een periode eindigt: de entiteit gaat uit. Een periode die tijdens een herstart eindigt, wordt daarna gerapporteerd.",
+      "report_home": "Met <i>Alleen als de persoon thuis is</i> in {menu}: de persoon is thuis wanneer de periode eindigt. De sensor <i>Laatste rapport</i> wordt toch bijgewerkt.",
+      "report_stats": "Statistieken hebben de recorder nodig; de tijd binnen bereik heeft een lage (of urgent lage) en een hoge (of urgent hoge) drempelwaarde nodig."
+    },
+    "attributes": {
+      "title": "Kant-en-klare titel in de taal van Home Assistant, bijvoorbeeld <i>Alex: lage glucose</i>.",
+      "message": "Kant-en-klaar bericht: glucose met eenheid en trendpijl bij de glucosealarmen, een passende tekst bij geen metingen en de herinneringen; bij bevestiging of einde een korte tekst.",
+      "alarm": "Sleutel van het alarm, bijvoorbeeld <code>low</code>.",
+      "phase": "<code>triggered</code>, <code>repeat</code>, <code>acknowledged</code>, <code>resolved</code> of <code>soon</code> (waarschuwing vooraf van een wisselherinnering).",
+      "glucose": "Laatste glucosewaarde in de eenheid van de glucosesensor.",
+      "unit": "<code>mg/dL</code> of <code>mmol/L</code>.",
+      "delta": "Verandering sinds de vorige meting.",
+      "rate": "Eigen veranderingssnelheid per minuut.",
+      "trend": "Trendsleutel, bijvoorbeeld <code>falling_quickly</code>.",
+      "trend_arrow": "Trend als pijl, bijvoorbeeld <code>↘</code>.",
+      "data_age_min": "Ouderdom van de laatste meting in minuten.",
+      "person_name": "Naam van het item (de persoon).",
+      "entry_id": "ID van het configuratie-item, voor de acties van de integratie.",
+      "tag": "Meldingstag, uniek per persoon en alarm. Gebruik deze om de melding te vervangen en te verwijderen.",
+      "ack_action": "Meldingsactie van de mobiele app die dit alarm bevestigt.",
+      "battery": "Batterijniveau van de telefoon in procent.",
+      "last_change": "Tijdstip van de laatste wissel (ISO 8601).",
+      "due": "Tijdstip waarop de wissel nodig is (ISO 8601)."
+    },
+    "report_attributes": {
+      "title": "Kant-en-klare titel, bijvoorbeeld <i>Alex: rapport</i>.",
+      "message": "Kant-en-klare samenvatting van de periode.",
+      "start": "Begin van de periode (ISO 8601).",
+      "end": "Einde van de periode (ISO 8601).",
+      "duration_min": "Lengte van de periode in minuten.",
+      "unit": "<code>mg/dL</code> of <code>mmol/L</code>.",
+      "glucose_min": "Laagste glucosewaarde.",
+      "glucose_max": "Hoogste glucosewaarde.",
+      "glucose_mean": "Gemiddelde glucose, gewogen naar tijd.",
+      "below": "Aandeel van de tijd onder bereik in procent (leeg zonder beide drempelwaarden).",
+      "in_range": "Aandeel van de tijd binnen bereik in procent (leeg zonder beide drempelwaarden).",
+      "above": "Aandeel van de tijd boven bereik in procent (leeg zonder beide drempelwaarden).",
+      "coverage": "Aandeel van de periode met glucosegegevens in procent.",
+      "alarms": "Aantal alarmen dat in de periode is gestart, per alarm.",
+      "low_alarms": "Aantal alarmen laag en urgent laag in de periode.",
+      "tag": "Meldingstag, uniek per persoon, zodat een nieuw rapport het vorige vervangt.",
+      "person_name": "Naam van het item (de persoon).",
+      "entry_id": "ID van het configuratie-item."
+    }
+  }
+}

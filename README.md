@@ -37,7 +37,8 @@ be notified.
   [automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)
   prepares the automations
 
-More on the [documentation site](https://earmaster.github.io/home-assistant-blood-glucose-monitor/).
+More on the [documentation site](https://earmaster.github.io/home-assistant-blood-glucose-monitor/)
+(English, German, French, Spanish and Dutch).
 
 ## Requirements
 
@@ -147,7 +148,8 @@ Notifications are automations: the integration only decides *when* to alarm,
 you decide *how*. The **[automation builder](https://earmaster.github.io/home-assistant-blood-glucose-monitor/builder.html)**
 prepares them for you; open it from the device page of the person
 (**Visit**) or from the **Configure** menu, and it already knows the
-entities of that person. The [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
+entities of that person and opens in the language of Home Assistant when the
+site has it (else in English). The [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
 lists every event type and value.
 
 Every active alarm has its own **event entity** (for example
@@ -306,10 +308,14 @@ pytest --cov
 
 The documentation site with the automation builder lives in `site/`
 (Jekyll with the [Serif theme](https://github.com/zerostaticthemes/jekyll-serif-theme);
-preview with `bundle install` and `bundle exec jekyll serve` in `site/`). The
-event types, requirements and values are in `site/assets/js/data.js`. The
-*Pages* workflow takes screenshots of a demo Home Assistant with synthetic data
-(`scripts/screenshots/`), builds the site and publishes it from `main`.
+preview with `bundle install` and `bundle exec jekyll serve` in `site/`). It
+is available in the languages of `site/_data/languages.json`: the texts of a
+language are in `site/_data/i18n/<language>.json`, the names Home Assistant
+shows come from the integration's translations via `scripts/site_i18n.py`
+(into `site/_data/ha/`), and `scripts/site_pages.py <language>` creates the
+pages of a new language. The *Pages* workflow takes screenshots of a demo
+Home Assistant with synthetic data (`scripts/screenshots/`), builds the site
+and publishes it from `main`.
 
 `scripts/test.sh` runs the same in a Docker container. GitHub Actions run the
 tests, [hassfest](https://github.com/home-assistant/actions) and the
@@ -328,6 +334,29 @@ Marketplace (HACS) validation on every push.
 
 All glucose values in tests are synthetic. Please do not add real health data
 to issues, tests or fixtures.
+
+## About this project
+
+I develop Blood Glucose Monitor for myself and my family, and I hope it is
+helpful for others too. If you would like to support my work, you can do so on
+[Liberapay](https://liberapay.com/EarMaster/) or
+[Buy Me a Coffee](https://buymeacoffee.com/EarMaster).
+
+## Contributing
+
+Blood Glucose Monitor is an open project, and contributions are welcome:
+
+- **Ideas and feature requests**: what would help you in everyday life with
+  diabetes?
+- **Bug reports**: something does not work as described? Please describe what
+  you expected and what happened.
+- **Translations**: the integration and the documentation site are available
+  in English, German, French, Spanish and Dutch. Improvements to these or a
+  new language are welcome; [TRANSLATIONS.md](TRANSLATIONS.md) explains the
+  files, rules and terms.
+
+Open an [issue](https://github.com/EarMaster/home-assistant-blood-glucose-monitor/issues)
+or send a pull request against `develop`.
 
 ## License
 

@@ -1,0 +1,7 @@
+{%- comment -%} Sets t (texts), lang_root and the page URLs of the page's language. {%- endcomment -%}
+{%- assign t = site.data.i18n[page.lang] -%}
+{%- assign lang_info = site.data.languages | where: "code", page.lang | first -%}
+{%- assign lang_root = lang_info.root -%}
+{%- assign home_url = lang_root | relative_url -%}
+{%- assign builder_url = lang_root | append: "builder.html" | relative_url -%}
+{%- assign docs_url = lang_root | append: "docs.html" | relative_url -%}

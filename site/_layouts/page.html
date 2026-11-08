@@ -2,12 +2,13 @@
 layout: default
 bodyClass: "page-basic"
 ---
-
+{% include lang.html %}
+{%- assign page_texts = t[page.key] -%}
 <div class="container pb-6 pt-6 pt-md-10 pb-md-10">
   <div class="row justify-content-start">
     <div class="col-12{% unless page.wide %} col-lg-9{% endunless %}">
-      <h1 class="title">{{ page.title }}</h1>
-      {% if page.lead %}<p class="lead">{{ page.lead }}</p>{% endif %}
+      <h1 class="title">{{ page_texts.title }}</h1>
+      <p class="lead">{{ page_texts.lead | replace: "%readme%", site.repository_url | append: "#readme" }}</p>
       <div class="content">{{ content }}</div>
     </div>
   </div>

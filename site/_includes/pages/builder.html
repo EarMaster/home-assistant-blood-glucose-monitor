@@ -1,0 +1,44 @@
+{% include lang.html %}
+{%- assign b = t.builder -%}
+{% include caution.html title=b.caution_title text=b.caution_text %}
+
+<div class="builder">
+  <form id="form" class="input" autocomplete="off">
+    <p id="prefill-note" class="card prefilled" hidden>{{ b.prefill_note }}</p>
+    <p id="manual-note" class="card" hidden>{{ b.manual_note }}</p>
+
+    <div class="field">
+      <label for="name">{{ b.person }}</label>
+      <input type="text" id="name" placeholder="Alex">
+    </div>
+
+    <div class="field">
+      <label for="notify">{{ b.notify }}</label>
+      <input type="text" id="notify" placeholder="notify.mobile_app_your_phone" spellcheck="false">
+      <p class="hint">{{ b.notify_hint }}</p>
+    </div>
+
+    <div class="field">
+      <label class="check"><input type="checkbox" id="ack" checked> {{ b.ack }}</label>
+    </div>
+
+    <h2>{{ b.events_title }}</h2>
+    <p class="hint">{{ b.events_hint }}</p>
+    <div id="events"></div>
+  </form>
+
+  <section class="output" aria-labelledby="output-title">
+    <h2 id="output-title">{{ b.output_title }}</h2>
+    <div class="toolbar">
+      <button type="button" class="button" id="copy">{{ b.copy }}</button>
+      <span id="copied" class="status" role="status"></span>
+    </div>
+    <pre><code id="yaml"></code></pre>
+    <p class="hint">{{ b.paste_hint }}</p>
+
+    {% include screenshot.html file="automation.png" alt=b.shot_automation_alt caption=b.shot_automation %}
+
+    <h2>{{ b.requirements_title }}</h2>
+    <div id="requirements"></div>
+  </section>
+</div>

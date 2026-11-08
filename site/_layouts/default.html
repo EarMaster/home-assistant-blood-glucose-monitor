@@ -1,20 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
+{% include lang.html -%}
+{%- assign page_texts = t[page.key] -%}
+<html lang="{{ page.lang }}">
 
 <head>
   <meta charset="utf-8">
-  <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <title>{% if page.key == 'home' %}{{ site.title }}{% else %}{{ page_texts.title }} · {{ site.title }}{% endif %}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="{{ page.description | default: site.description }}" />
-  <meta property="og:title" content="{{ page.title | default: site.title }}" />
+  <meta name="description" content="{{ page_texts.description }}" />
+  <meta property="og:title" content="{{ page_texts.title }} · {{ site.title }}" />
   <meta property="og:type" content="website" />
-  <meta property="og:description" content="{{ page.description | default: site.description }}" />
+  <meta property="og:description" content="{{ page_texts.description }}" />
+  {%- for language in site.data.languages %}
+  <link rel="alternate" hreflang="{{ language.code }}" href="{{ language.root | append: page.ref | absolute_url }}" />
+  {%- endfor %}
   <link rel="icon" type="image/png" href="{{ '/images/icon.png' | relative_url }}">
   <link rel="preload" href="{{ '/assets/fonts/playfair-display.woff2' | relative_url }}" as="font" type="font/woff2" crossorigin>
   <link href="{{ '/assets/css/style.css' | relative_url }}" rel="stylesheet">
-  {% for script in page.scripts %}
+  {%- if page.redirect_by_language %}
+  <script>
+    // First visit of the English start page: go to the visitor's language.
+    // A choice in the language switcher is remembered and wins.
+    (() => {
+      const roots = {{ site.data.languages | jsonify }};
+      let chosen = null;
+      try { chosen = localStorage.getItem("bgm-language"); } catch {}
+      const wanted = chosen || (navigator.languages || [navigator.language])
+        .map((code) => code.toLowerCase().split("-")[0])
+        .find((code) => roots.some((language) => language.code === code));
+      const target = roots.find((language) => language.code === wanted);
+      if (target && target.code !== "{{ page.lang }}") {
+        location.replace("{{ '/' | relative_url }}" + target.root.slice(1) + location.search + location.hash);
+      }
+    })();
+  </script>
+  {%- endif %}
+  {%- if page.scripts %}
+  <script>
+    window.BGM_TEXT = {{ t.js | jsonify }};
+    window.BGM_HA = {{ site.data.ha[page.lang] | jsonify }};
+  </script>
+  {%- for script in page.scripts %}
   <script src="{{ script | relative_url }}" defer></script>
-  {% endfor %}
+  {%- endfor %}
+  {%- endif %}
 </head>
 
 <body class='page {{ layout.bodyClass }}'>

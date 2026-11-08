@@ -1,0 +1,51 @@
+{% include lang.html %}
+{%- assign d = t.docs -%}
+<h2 id="events">{{ d.events_title }}</h2>
+<p>{{ d.events_text }}</p>
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>{{ d.types_head[0] }}</th><th>{{ d.types_head[1] }}</th></tr></thead>
+    <tbody>
+      {%- for row in d.types %}
+      <tr><td>{{ row[0] }}</td><td>{{ row[1] }}</td></tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+<p>{{ d.values_text }}</p>
+{% raw %}<pre><code>triggers:
+  - trigger: event.received
+    target:
+      entity_id: event.alex_low_alarm
+    options:
+      event_type:
+        - low_alert
+actions:
+  - action: notify.mobile_app_your_phone
+    data:
+      title: "{{ trigger.to_state.attributes.title }}"
+      message: "{{ trigger.to_state.attributes.message }}"</code></pre>{% endraw %}
+{% include screenshot.html file="automation.png" alt=d.shot_automation_alt caption=d.shot_automation %}
+<p>{{ d.sensors_text }}</p>
+
+<h2 id="alarm-values">{{ d.alarm_values_title }}</h2>
+<p>{{ d.alarm_values_text }}</p>
+<div class="table-wrap"><table id="alarm-attributes"></table></div>
+
+<h2 id="alarms">{{ d.alarms_title }}</h2>
+<ul class="toc" id="toc"></ul>
+<div id="alarm-sections"></div>
+
+<h2 id="report">{{ d.report_title }}</h2>
+<p>{{ d.report_text }}</p>
+<h3>{{ d.when_title }}</h3>
+<ul class="requirements" id="report-requirements"></ul>
+<h3>{{ d.values_title }}</h3>
+<div class="table-wrap"><table id="report-attributes"></table></div>
+
+<h2 id="acknowledge">{{ d.ack_title }}</h2>
+<ul>
+  {%- for point in d.ack_points %}
+  <li>{{ point }}</li>
+  {%- endfor %}
+</ul>

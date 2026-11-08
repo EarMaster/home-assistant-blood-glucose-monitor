@@ -1,0 +1,22 @@
+[
+  {
+    "code": "en",
+    "root": "/"
+  },
+  {
+    "code": "de",
+    "root": "/de/"
+  },
+  {
+    "code": "es",
+    "root": "/es/"
+  },
+  {
+    "code": "fr",
+    "root": "/fr/"
+  },
+  {
+    "code": "nl",
+    "root": "/nl/"
+  }
+]
