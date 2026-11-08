@@ -190,7 +190,8 @@ REPORT_SCHEMA = vol.Schema(
     {
         vol.Optional(CONF_REPORT_ENTITY): EntitySelector(
             EntitySelectorConfig(domain=["schedule", "input_boolean", "binary_sensor"])
-        )
+        ),
+        vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
     }
 )
 TIME_ENTITY_SELECTOR = EntitySelector(
@@ -701,6 +702,10 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                 self.hass.states.get(entity_id)
             ) not in (None, STATE_ON, STATE_OFF):
                 errors[CONF_REPORT_ENTITY] = "not_on_off"
+            if user_input.get(
+                CONF_ONLY_WHEN_HOME
+            ) and not self.config_entry.options.get(CONF_PERSON_ENTITY):
+                errors[CONF_ONLY_WHEN_HOME] = "person_required"
             if not errors:
                 return self._async_save(CONF_REPORT, user_input)
         return self.async_show_form(

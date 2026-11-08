@@ -276,7 +276,17 @@ class AlarmMonitor:
         # After a (re)start the source gets max_age to deliver data.
         self._started = dt_util.utcnow()
         report_entity = options.get(CONF_REPORT, {}).get(CONF_REPORT_ENTITY)
-        self.report = None if not report_entity else ReportTracker(self, report_entity)
+        self.report = (
+            None
+            if not report_entity
+            else ReportTracker(
+                self,
+                report_entity,
+                only_when_home=bool(
+                    options.get(CONF_REPORT, {}).get(CONF_ONLY_WHEN_HOME)
+                ),
+            )
+        )
         # Changes recorded by the integration, and the due time per change
         # reminder whose warning was sent.
         self.changes: dict[str, datetime] = {}
@@ -833,17 +843,22 @@ class AlarmMonitor:
         """Return True if a new alarm may start now."""
         if alarm in PAUSABLE_ALARMS and self.paused:
             return False
-        if self._options[alarm].get(CONF_ONLY_WHEN_HOME) and (
-            person := self.entry.options.get(CONF_PERSON_ENTITY)
-        ):
-            state = self.hass.states.get(person)
-            # Unknown presence does not suppress alarms.
-            return state is None or state.state in (
-                STATE_HOME,
-                STATE_UNKNOWN,
-                STATE_UNAVAILABLE,
-            )
-        return True
+        return not self._options[alarm].get(CONF_ONLY_WHEN_HOME) or self.at_home
+
+    @property
+    def at_home(self) -> bool:
+        """Return True unless the person is known to be away.
+
+        Without a person, or with an unknown presence, nothing is suppressed.
+        """
+        if not (person := self.entry.options.get(CONF_PERSON_ENTITY)):
+            return True
+        state = self.hass.states.get(person)
+        return state is None or state.state in (
+            STATE_HOME,
+            STATE_UNKNOWN,
+            STATE_UNAVAILABLE,
+        )
 
     def _unit(self) -> str:
         """Return the unit of the glucose data."""

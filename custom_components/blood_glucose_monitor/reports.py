@@ -31,11 +31,15 @@ _LOGGER = logging.getLogger(__name__)
 class ReportTracker:
     """Track the periods of the report entity and report each period."""
 
-    def __init__(self, monitor: AlarmMonitor, entity_id: str) -> None:
+    def __init__(
+        self, monitor: AlarmMonitor, entity_id: str, *, only_when_home: bool = False
+    ) -> None:
         """Initialize."""
         self.monitor = monitor
         self.hass = monitor.hass
         self.entity_id = entity_id
+        # The report is always made; only the trigger depends on presence.
+        self.only_when_home = only_when_home
         self.start: datetime | None = None
         self.counts: dict[str, int] = {}
         self.last: dict[str, Any] | None = None
@@ -133,7 +137,8 @@ class ReportTracker:
         data["message"] = self._message(stats, data, start, end)
         self.last = data
         monitor.async_save()
-        monitor.async_fire(TRIGGER_REPORT, data)
+        if not self.only_when_home or monitor.at_home:
+            monitor.async_fire(TRIGGER_REPORT, data)
         monitor.async_notify_listeners()
 
     def _message(

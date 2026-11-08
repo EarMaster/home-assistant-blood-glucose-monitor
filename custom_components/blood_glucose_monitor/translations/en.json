@@ -349,10 +349,12 @@
         "title": "Reports",
         "description": "One report per period in which the selected entity is on, for example per block of a schedule. When a period ends, the trigger \"Report\" of this person's device fires with the statistics, the start and the end of the period, and the sensor \"Last report\" is updated. The statistics come from the history (recorder).",
         "data": {
-          "report_entity": "Periods"
+          "report_entity": "Periods",
+          "only_when_home": "Only when the person is at home"
         },
         "data_description": {
-          "report_entity": "Schedule, input boolean or binary sensor. Leave empty to switch the reports off."
+          "report_entity": "Schedule, input boolean or binary sensor. Leave empty to switch the reports off.",
+          "only_when_home": "The trigger \"Report\" only fires while the person is at home. The report and the sensor \"Last report\" are updated anyway."
         }
       },
       "pause": {

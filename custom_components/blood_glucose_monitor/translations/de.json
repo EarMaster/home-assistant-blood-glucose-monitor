@@ -349,10 +349,12 @@
         "title": "Berichte",
         "description": "Ein Bericht je Zeitraum, in dem die gewählte Entität an ist, zum Beispiel je Abschnitt eines Zeitplans. Endet ein Zeitraum, feuert der Auslöser „Bericht“ am Gerät dieser Person mit der Statistik, dem Beginn und dem Ende des Zeitraums, und der Sensor „Letzter Bericht“ wird aktualisiert. Die Statistik stammt aus dem Verlauf (Recorder).",
         "data": {
-          "report_entity": "Zeiträume"
+          "report_entity": "Zeiträume",
+          "only_when_home": "Nur wenn die Person zu Hause ist"
         },
         "data_description": {
-          "report_entity": "Zeitplan, Schalter-Helfer oder Binärsensor. Leer lassen, um die Berichte auszuschalten."
+          "report_entity": "Zeitplan, Schalter-Helfer oder Binärsensor. Leer lassen, um die Berichte auszuschalten.",
+          "only_when_home": "Der Auslöser „Bericht“ feuert nur, während die Person zu Hause ist. Bericht und Sensor „Letzter Bericht“ werden trotzdem aktualisiert."
         }
       },
       "pause": {
