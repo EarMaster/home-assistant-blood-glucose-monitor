@@ -128,7 +128,7 @@
     "notify": "Notify action",
     "notify_hint": "The notify action of the phone, for example <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools → Actions</b>). Several, separated by commas. Empty: <code>notify.notify</code>.",
     "channel": "Notification channel",
-    "channel_hint": "Android notification channel, so the sound and importance can be set per channel in the Companion app. Empty: the name of the person.",
+    "channel_hint": "Android notification channel, so the sound and importance can be set per channel in the Companion app. Empty: the name of the person from the event (person_name).",
     "ack": "Acknowledge button in alarm notifications",
     "events_title": "Events",
     "events_hint": "Started or repeated → notification. Acknowledged or over → the notification is removed again.",

@@ -128,7 +128,7 @@
     "notify": "Acción de notificación",
     "notify_hint": "La acción de notificación del teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>). Varias, separadas por comas. Vacío: <code>notify.notify</code>.",
     "channel": "Canal de notificación",
-    "channel_hint": "Canal de notificación de Android, para ajustar el sonido y la importancia por canal en la app Companion. Vacío: el nombre de la persona.",
+    "channel_hint": "Canal de notificación de Android, para ajustar el sonido y la importancia por canal en la app Companion. Vacío: el nombre de la persona del evento (person_name).",
     "ack": "Botón para confirmar en las notificaciones de alarma",
     "events_title": "Eventos",
     "events_hint": "Inicio o repetición → notificación. Confirmación o fin → la notificación se vuelve a eliminar.",

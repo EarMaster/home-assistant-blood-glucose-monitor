@@ -128,7 +128,7 @@
     "notify": "Benachrichtigungsaktion",
     "notify_hint": "Die Notify-Aktion des Handys, zum Beispiel <code>notify.mobile_app_pixel_8</code> (siehe <b>Entwicklerwerkzeuge → Aktionen</b>). Mehrere durch Kommas getrennt. Leer: <code>notify.notify</code>.",
     "channel": "Benachrichtigungskanal",
-    "channel_hint": "Android-Benachrichtigungskanal; Ton und Wichtigkeit lassen sich in der Companion-App pro Kanal einstellen. Leer: der Name der Person.",
+    "channel_hint": "Android-Benachrichtigungskanal; Ton und Wichtigkeit lassen sich in der Companion-App pro Kanal einstellen. Leer: der Name der Person aus dem Ereignis (person_name).",
     "ack": "Bestätigen-Button in Alarm-Benachrichtigungen",
     "events_title": "Ereignisse",
     "events_hint": "Ausgelöst oder wiederholt → Benachrichtigung. Bestätigt oder vorbei → die Benachrichtigung wird wieder entfernt.",

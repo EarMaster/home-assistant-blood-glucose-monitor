@@ -161,7 +161,8 @@ entities of that person and opens in the language of Home Assistant when the
 site has it (else in English). It makes one trigger per selected event (the
 event type as trigger ID), uses `notify.notify` unless you name the notify
 action of the phone, and sets the icon of the alarm as notification icon and
-an Android notification channel (by default the name of the person). The
+an Android notification channel (by default the name of the person from
+the event, `{{ event.person_name }}`). The
 [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
 lists every event type and value.
 
@@ -233,7 +234,7 @@ actions:
               data:
                 tag: "{{ event.tag }}"
                 notification_icon: "{{ event.icon }}"
-                channel: Alex
+                channel: "{{ event.person_name }}"
                 importance: high
                 actions:
                   - action: "{{ event.ack_action }}"

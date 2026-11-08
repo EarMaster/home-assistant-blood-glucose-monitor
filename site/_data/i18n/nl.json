@@ -128,7 +128,7 @@
     "notify": "Meldingsactie",
     "notify_hint": "De notify-actie van de telefoon, bijvoorbeeld <code>notify.mobile_app_pixel_8</code> (zie <b>Ontwikkelhulpmiddelen → Acties</b>). Meerdere gescheiden door komma's. Leeg: <code>notify.notify</code>.",
     "channel": "Meldingskanaal",
-    "channel_hint": "Android-meldingskanaal, zodat je geluid en prioriteit per kanaal in de Companion-app kunt instellen. Leeg: de naam van de persoon.",
+    "channel_hint": "Android-meldingskanaal, zodat je geluid en prioriteit per kanaal in de Companion-app kunt instellen. Leeg: de naam van de persoon uit de gebeurtenis (person_name).",
     "ack": "Bevestigknop in alarmmeldingen",
     "events_title": "Gebeurtenissen",
     "events_hint": "Gestart of herhaald → melding. Bevestigd of voorbij → de melding wordt weer verwijderd.",

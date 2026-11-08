@@ -128,7 +128,7 @@
     "notify": "Action de notification",
     "notify_hint": "L'action de notification du téléphone, par exemple <code>notify.mobile_app_pixel_8</code> (voir <b>Outils de développement → Actions</b>). Plusieurs possibles, séparées par des virgules. Vide : <code>notify.notify</code>.",
     "channel": "Canal de notification",
-    "channel_hint": "Canal de notification Android, pour régler le son et l'importance par canal dans l'application Companion. Vide : le nom de la personne.",
+    "channel_hint": "Canal de notification Android, pour régler le son et l'importance par canal dans l'application Companion. Vide : le nom de la personne issu de l'événement (person_name).",
     "ack": "Bouton d'acquittement dans les notifications d'alarme",
     "events_title": "Événements",
     "events_hint": "Déclenchée ou répétée → notification. Acquittée ou terminée → la notification est retirée.",
