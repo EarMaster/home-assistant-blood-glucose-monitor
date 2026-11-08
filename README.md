@@ -270,6 +270,8 @@ fires and the *Last report* sensor (share of time in range) is updated:
 
 The statistics come from the history of the glucose sensor (recorder). A
 period that ends while Home Assistant is restarting is reported afterwards.
+With **only when the person is at home**, the trigger only fires while the
+person is at home; the report and the *Last report* sensor are updated anyway.
 
 Every entry has a *Status* sensor with the most important current state:
 `no_data` (data loss or no reading time), `urgent_low`, `low`,

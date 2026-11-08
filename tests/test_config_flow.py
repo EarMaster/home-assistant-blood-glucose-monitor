@@ -872,12 +872,20 @@ async def test_report_options(
     hass.states.async_set("schedule.blocks", "off")
     result = await open_options_step(hass, config_entry, "report")
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {"report_entity": "binary_sensor.mode"}
+        result["flow_id"],
+        {"report_entity": "binary_sensor.mode", "only_when_home": True},
     )
-    assert result["errors"] == {"report_entity": "not_on_off"}
+    # The entry has no person.
+    assert result["errors"] == {
+        "report_entity": "not_on_off",
+        "only_when_home": "person_required",
+    }
     result = await hass.config_entries.options.async_configure(
         result["flow_id"], {"report_entity": "schedule.blocks"}
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
-    assert config_entry.options["report"] == {"report_entity": "schedule.blocks"}
+    assert config_entry.options["report"] == {
+        "report_entity": "schedule.blocks",
+        "only_when_home": False,
+    }

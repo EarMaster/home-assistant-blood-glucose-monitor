@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-11-08
+
+### Added
+- Reports: option "only when the person is at home" for the "Report" trigger; the report and the "Last report" sensor are updated anyway
+
 ## [0.5.0] - 2026-11-08
 
 ### Added

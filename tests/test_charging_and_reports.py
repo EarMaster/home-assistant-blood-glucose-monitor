@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 import pytest
 
-from .test_alarms import Scenario, alarm, options
+from .test_alarms import PERSON, Scenario, alarm, options
 
 BATTERY = "sensor.phone_battery_level"
 CHARGING = "sensor.phone_battery_state"
@@ -180,6 +180,28 @@ async def test_report_period(scenario: Scenario) -> None:
     assert report["glucose_mean"] is None
     assert report["message"] == "19:50–20:20: no glucose data."
     assert hass.states.get(LAST_REPORT).attributes["low_alarms"] == 1
+
+
+async def test_report_only_when_home(scenario: Scenario) -> None:
+    """Away: no report trigger, but the last report sensor is updated."""
+    hass = scenario.hass
+    hass.states.async_set(REPORT_ENTITY, "on")
+    await scenario.setup(
+        options(report={"report_entity": REPORT_ENTITY, "only_when_home": True})
+    )
+    hass.states.async_set(PERSON, "not_home")
+    await scenario.wait(30, 110)
+    hass.states.async_set(REPORT_ENTITY, "off")
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert report_events(scenario) == []
+    assert hass.states.get(LAST_REPORT).attributes["duration_min"] == 30
+
+    hass.states.async_set(PERSON, "home")
+    hass.states.async_set(REPORT_ENTITY, "on")
+    await scenario.wait(30, 110)
+    hass.states.async_set(REPORT_ENTITY, "off")
+    await hass.async_block_till_done(wait_background_tasks=True)
+    assert len(report_events(scenario)) == 1
 
 
 async def test_report_across_restart(scenario: Scenario) -> None:
