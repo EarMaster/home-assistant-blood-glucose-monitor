@@ -46,37 +46,37 @@
     },
     "event": {
       "urgent_low_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:arrow-down-bold-box"
       },
       "low_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:arrow-down-circle"
       },
       "high_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:arrow-up-circle"
       },
       "urgent_high_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:arrow-up-bold-box"
       },
       "rapid_fall_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:trending-down"
       },
       "rapid_rise_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:trending-up"
       },
       "data_loss_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:cloud-alert"
       },
       "charging_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:battery-alert"
       },
       "cannula_change_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:needle"
       },
       "sensor_change_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:access-point"
       },
       "reservoir_change_alarm": {
-        "default": "mdi:bell-ring"
+        "default": "mdi:test-tube"
       },
       "report": {
         "default": "mdi:clipboard-text-clock"
@@ -87,91 +87,47 @@
         "default": "mdi:water-check",
         "state": {
           "no_data": "mdi:cloud-alert",
-          "urgent_low": "mdi:arrow-down-bold-circle",
+          "urgent_low": "mdi:arrow-down-bold-box",
           "low": "mdi:arrow-down-circle",
           "paused": "mdi:bell-pause",
           "high": "mdi:arrow-up-circle",
-          "urgent_high": "mdi:arrow-up-bold-circle",
+          "urgent_high": "mdi:arrow-up-bold-box",
           "rapid_fall": "mdi:trending-down",
           "rapid_rise": "mdi:trending-up"
         }
       },
       "urgent_low_alarm": {
-        "default": "mdi:arrow-down-bold-circle",
-        "state": {
-          "idle": "mdi:arrow-down-bold-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:arrow-down-bold-box"
       },
       "low_alarm": {
-        "default": "mdi:arrow-down-circle",
-        "state": {
-          "idle": "mdi:arrow-down-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:arrow-down-circle"
       },
       "data_loss_alarm": {
-        "default": "mdi:cloud-alert",
-        "state": {
-          "idle": "mdi:cloud-check-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:cloud-alert"
       },
       "high_alarm": {
-        "default": "mdi:arrow-up-circle",
-        "state": {
-          "idle": "mdi:arrow-up-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:arrow-up-circle"
       },
       "urgent_high_alarm": {
-        "default": "mdi:arrow-up-bold-circle",
-        "state": {
-          "idle": "mdi:arrow-up-bold-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:arrow-up-bold-box"
       },
       "rapid_fall_alarm": {
-        "default": "mdi:trending-down",
-        "state": {
-          "idle": "mdi:trending-neutral",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:trending-down"
       },
       "rapid_rise_alarm": {
-        "default": "mdi:trending-up",
-        "state": {
-          "idle": "mdi:trending-neutral",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:trending-up"
       },
       "charging_alarm": {
-        "default": "mdi:battery-alert",
-        "state": {
-          "idle": "mdi:battery-check",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:battery-alert"
       },
       "cannula_change_alarm": {
-        "default": "mdi:needle",
-        "state": {
-          "idle": "mdi:check-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:needle"
       },
       "sensor_change_alarm": {
-        "default": "mdi:access-point",
-        "state": {
-          "idle": "mdi:check-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:access-point"
       },
       "reservoir_change_alarm": {
-        "default": "mdi:test-tube",
-        "state": {
-          "idle": "mdi:check-circle-outline",
-          "snoozed": "mdi:bell-sleep"
-        }
+        "default": "mdi:test-tube"
       },
       "cannula_change_due": {
         "default": "mdi:calendar-clock"
