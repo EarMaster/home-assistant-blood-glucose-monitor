@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.const import PERCENTAGE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
@@ -25,6 +26,7 @@ async def async_setup_entry(
     async_add_entities(
         [
             StatusSensor(entry),
+            *([LastReportSensor(entry)] if entry.runtime_data.monitor.report else []),
             *(
                 AlarmStateSensor(entry, alarm)
                 for alarm in entry.runtime_data.monitor.alarms
@@ -53,6 +55,37 @@ class StatusSensor(BloodGlucoseMonitorEntity, SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the latest reading and the running alarms."""
         return self.monitor.status_attributes
+
+
+class LastReportSensor(BloodGlucoseMonitorEntity, SensorEntity):
+    """The last report: share of time in range, statistics as attributes."""
+
+    _attr_translation_key = "last_report"
+    _attr_native_unit_of_measurement = PERCENTAGE
+
+    def __init__(self, entry: BloodGlucoseMonitorConfigEntry) -> None:
+        """Initialize."""
+        super().__init__(entry, "last_report")
+
+    @property
+    def native_value(self) -> float | None:
+        """Return the share of time in the target range."""
+        report = self.monitor.report
+        return (
+            None if report is None or report.last is None else report.last["in_range"]
+        )
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return the statistics of the last report."""
+        report = self.monitor.report
+        if report is None or report.last is None:
+            return {}
+        return {
+            key: value
+            for key, value in report.last.items()
+            if key not in ("entry_id", "person_name", "title")
+        }
 
 
 class AlarmStateSensor(BloodGlucoseMonitorEntity, SensorEntity):

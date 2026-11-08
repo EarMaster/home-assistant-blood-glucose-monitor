@@ -67,6 +67,8 @@
           "rapid_fall": "Alarm schnell fallend",
           "rapid_rise": "Alarm schnell steigend",
           "data_loss": "Alarm Datenausfall",
+          "charging": "Lade-Erinnerung",
+          "report": "Berichte",
           "pause": "Pause"
         }
       },
@@ -238,6 +240,40 @@
           "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter."
         }
       },
+      "charging": {
+        "title": "Lade-Erinnerung",
+        "description": "Erinnerung ab der Uhrzeit bis Mitternacht, solange das Handy nicht lädt und der Akku bei oder unter der Grenze ist. Sie endet, sobald das Handy lädt. Eine Entität für Uhrzeit oder Grenze hat Vorrang vor dem Feld.\n\nBenachrichtigungen sind Automationen mit den Auslösern des Geräts dieser Person: je Alarm „ausgelöst oder wiederholt“ und „bestätigt oder vorbei“. Der Auslöser liefert unter anderem `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` und `phase`.",
+        "data": {
+          "battery_entity": "Akkustand",
+          "charging_entity": "Ladezustand",
+          "reminder_time": "Uhrzeit der Erinnerung",
+          "time_entity": "Entität mit der Uhrzeit",
+          "battery_limit": "Akku-Grenze",
+          "battery_limit_entity": "Entität mit der Akku-Grenze",
+          "repeat": "Wiederholen alle",
+          "snooze": "Schlummern",
+          "only_when_home": "Nur wenn die Person zu Hause ist"
+        },
+        "data_description": {
+          "battery_entity": "Sensor mit dem Akkustand des Handys in Prozent. Beide Sensoren leer lassen, um die Erinnerung auszuschalten.",
+          "charging_entity": "Sensor oder Binärsensor, der angibt, ob das Handy lädt.",
+          "time_entity": "Optional. Entität mit der Uhrzeit, zum Beispiel eine Datum/Uhrzeit-Eingabe; hat Vorrang vor dem Feld.",
+          "battery_limit_entity": "Optional. Entität mit der Grenze in Prozent; hat Vorrang vor dem Feld.",
+          "repeat": "0 benachrichtigt nur einmal.",
+          "snooze": "Wie lange ein bestätigter Alarm still bleibt. Danach startet er erneut, wenn er noch zutrifft.",
+          "only_when_home": "Neue Alarme starten nur, während die Person zu Hause ist. Ein laufender Alarm läuft weiter."
+        }
+      },
+      "report": {
+        "title": "Berichte",
+        "description": "Ein Bericht je Zeitraum, in dem die gewählte Entität an ist, zum Beispiel je Abschnitt eines Zeitplans. Endet ein Zeitraum, feuert der Auslöser „Bericht“ am Gerät dieser Person mit der Statistik, dem Beginn und dem Ende des Zeitraums, und der Sensor „Letzter Bericht“ wird aktualisiert. Die Statistik stammt aus dem Verlauf (Recorder).",
+        "data": {
+          "report_entity": "Zeiträume"
+        },
+        "data_description": {
+          "report_entity": "Zeitplan, Schalter-Helfer oder Binärsensor. Leer lassen, um die Berichte auszuschalten."
+        }
+      },
       "pause": {
         "title": "Pause",
         "description": "Der Pause-Schalter schaltet alle Alarme außer sehr niedrig für diese Dauer stumm. Der Alarm sehr niedrig wird nie pausiert. Endet die Pause, werden die Alarme sofort neu geprüft.",
@@ -255,7 +291,11 @@
       "threshold_unit_required": "Diese Entität meldet keine Einheit. Lege die Einheit unter Glukosedaten fest.",
       "person_required": "Wähle zuerst unter Glukosedaten eine Person.",
       "rate_unit_required": "Diese Entität muss die Einheit mg/dL/min oder mmol/L/min melden.",
-      "rate_limit_required": "Gib einen Grenzwert ein oder wähle eine Entität."
+      "rate_limit_required": "Gib einen Grenzwert ein oder wähle eine Entität.",
+      "charging_entities_required": "Wähle den Akku- und den Lade-Sensor oder keinen von beiden.",
+      "unknown_charging_state": "Der aktuelle Zustand dieser Entität gibt nicht an, ob das Handy lädt.",
+      "invalid_time": "Der aktuelle Wert dieser Entität ist keine Uhrzeit.",
+      "not_on_off": "Diese Entität muss an oder aus sein."
     }
   },
   "entity": {
@@ -280,6 +320,9 @@
       },
       "acknowledge_rapid_rise": {
         "name": "Alarm schnell steigend bestätigen"
+      },
+      "acknowledge_charging": {
+        "name": "Lade-Erinnerung bestätigen"
       }
     },
     "event": {
@@ -315,7 +358,11 @@
               "rapid_rise_triggered": "Schnell steigend: Alarm",
               "rapid_rise_repeat": "Schnell steigend: Wiederholung",
               "rapid_rise_acknowledged": "Schnell steigend: bestätigt",
-              "rapid_rise_resolved": "Schnell steigend: vorbei"
+              "rapid_rise_resolved": "Schnell steigend: vorbei",
+              "charging_triggered": "Laden: Alarm",
+              "charging_repeat": "Laden: Wiederholung",
+              "charging_acknowledged": "Laden: bestätigt",
+              "charging_resolved": "Laden: vorbei"
             }
           }
         }
@@ -421,6 +468,62 @@
           "active": "Aktiv",
           "snoozed": "Schlummert"
         }
+      },
+      "charging_alarm": {
+        "name": "Lade-Erinnerung",
+        "state": {
+          "idle": "Ruhig",
+          "pending": "Ausstehend",
+          "active": "Aktiv",
+          "snoozed": "Schlummert"
+        }
+      },
+      "last_report": {
+        "name": "Letzter Bericht",
+        "state_attributes": {
+          "start": {
+            "name": "Beginn"
+          },
+          "end": {
+            "name": "Ende"
+          },
+          "duration_min": {
+            "name": "Dauer"
+          },
+          "glucose_min": {
+            "name": "Minimum"
+          },
+          "glucose_max": {
+            "name": "Maximum"
+          },
+          "glucose_mean": {
+            "name": "Mittelwert"
+          },
+          "unit": {
+            "name": "Einheit"
+          },
+          "below": {
+            "name": "Unter dem Zielbereich"
+          },
+          "in_range": {
+            "name": "Im Zielbereich"
+          },
+          "above": {
+            "name": "Über dem Zielbereich"
+          },
+          "coverage": {
+            "name": "Datenabdeckung"
+          },
+          "alarms": {
+            "name": "Alarme"
+          },
+          "low_alarms": {
+            "name": "Unterzucker-Alarme"
+          },
+          "message": {
+            "name": "Nachricht"
+          }
+        }
       }
     },
     "switch": {
@@ -452,7 +555,8 @@
         "high": "Hoch",
         "urgent_high": "Sehr hoch",
         "rapid_fall": "Schnell fallend",
-        "rapid_rise": "Schnell steigend"
+        "rapid_rise": "Schnell steigend",
+        "charging": "Lade-Erinnerung"
       }
     },
     "alarm_text": {
@@ -466,7 +570,13 @@
         "data_loss": "{name}: keine Glukosedaten",
         "data_loss_message": "Seit {minutes} min kein neuer Messwert.",
         "acknowledged": "Bestätigt.",
-        "resolved": "Vorbei."
+        "resolved": "Vorbei.",
+        "charging": "{name}: Handy laden",
+        "charging_message": "Akku bei {battery} %, lädt nicht.",
+        "report": "{name}: Bericht",
+        "report_message": "{period}: {in_range} % im Zielbereich, {below} % darunter, {above} % darüber. Mittelwert {mean} {unit} ({min}–{max}). Unterzucker-Alarme: {low_alarms}.",
+        "report_message_no_range": "{period}: Mittelwert {mean} {unit} ({min}–{max}). Unterzucker-Alarme: {low_alarms}.",
+        "report_no_data": "{period}: keine Glukosedaten."
       }
     },
     "detection": {
@@ -514,7 +624,10 @@
       "rapid_fall_alert": "Alarm schnell fallend ausgelöst oder wiederholt",
       "rapid_fall_ended": "Alarm schnell fallend bestätigt oder vorbei",
       "rapid_rise_alert": "Alarm schnell steigend ausgelöst oder wiederholt",
-      "rapid_rise_ended": "Alarm schnell steigend bestätigt oder vorbei"
+      "rapid_rise_ended": "Alarm schnell steigend bestätigt oder vorbei",
+      "charging_alert": "Lade-Erinnerung ausgelöst oder wiederholt",
+      "charging_ended": "Lade-Erinnerung bestätigt oder vorbei",
+      "report": "Bericht"
     }
   }
 }

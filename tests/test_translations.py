@@ -39,9 +39,11 @@ FORMS = {
     ("options", "rapid_fall"): config_flow.RATE_ALARM_SCHEMA,
     ("options", "rapid_rise"): config_flow.RATE_ALARM_SCHEMA,
     ("options", "data_loss"): config_flow.DATA_LOSS_SCHEMA,
+    ("options", "charging"): config_flow.CHARGING_SCHEMA,
+    ("options", "report"): config_flow.REPORT_SCHEMA,
     ("options", "pause"): config_flow.PAUSE_SCHEMA,
 }
-MENU_OPTIONS = {"sources", *const.ALARMS, "pause"}
+MENU_OPTIONS = {"sources", *const.ALARMS, "report", "pause"}
 SOURCE_ERRORS = {
     "unsupported_unit",
     "not_numeric",
@@ -57,6 +59,10 @@ FLOW_ERRORS = {
         "person_required",
         "rate_unit_required",
         "rate_limit_required",
+        "charging_entities_required",
+        "unknown_charging_state",
+        "invalid_time",
+        "not_on_off",
     },
 }
 

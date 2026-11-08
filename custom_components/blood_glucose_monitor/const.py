@@ -49,6 +49,8 @@ ALARM_URGENT_HIGH: Final = "urgent_high"
 ALARM_RAPID_FALL: Final = "rapid_fall"
 ALARM_RAPID_RISE: Final = "rapid_rise"
 ALARM_DATA_LOSS: Final = "data_loss"
+# Reminder to charge the phone, built on the alarm engine.
+ALARM_CHARGING: Final = "charging"
 ALARMS: Final = (
     ALARM_URGENT_LOW,
     ALARM_LOW,
@@ -57,6 +59,7 @@ ALARMS: Final = (
     ALARM_RAPID_FALL,
     ALARM_RAPID_RISE,
     ALARM_DATA_LOSS,
+    ALARM_CHARGING,
 )
 # Alarm below / above a threshold entity.
 LOW_ALARMS: Final = (ALARM_URGENT_LOW, ALARM_LOW)
@@ -93,6 +96,29 @@ RATE_UNITS: Final = {"mg/dL/min": "mg/dL", "mmol/L/min": "mmol/L"}
 # A rate needs two readings at most this many minutes apart.
 MAX_RATE_GAP_MINUTES: Final = 15
 
+# Charging reminder: alarm from the reminder time until midnight while the
+# phone is not charging and the battery is at or below the limit.
+CONF_BATTERY_ENTITY: Final = "battery_entity"
+CONF_CHARGING_ENTITY: Final = "charging_entity"
+CONF_REMINDER_TIME: Final = "reminder_time"
+CONF_TIME_ENTITY: Final = "time_entity"
+CONF_BATTERY_LIMIT: Final = "battery_limit"
+CONF_BATTERY_LIMIT_ENTITY: Final = "battery_limit_entity"
+# States of a charging sensor (mobile app battery state), lower case.
+CHARGING_STATES: Final = ("charging", "full")
+NOT_CHARGING_STATES: Final = (
+    "discharging",
+    "not_charging",
+    "not charging",
+    "unplugged",
+)
+
+# Reports: one report per period in which the report entity (e.g. a schedule)
+# is on. Options dict under this key.
+CONF_REPORT: Final = "report"
+CONF_REPORT_ENTITY: Final = "report_entity"
+TRIGGER_REPORT: Final = "report"
+
 # Pause of the pausable alarms, options dict under this key.
 CONF_PAUSE: Final = "pause"
 CONF_DURATION: Final = "duration"
@@ -118,6 +144,12 @@ ALARM_DEFAULTS: Final[dict[str, dict[str, int | str]]] = {
         CONF_SNOOZE: 30,
     },
     ALARM_DATA_LOSS: {CONF_MAX_AGE: 20, CONF_REPEAT: 15, CONF_SNOOZE: 30},
+    ALARM_CHARGING: {
+        CONF_REMINDER_TIME: "20:00:00",
+        CONF_BATTERY_LIMIT: 75,
+        CONF_REPEAT: 0,
+        CONF_SNOOZE: 30,
+    },
 }
 DEFAULT_PAUSE_DURATION: Final = 60
 # Clear offset suggested per glucose unit.

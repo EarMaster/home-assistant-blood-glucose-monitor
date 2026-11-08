@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-08
+
+### Added
+- Charging reminder: from the reminder time until midnight while the phone is not charging and the battery is at or below the limit, with acknowledge, snooze, repeat and pause; battery and charging sensors are suggested from the person's phone; time and limit as field or entity
+- Reports per period of a schedule, input boolean or binary sensor: device trigger "Report" with start, end, minimum, maximum, mean, time below/in/above range, data coverage and the alarms of the period, plus a "Last report" sensor
+
 ## [0.3.0] - 2026-11-07
 
 ### Added

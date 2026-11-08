@@ -7,7 +7,7 @@ from typing import Any
 from homeassistant.config_entries import SOURCE_USER
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResult, FlowResultType
-from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 import pytest
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 
@@ -645,3 +645,141 @@ async def test_new_alarm_steps_open(
     """The phase 3 alarm steps show their defaults."""
     result = await open_options_step(hass, config_entry, step)
     assert suggested_values(result)["snooze"] in (30, 60, 120)
+
+
+CHARGING_INPUT = {
+    "reminder_time": "20:00:00",
+    "battery_limit": 75,
+    "repeat": 0,
+    "snooze": 30,
+    "only_when_home": False,
+}
+
+
+async def test_charging_suggests_phone_sensors(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    """Battery and charging sensors are suggested from the person's phone."""
+    hass.states.async_set(GLUCOSE_ENTITY, "112", nightscout_attributes())
+    phone_entry = MockConfigEntry(domain="mobile_app", title="Phone")
+    phone_entry.add_to_hass(hass)
+    device = dr.async_get(hass).async_get_or_create(
+        config_entry_id=phone_entry.entry_id, identifiers={("mobile_app", "phone")}
+    )
+    registry = er.async_get(hass)
+    for domain, object_id, device_class in (
+        ("device_tracker", "phone", None),
+        ("sensor", "phone_battery_level", "battery"),
+        ("sensor", "phone_battery_state", None),
+        ("binary_sensor", "phone_is_charging", None),
+    ):
+        registry.async_get_or_create(
+            domain,
+            "mobile_app",
+            object_id,
+            suggested_object_id=object_id,
+            config_entry=phone_entry,
+            device_id=device.id,
+            original_device_class=device_class,
+        )
+    hass.states.async_set(
+        "person.alex", "home", {"device_trackers": ["device_tracker.phone"]}
+    )
+    hass.config_entries.async_update_entry(
+        config_entry,
+        options={**config_entry.options, CONF_PERSON_ENTITY: "person.alex"},
+    )
+    result = await open_options_step(hass, config_entry, "charging")
+    suggested = suggested_values(result)
+    assert suggested["battery_entity"] == "sensor.phone_battery_level"
+    assert suggested["charging_entity"] == "binary_sensor.phone_is_charging"
+    assert suggested["reminder_time"] == "20:00:00"
+
+
+@pytest.mark.parametrize(
+    ("user_input", "states", "errors"),
+    [
+        (CHARGING_INPUT, {}, {}),
+        (
+            {**CHARGING_INPUT, "battery_entity": "sensor.battery"},
+            {},
+            {"charging_entity": "charging_entities_required"},
+        ),
+        (
+            {
+                **CHARGING_INPUT,
+                "battery_entity": "sensor.battery",
+                "charging_entity": "sensor.state",
+                "time_entity": "input_datetime.time",
+                "battery_limit_entity": "input_number.limit",
+            },
+            {
+                "sensor.battery": "full",
+                "sensor.state": "sideways",
+                "input_datetime.time": "evening",
+                "input_number.limit": "many",
+            },
+            {
+                "battery_entity": "not_numeric",
+                "charging_entity": "unknown_charging_state",
+                "time_entity": "invalid_time",
+                "battery_limit_entity": "not_numeric",
+            },
+        ),
+        (
+            {
+                **CHARGING_INPUT,
+                "battery_entity": "sensor.battery",
+                "charging_entity": "sensor.state",
+                "time_entity": "input_datetime.time",
+            },
+            {
+                "sensor.battery": "50",
+                "sensor.state": "Not Charging",
+                "input_datetime.time": "21:15:00",
+            },
+            {},
+        ),
+    ],
+)
+@pytest.mark.usefixtures("glucose_state")
+async def test_charging_options(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    user_input: dict[str, Any],
+    states: dict[str, str],
+    errors: dict[str, str],
+) -> None:
+    """The charging reminder settings are checked."""
+    for entity_id, state in states.items():
+        hass.states.async_set(entity_id, state)
+    result = await open_options_step(hass, config_entry, "charging")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], user_input
+    )
+    if errors:
+        assert result["errors"] == errors
+    else:
+        assert result["type"] is FlowResultType.CREATE_ENTRY
+        await hass.async_block_till_done()
+        assert config_entry.options["charging"] == user_input
+
+
+@pytest.mark.usefixtures("glucose_state")
+async def test_report_options(
+    hass: HomeAssistant, config_entry: MockConfigEntry
+) -> None:
+    """The report entity has to be on or off."""
+    hass.states.async_set("binary_sensor.mode", "school")
+    hass.states.async_set("schedule.blocks", "off")
+    result = await open_options_step(hass, config_entry, "report")
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"report_entity": "binary_sensor.mode"}
+    )
+    assert result["errors"] == {"report_entity": "not_on_off"}
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"], {"report_entity": "schedule.blocks"}
+    )
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+    await hass.async_block_till_done()
+    assert config_entry.options["report"] == {"report_entity": "schedule.blocks"}

@@ -38,8 +38,12 @@ async def test_triggers_of_enabled_alarms(
 ) -> None:
     """Each enabled alarm offers an alert and an ended trigger."""
     # Urgent low without threshold is off.
+    hass.states.async_set("input_boolean.period", "off")
     _, device_id = await setup_scenario(
-        hass, freezer, urgent_low={"only_when_home": False}
+        hass,
+        freezer,
+        urgent_low={"only_when_home": False},
+        report={"report_entity": "input_boolean.period"},
     )
     triggers = await async_get_device_automations(
         hass, DeviceAutomationType.TRIGGER, [device_id]
@@ -48,7 +52,7 @@ async def test_triggers_of_enabled_alarms(
         trigger["type"]
         for trigger in triggers[device_id]
         if trigger["domain"] == DOMAIN
-    } == {"low_alert", "low_ended", "data_loss_alert", "data_loss_ended"}
+    } == {"low_alert", "low_ended", "data_loss_alert", "data_loss_ended", "report"}
     assert await device_trigger.async_get_triggers(hass, "unknown") == []
 
 

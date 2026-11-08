@@ -18,3 +18,4 @@ acknowledge:
             - rapid_fall
             - rapid_rise
             - data_loss
+            - charging

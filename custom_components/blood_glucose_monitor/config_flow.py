@@ -11,8 +11,9 @@ from homeassistant.config_entries import (
     ConfigFlowResult,
     OptionsFlowWithReload,
 )
-from homeassistant.const import UnitOfBloodGlucoseConcentration
+from homeassistant.const import STATE_OFF, STATE_ON, UnitOfBloodGlucoseConcentration
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.selector import (
     BooleanSelector,
     EntitySelector,
@@ -24,11 +25,13 @@ from homeassistant.helpers.selector import (
     SelectSelectorConfig,
     SelectSelectorMode,
     TextSelector,
+    TimeSelector,
 )
 from homeassistant.util.unit_conversion import BloodGlucoseConcentrationConverter
 import probatio as vol
 
 from .const import (
+    ALARM_CHARGING,
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
     ALARM_HIGH,
@@ -38,7 +41,11 @@ from .const import (
     ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
+    CONF_BATTERY_ENTITY,
+    CONF_BATTERY_LIMIT,
+    CONF_BATTERY_LIMIT_ENTITY,
     CONF_CHANGE_ENTITY,
+    CONF_CHARGING_ENTITY,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
     CONF_DETECTION,
@@ -54,9 +61,13 @@ from .const import (
     CONF_RATE_ENTITY,
     CONF_RATE_LIMIT,
     CONF_READING_TIME_ENTITY,
+    CONF_REMINDER_TIME,
     CONF_REPEAT,
+    CONF_REPORT,
+    CONF_REPORT_ENTITY,
     CONF_SNOOZE,
     CONF_THRESHOLD_ENTITY,
+    CONF_TIME_ENTITY,
     CONF_TREND_ENTITY,
     CONF_TREND_LEVEL,
     DEFAULT_CLEAR_OFFSET,
@@ -72,6 +83,7 @@ from .const import (
     TREND_LEVELS,
 )
 from .glucose import parse_number, parse_timestamp, parse_trend
+from .monitor import AlarmMonitor
 from .source import (
     MG_DL,
     async_suggest_related,
@@ -162,6 +174,38 @@ DATA_LOSS_SCHEMA = vol.Schema(
     }
 )
 PAUSE_SCHEMA = vol.Schema({vol.Required(CONF_DURATION): _minutes(1)})
+REPORT_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_REPORT_ENTITY): EntitySelector(
+            EntitySelectorConfig(domain=["schedule", "input_boolean", "binary_sensor"])
+        )
+    }
+)
+CHARGING_SCHEMA = vol.Schema(
+    {
+        vol.Optional(CONF_BATTERY_ENTITY): SENSOR_SELECTOR,
+        vol.Optional(CONF_CHARGING_ENTITY): EntitySelector(
+            EntitySelectorConfig(domain=["binary_sensor", "sensor"])
+        ),
+        vol.Required(CONF_REMINDER_TIME): TimeSelector(),
+        vol.Optional(CONF_TIME_ENTITY): EntitySelector(
+            EntitySelectorConfig(domain=["input_datetime", "time", "sensor"])
+        ),
+        vol.Required(CONF_BATTERY_LIMIT): NumberSelector(
+            NumberSelectorConfig(
+                min=0,
+                max=100,
+                step=1,
+                unit_of_measurement="%",
+                mode=NumberSelectorMode.BOX,
+            )
+        ),
+        vol.Optional(CONF_BATTERY_LIMIT_ENTITY): THRESHOLD_SELECTOR,
+        vol.Required(CONF_REPEAT): _minutes(),
+        vol.Required(CONF_SNOOZE): _minutes(1),
+        vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
+    }
+)
 RATE_ALARM_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_DETECTION): SelectSelector(
@@ -194,6 +238,7 @@ ALARM_SCHEMAS = {
     ALARM_RAPID_FALL: RATE_ALARM_SCHEMA,
     ALARM_RAPID_RISE: RATE_ALARM_SCHEMA,
     ALARM_DATA_LOSS: DATA_LOSS_SCHEMA,
+    ALARM_CHARGING: CHARGING_SCHEMA,
 }
 
 OPTION_KEYS = (
@@ -388,6 +433,68 @@ def _validate_threshold(
     return {}
 
 
+def _validate_charging(
+    hass: HomeAssistant, values: Mapping[str, Any]
+) -> dict[str, str]:
+    """Return form errors of the charging reminder."""
+    battery = values.get(CONF_BATTERY_ENTITY)
+    charging = values.get(CONF_CHARGING_ENTITY)
+    if not battery and not charging:
+        return {}  # switched off
+    errors: dict[str, str] = {}
+    for key, entity_id in (
+        (CONF_BATTERY_ENTITY, battery),
+        (CONF_CHARGING_ENTITY, charging),
+    ):
+        if not entity_id:
+            errors[key] = "charging_entities_required"
+    if battery and _unparsable(hass, battery, parse_number):
+        errors[CONF_BATTERY_ENTITY] = "not_numeric"
+    if charging and _unparsable(hass, charging, AlarmMonitor.charging_from_state):
+        errors[CONF_CHARGING_ENTITY] = "unknown_charging_state"
+    if (time_entity := values.get(CONF_TIME_ENTITY)) and _unparsable(
+        hass, time_entity, AlarmMonitor.time_from_state
+    ):
+        errors[CONF_TIME_ENTITY] = "invalid_time"
+    if (limit_entity := values.get(CONF_BATTERY_LIMIT_ENTITY)) and _unparsable(
+        hass, limit_entity, parse_number
+    ):
+        errors[CONF_BATTERY_LIMIT_ENTITY] = "not_numeric"
+    return errors
+
+
+def _suggest_phone(hass: HomeAssistant, person: str | None) -> dict[str, str]:
+    """Suggest battery and charging sensors of the person's phone.
+
+    The phone is found via the device trackers of the person; the sensors
+    are matched like the mobile app names them.
+    """
+    if not person or (state := hass.states.get(person)) is None:
+        return {}
+    registry = er.async_get(hass)
+    suggestions: dict[str, str] = {}
+    for tracker in state.attributes.get("device_trackers") or []:
+        if (entry := registry.async_get(tracker)) is None or not entry.device_id:
+            continue
+        for entity in sorted(
+            er.async_entries_for_device(registry, entry.device_id),
+            key=lambda entity: entity.entity_id,
+        ):
+            if entity.disabled_by is not None:
+                continue
+            entity_id = entity.entity_id
+            if entity.domain == "sensor" and (
+                entity.original_device_class == "battery"
+                or entity_id.endswith("_battery_level")
+            ):
+                suggestions.setdefault(CONF_BATTERY_ENTITY, entity_id)
+            elif (
+                entity.domain == "binary_sensor" and entity_id.endswith("_is_charging")
+            ) or (entity.domain == "sensor" and entity_id.endswith("_battery_state")):
+                suggestions.setdefault(CONF_CHARGING_ENTITY, entity_id)
+    return suggestions
+
+
 def _validate_rate(hass: HomeAssistant, values: Mapping[str, Any]) -> dict[str, str]:
     """Return form errors for the rate limit of a rapid change alarm."""
     if entity_id := values.get(CONF_RATE_ENTITY):
@@ -414,7 +521,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
     ) -> ConfigFlowResult:
         """Show what can be configured."""
         return self.async_show_menu(
-            step_id="init", menu_options=["sources", *ALARMS, CONF_PAUSE]
+            step_id="init", menu_options=["sources", *ALARMS, CONF_REPORT, CONF_PAUSE]
         )
 
     async def async_step_sources(
@@ -505,6 +612,33 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Configure the data loss alarm."""
         return await self._async_alarm_step(ALARM_DATA_LOSS, user_input)
 
+    async def async_step_charging(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the charging reminder."""
+        return await self._async_alarm_step(ALARM_CHARGING, user_input)
+
+    async def async_step_report(
+        self, user_input: dict[str, Any] | None = None
+    ) -> ConfigFlowResult:
+        """Configure the reports."""
+        errors: dict[str, str] = {}
+        if user_input is not None:
+            if (entity_id := user_input.get(CONF_REPORT_ENTITY)) and state_value(
+                self.hass.states.get(entity_id)
+            ) not in (None, STATE_ON, STATE_OFF):
+                errors[CONF_REPORT_ENTITY] = "not_on_off"
+            if not errors:
+                return self._async_save(CONF_REPORT, user_input)
+        return self.async_show_form(
+            step_id=CONF_REPORT,
+            data_schema=self.add_suggested_values_to_schema(
+                REPORT_SCHEMA,
+                user_input or self.config_entry.options.get(CONF_REPORT, {}),
+            ),
+            errors=errors,
+        )
+
     async def async_step_pause(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
@@ -538,6 +672,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
                 errors |= _validate_threshold(
                     self.hass, entity_id, options.get(CONF_GLUCOSE_UNIT)
                 )
+            if alarm == ALARM_CHARGING:
+                errors |= _validate_charging(self.hass, values)
             if values.get(CONF_DETECTION) == DETECTION_RATE:
                 errors |= _validate_rate(self.hass, values)
             if values[CONF_ONLY_WHEN_HOME] and not options.get(CONF_PERSON_ENTITY):
@@ -549,6 +685,8 @@ class OptionsFlowHandler(OptionsFlowWithReload):
             current = {**ALARM_DEFAULTS[alarm], **options.get(alarm, {})}
             if alarm in THRESHOLD_ALARMS:
                 current.setdefault(CONF_CLEAR_OFFSET, DEFAULT_CLEAR_OFFSET[unit])
+            if alarm == ALARM_CHARGING and alarm not in options:
+                current |= _suggest_phone(self.hass, options.get(CONF_PERSON_ENTITY))
             if alarm in RATE_ALARMS:
                 current.setdefault(CONF_RATE_LIMIT, DEFAULT_RATE_LIMIT[unit])
             # Suggest a threshold only before the alarm was ever saved: an

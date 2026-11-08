@@ -12,12 +12,18 @@ different alarms of one entry, are acknowledged and snoozed independently.
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
-from datetime import datetime, timedelta
+from datetime import datetime, time as dt_time, timedelta
 import logging
 from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import STATE_HOME, STATE_UNAVAILABLE, STATE_UNKNOWN
+from homeassistant.const import (
+    STATE_HOME,
+    STATE_OFF,
+    STATE_ON,
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import (
     CALLBACK_TYPE,
     Event,
@@ -36,6 +42,7 @@ from homeassistant.util import dt as dt_util
 
 from .alarm import AlarmEngine, AlarmSettings, AlarmState, AlarmStatus, Condition, Phase
 from .const import (
+    ALARM_CHARGING,
     ALARM_DATA_LOSS,
     ALARM_DEFAULTS,
     ALARM_HIGH,
@@ -45,6 +52,11 @@ from .const import (
     ALARM_URGENT_HIGH,
     ALARM_URGENT_LOW,
     ALARMS,
+    CHARGING_STATES,
+    CONF_BATTERY_ENTITY,
+    CONF_BATTERY_LIMIT,
+    CONF_BATTERY_LIMIT_ENTITY,
+    CONF_CHARGING_ENTITY,
     CONF_CLEAR_OFFSET,
     CONF_DELAY,
     CONF_DETECTION,
@@ -55,9 +67,13 @@ from .const import (
     CONF_PERSON_ENTITY,
     CONF_RATE_ENTITY,
     CONF_RATE_LIMIT,
+    CONF_REMINDER_TIME,
     CONF_REPEAT,
+    CONF_REPORT,
+    CONF_REPORT_ENTITY,
     CONF_SNOOZE,
     CONF_THRESHOLD_ENTITY,
+    CONF_TIME_ENTITY,
     CONF_TREND_LEVEL,
     DEFAULT_PAUSE_DURATION,
     DETECTION_OFF,
@@ -66,7 +82,9 @@ from .const import (
     EVENT_ALARM,
     EVENT_MOBILE_APP_NOTIFICATION_ACTION,
     HIGH_ALARMS,
+    LOW_ALARMS,
     MAX_RATE_GAP_MINUTES,
+    NOT_CHARGING_STATES,
     PAUSABLE_ALARMS,
     RATE_ALARMS,
     RATE_UNITS,
@@ -75,6 +93,7 @@ from .const import (
     TRIGGER_ENDED,
 )
 from .glucose import GlucoseReading, Trend, parse_number
+from .reports import ReportTracker
 from .source import (
     MG_DL,
     GlucoseSource,
@@ -144,6 +163,11 @@ def enabled_alarms(options: Mapping[str, Any]) -> list[str]:
         if alarm == ALARM_DATA_LOSS
         or options.get(alarm, {}).get(CONF_THRESHOLD_ENTITY)
         or options.get(alarm, {}).get(CONF_DETECTION, DETECTION_OFF) != DETECTION_OFF
+        or (
+            alarm == ALARM_CHARGING
+            and options.get(alarm, {}).get(CONF_BATTERY_ENTITY)
+            and options.get(alarm, {}).get(CONF_CHARGING_ENTITY)
+        )
     ]
 
 
@@ -209,6 +233,8 @@ class AlarmMonitor:
         self._issue = False
         # After a (re)start the source gets max_age to deliver data.
         self._started = dt_util.utcnow()
+        report_entity = options.get(CONF_REPORT, {}).get(CONF_REPORT_ENTITY)
+        self.report = None if not report_entity else ReportTracker(self, report_entity)
 
     @property
     def reading_time_known(self) -> bool:
@@ -283,6 +309,59 @@ class AlarmMonitor:
             return None
         return round(converted, 0 if unit == MG_DL else 1)
 
+    @property
+    def unit(self) -> str:
+        """Return the unit of the glucose data."""
+        return self._unit()
+
+    display = _display
+
+    def text(self, key: str, **placeholders: Any) -> str:
+        """Return a translated text."""
+        return self._text(key, **placeholders)
+
+    def range_thresholds(self) -> tuple[float | None, float | None]:
+        """Return the target range in mg/dL from the low and high thresholds.
+
+        Uses the low (else urgent low) and high (else urgent high) threshold
+        entities, whether or not those alarms are active.
+        """
+
+        def first(alarms: tuple[str, ...]) -> float | None:
+            for alarm in alarms:
+                if entity_id := self._options[alarm].get(CONF_THRESHOLD_ENTITY):
+                    return value_mg_dl(self.hass, entity_id, self.source.entities.unit)
+            return None
+
+        return first(tuple(reversed(LOW_ALARMS))), first(HIGH_ALARMS)
+
+    @callback
+    def async_save(self) -> None:
+        """Store the state soon."""
+        self._store.async_delay_save(self._data_to_store, 1)
+
+    @callback
+    def async_notify_listeners(self) -> None:
+        """Tell the entities about a change."""
+        for update_callback in list(self._listeners):
+            update_callback()
+
+    @callback
+    def async_fire(self, trigger_type: str, data: dict[str, Any]) -> None:
+        """Fire the event of the device triggers of this entry."""
+        entry_id = self.entry.entry_id
+        device = dr.async_get(self.hass).async_get_device_by_identifier(
+            (DOMAIN, entry_id), entry_id
+        )
+        self.hass.bus.async_fire(
+            EVENT_ALARM,
+            {
+                "device_id": None if device is None else device.id,
+                "type": trigger_type,
+                **data,
+            },
+        )
+
     async def async_start(self) -> None:
         """Restore the states and start tracking."""
         self._started = dt_util.utcnow()
@@ -295,7 +374,14 @@ class AlarmMonitor:
         tracked = [
             entity_id
             for alarm in self.alarms
-            for key in (CONF_THRESHOLD_ENTITY, CONF_RATE_ENTITY)
+            for key in (
+                CONF_THRESHOLD_ENTITY,
+                CONF_RATE_ENTITY,
+                CONF_BATTERY_ENTITY,
+                CONF_CHARGING_ENTITY,
+                CONF_TIME_ENTITY,
+                CONF_BATTERY_LIMIT_ENTITY,
+            )
             if (entity_id := self._options[alarm].get(key))
         ]
         if person := entry.options.get(CONF_PERSON_ENTITY):
@@ -312,6 +398,8 @@ class AlarmMonitor:
             )
         )
         entry.async_on_unload(self._async_cancel_timer)
+        if self.report is not None:
+            self.report.async_start()
         self._async_update()
 
     async def async_stop(self) -> None:
@@ -401,17 +489,19 @@ class AlarmMonitor:
             self.pause_until = None
         self._async_update_issue(reading)
 
-        if self.reading_time_known:
-            for alarm, engine in self.engines.items():
-                phases = engine.update(
-                    now, self._condition(alarm, reading, now), self._may_start(alarm)
-                )
-                self._async_notify_all(alarm, phases, now)
+        for alarm, engine in self.engines.items():
+            if alarm == ALARM_CHARGING:
+                condition = self._charging_condition(now)
+            elif self.reading_time_known:
+                condition = self._condition(alarm, reading, now)
+            else:
+                continue
+            phases = engine.update(now, condition, self._may_start(alarm))
+            self._async_notify_all(alarm, phases, now)
 
         self._async_schedule(now)
-        self._store.async_delay_save(self._data_to_store, 1)
-        for update_callback in list(self._listeners):
-            update_callback()
+        self.async_save()
+        self.async_notify_listeners()
 
     def _condition(
         self, alarm: str, reading: GlucoseReading, now: datetime
@@ -455,6 +545,72 @@ class AlarmMonitor:
         if reading.value >= threshold + offset:
             return Condition.CLEAR
         return Condition.BETWEEN
+
+    def _charging_condition(self, now: datetime) -> Condition:
+        """Return the condition of the charging reminder.
+
+        From the reminder time until midnight: alarm while the phone is not
+        charging and the battery is at or below the limit. Charging ends the
+        alarm at any time; after midnight a running alarm waits for charging.
+        """
+        options = self._options[ALARM_CHARGING]
+        charging = self._is_charging(options[CONF_CHARGING_ENTITY])
+        if charging is None:
+            return Condition.UNKNOWN
+        if charging:
+            return Condition.CLEAR
+        start = self._reminder_start(now)
+        if start is None or now < start:
+            return Condition.UNKNOWN
+        battery = parse_number(
+            state_value(self.hass.states.get(options[CONF_BATTERY_ENTITY]))
+        )
+        if battery is None or (limit := self._battery_limit(options)) is None:
+            return Condition.UNKNOWN
+        return Condition.ALARM if battery <= limit else Condition.CLEAR
+
+    def _is_charging(self, entity_id: str) -> bool | None:
+        """Return whether the phone charges, ``None`` if unknown."""
+        if (value := state_value(self.hass.states.get(entity_id))) is None:
+            return None
+        return self.charging_from_state(value)
+
+    @staticmethod
+    def charging_from_state(value: str) -> bool | None:
+        """Return whether a charging state means charging, ``None`` if unknown."""
+        value = value.casefold()
+        if value in (STATE_ON, *CHARGING_STATES):
+            return True
+        if value in (STATE_OFF, *NOT_CHARGING_STATES):
+            return False
+        return None
+
+    @staticmethod
+    def time_from_state(value: str) -> dt_time | None:
+        """Return the time of day of a time or datetime state."""
+        if (time := dt_util.parse_time(value)) is not None:
+            return time
+        if (moment := dt_util.parse_datetime(value)) is None:
+            return None
+        return dt_util.as_local(moment).time()
+
+    def _battery_limit(self, options: Mapping[str, Any]) -> float | None:
+        """Return the battery limit in percent; an entity takes precedence."""
+        if entity_id := options.get(CONF_BATTERY_LIMIT_ENTITY):
+            return parse_number(state_value(self.hass.states.get(entity_id)))
+        return parse_number(options.get(CONF_BATTERY_LIMIT))
+
+    def _reminder_start(self, now: datetime) -> datetime | None:
+        """Return today's reminder time (local day of ``now``)."""
+        options = self._options[ALARM_CHARGING]
+        value: str | None = options.get(CONF_REMINDER_TIME)
+        if entity_id := options.get(CONF_TIME_ENTITY):
+            value = state_value(self.hass.states.get(entity_id))
+        if value is None or (time := self.time_from_state(value)) is None:
+            return None
+        return dt_util.as_local(now).replace(
+            hour=time.hour, minute=time.minute, second=time.second, microsecond=0
+        )
 
     def _rate_condition(
         self, alarm: str, reading: GlucoseReading, options: Mapping[str, Any]
@@ -546,6 +702,11 @@ class AlarmMonitor:
             times.append(self.last_reading_time + self.max_age + timedelta(seconds=1))
         times.append(self.pause_until)
         times.append(self._started + self.max_age + timedelta(seconds=1))
+        if (
+            ALARM_CHARGING in self.engines
+            and (start := self._reminder_start(now)) is not None
+        ):
+            times.extend((start, start + timedelta(days=1)))
         # Times in the past wait for new data instead (e.g. a snooze that
         # ended without usable data).
         if future := [time for time in times if time is not None and time > now]:
@@ -597,18 +758,9 @@ class AlarmMonitor:
         for listener in list(self._event_listeners):
             listener(alarm, phase, variables)
         kind = TRIGGER_ALERT if phase in ALERT_PHASES else TRIGGER_ENDED
-        entry_id = self.entry.entry_id
-        device = dr.async_get(self.hass).async_get_device_by_identifier(
-            (DOMAIN, entry_id), entry_id
-        )
-        self.hass.bus.async_fire(
-            EVENT_ALARM,
-            {
-                "device_id": None if device is None else device.id,
-                "type": f"{alarm}_{kind}",
-                **variables,
-            },
-        )
+        if phase is Phase.TRIGGERED and self.report is not None:
+            self.report.count(alarm)
+        self.async_fire(f"{alarm}_{kind}", variables)
 
     def _variables(self, alarm: str, phase: Phase, now: datetime) -> dict[str, Any]:
         """Return the data of an alarm event."""
@@ -623,10 +775,19 @@ class AlarmMonitor:
             else int((now - self.last_reading_time).total_seconds() // 60)
         )
         name = self.entry.title
+        battery = None
+        if alarm == ALARM_CHARGING:
+            battery = parse_number(
+                state_value(
+                    self.hass.states.get(self._options[alarm][CONF_BATTERY_ENTITY])
+                )
+            )
         if phase is Phase.ACKNOWLEDGED or phase is Phase.RESOLVED:
             message = self._text(phase.value)
         elif alarm == ALARM_DATA_LOSS:
             message = self._text("data_loss_message", minutes=age)
+        elif alarm == ALARM_CHARGING:
+            message = self._text("charging_message", battery=_format(battery, 0))
         else:
             message = " ".join(
                 part
@@ -645,6 +806,7 @@ class AlarmMonitor:
             "delta": change,
             "rate": self._display_rate(unit),
             "data_age_min": age,
+            "battery": battery,
             "title": self._text(alarm, name=name),
             "message": message,
             "tag": notification_tag(self.entry.entry_id, alarm),
@@ -667,6 +829,8 @@ class AlarmMonitor:
                 engine.status = AlarmStatus.from_dict(status)
         self.last_reading_time = _parse_time(data.get("last_reading_time"))
         self.pause_until = _parse_time(data.get("pause_until"))
+        if self.report is not None:
+            self.report.restore(data.get("report") or {})
 
     def _data_to_store(self) -> dict[str, Any]:
         return {
@@ -675,6 +839,7 @@ class AlarmMonitor:
             },
             "last_reading_time": _iso(self.last_reading_time),
             "pause_until": _iso(self.pause_until),
+            "report": None if self.report is None else self.report.as_dict(),
         }
 
 

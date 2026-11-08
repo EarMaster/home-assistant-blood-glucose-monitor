@@ -67,6 +67,8 @@
           "rapid_fall": "Rapid fall alarm",
           "rapid_rise": "Rapid rise alarm",
           "data_loss": "Data loss alarm",
+          "charging": "Charging reminder",
+          "report": "Reports",
           "pause": "Pause"
         }
       },
@@ -238,6 +240,40 @@
           "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
         }
       },
+      "charging": {
+        "title": "Charging reminder",
+        "description": "Reminder from the reminder time until midnight while the phone is not charging and the battery is at or below the limit. It ends as soon as the phone charges. An entity for the time or the limit takes precedence over the field.\n\nNotifications are automations with the triggers of this person's device: \"started or repeated\" and \"acknowledged or over\" per alarm. The trigger provides `title`, `message`, `tag`, `ack_action`, `glucose`, `unit`, `trend_arrow` and `phase`, among others.",
+        "data": {
+          "battery_entity": "Battery level",
+          "charging_entity": "Charging state",
+          "reminder_time": "Reminder time",
+          "time_entity": "Reminder time entity",
+          "battery_limit": "Battery limit",
+          "battery_limit_entity": "Battery limit entity",
+          "repeat": "Repeat interval",
+          "snooze": "Snooze",
+          "only_when_home": "Only when the person is at home"
+        },
+        "data_description": {
+          "battery_entity": "Sensor with the battery level of the phone in percent. Leave both sensors empty to switch the reminder off.",
+          "charging_entity": "Sensor or binary sensor that tells whether the phone charges.",
+          "time_entity": "Optional. Entity with the reminder time, for example an input datetime; takes precedence over the field.",
+          "battery_limit_entity": "Optional. Entity with the limit in percent; takes precedence over the field.",
+          "repeat": "0 notifies only once.",
+          "snooze": "How long an acknowledged alarm stays silent. Afterwards it starts again if it still applies.",
+          "only_when_home": "New alarms only start while the person is at home. A running alarm continues."
+        }
+      },
+      "report": {
+        "title": "Reports",
+        "description": "One report per period in which the selected entity is on, for example per block of a schedule. When a period ends, the trigger \"Report\" of this person's device fires with the statistics, the start and the end of the period, and the sensor \"Last report\" is updated. The statistics come from the history (recorder).",
+        "data": {
+          "report_entity": "Periods"
+        },
+        "data_description": {
+          "report_entity": "Schedule, input boolean or binary sensor. Leave empty to switch the reports off."
+        }
+      },
       "pause": {
         "title": "Pause",
         "description": "The pause switch silences all alarms except urgent low for this duration. The urgent low alarm is never paused. When the pause ends, the alarms are checked again at once.",
@@ -255,7 +291,11 @@
       "threshold_unit_required": "This entity does not report a unit. Set the unit under Glucose data.",
       "person_required": "Select a person under Glucose data first.",
       "rate_unit_required": "This entity has to report the unit mg/dL/min or mmol/L/min.",
-      "rate_limit_required": "Enter a rate limit or select an entity."
+      "rate_limit_required": "Enter a rate limit or select an entity.",
+      "charging_entities_required": "Select both the battery and the charging sensor, or neither.",
+      "unknown_charging_state": "The current state of this entity does not tell whether the phone charges.",
+      "invalid_time": "The current value of this entity is not a time.",
+      "not_on_off": "This entity has to be on or off."
     }
   },
   "entity": {
@@ -280,6 +320,9 @@
       },
       "acknowledge_rapid_rise": {
         "name": "Acknowledge rapid rise alarm"
+      },
+      "acknowledge_charging": {
+        "name": "Acknowledge charging reminder"
       }
     },
     "event": {
@@ -315,7 +358,11 @@
               "rapid_rise_triggered": "Rapid rise: alarm",
               "rapid_rise_repeat": "Rapid rise: repeat",
               "rapid_rise_acknowledged": "Rapid rise: acknowledged",
-              "rapid_rise_resolved": "Rapid rise: over"
+              "rapid_rise_resolved": "Rapid rise: over",
+              "charging_triggered": "Charging: alarm",
+              "charging_repeat": "Charging: repeat",
+              "charging_acknowledged": "Charging: acknowledged",
+              "charging_resolved": "Charging: over"
             }
           }
         }
@@ -421,6 +468,62 @@
           "active": "Active",
           "snoozed": "Snoozed"
         }
+      },
+      "charging_alarm": {
+        "name": "Charging reminder",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "active": "Active",
+          "snoozed": "Snoozed"
+        }
+      },
+      "last_report": {
+        "name": "Last report",
+        "state_attributes": {
+          "start": {
+            "name": "Start"
+          },
+          "end": {
+            "name": "End"
+          },
+          "duration_min": {
+            "name": "Duration"
+          },
+          "glucose_min": {
+            "name": "Minimum"
+          },
+          "glucose_max": {
+            "name": "Maximum"
+          },
+          "glucose_mean": {
+            "name": "Mean"
+          },
+          "unit": {
+            "name": "Unit"
+          },
+          "below": {
+            "name": "Below range"
+          },
+          "in_range": {
+            "name": "In range"
+          },
+          "above": {
+            "name": "Above range"
+          },
+          "coverage": {
+            "name": "Data coverage"
+          },
+          "alarms": {
+            "name": "Alarms"
+          },
+          "low_alarms": {
+            "name": "Low alarms"
+          },
+          "message": {
+            "name": "Message"
+          }
+        }
       }
     },
     "switch": {
@@ -452,7 +555,8 @@
         "high": "High",
         "urgent_high": "Urgent high",
         "rapid_fall": "Rapid fall",
-        "rapid_rise": "Rapid rise"
+        "rapid_rise": "Rapid rise",
+        "charging": "Charging reminder"
       }
     },
     "alarm_text": {
@@ -466,7 +570,13 @@
         "data_loss": "{name}: no glucose data",
         "data_loss_message": "No new reading for {minutes} min.",
         "acknowledged": "Acknowledged.",
-        "resolved": "Over."
+        "resolved": "Over.",
+        "charging": "{name}: charge the phone",
+        "charging_message": "Battery at {battery} % and not charging.",
+        "report": "{name}: report",
+        "report_message": "{period}: {in_range} % in range, {below} % below, {above} % above. Mean {mean} {unit} ({min}–{max}). Low alarms: {low_alarms}.",
+        "report_message_no_range": "{period}: mean {mean} {unit} ({min}–{max}). Low alarms: {low_alarms}.",
+        "report_no_data": "{period}: no glucose data."
       }
     },
     "detection": {
@@ -514,7 +624,10 @@
       "rapid_fall_alert": "Rapid fall alarm started or repeated",
       "rapid_fall_ended": "Rapid fall alarm acknowledged or over",
       "rapid_rise_alert": "Rapid rise alarm started or repeated",
-      "rapid_rise_ended": "Rapid rise alarm acknowledged or over"
+      "rapid_rise_ended": "Rapid rise alarm acknowledged or over",
+      "charging_alert": "Charging reminder started or repeated",
+      "charging_ended": "Charging reminder acknowledged or over",
+      "report": "Report"
     }
   }
 }

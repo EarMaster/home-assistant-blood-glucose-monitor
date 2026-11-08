@@ -44,9 +44,11 @@ Work in progress. The current version (0.1) contains:
   data loss with acknowledge, snooze, re-check and pause; notifications as
   automations with device triggers
 - Status sensor per person
+- Charging reminder for the phone, as alarm with the same acknowledge,
+  snooze and pause
+- Reports per period of a schedule (for example night, school): statistics
+  of the period as trigger and sensor
 - Diagnostics download showing how the glucose data and alarms are read
-
-Planned next: night report and phone charging reminder.
 
 ## Requirements
 
@@ -173,6 +175,7 @@ The automation gets the alarm data as `trigger.event.data`:
 | `person_name`, `entry_id` | the entry |
 | `tag` | notification tag, unique per entry and alarm |
 | `ack_action` | mobile app action id that acknowledges this alarm |
+| `battery` | battery level of the phone (charging reminder only) |
 
 Example for the Home Assistant Companion app (select the device and the
 trigger in the editor, then switch the action to YAML):
@@ -205,6 +208,42 @@ actions:
       data:
         tag: "{{ trigger.event.data.tag }}"
 ```
+
+### Charging reminder
+
+The charging reminder is an alarm like the others (acknowledge, snooze,
+repeat, pause, triggers): from the reminder time until midnight it starts
+while the phone is not charging and the battery is at or below the limit, and
+it ends as soon as the phone charges. After midnight a running reminder waits
+for charging; no new one starts before the next reminder time.
+
+- **Battery level** and **charging state** are suggested from the phone of the
+  person (via the device trackers of the person). The charging state can be a
+  binary sensor (on = charging) or a sensor like the battery state of the
+  mobile app (`charging`, `full`, `discharging`, `not_charging`).
+- **Reminder time** and **battery limit** are fields; an entity (for example
+  an `input_datetime` or `input_number`) takes precedence.
+- Leave the battery and charging sensors empty to switch the reminder off.
+
+### Reports
+
+Select an entity that is on during the periods you want a report for,
+typically a **schedule** helper with several blocks (for example night
+22:00–07:00 and school 08:00–13:00); an `input_boolean` or a binary sensor
+works too. When a period ends, the *Report* trigger of the person's device
+fires and the *Last report* sensor (share of time in range) is updated:
+
+| Field | Content |
+| --- | --- |
+| `start`, `end`, `duration_min` | the period |
+| `glucose_min`, `glucose_max`, `glucose_mean`, `unit` | values in the unit of the glucose sensor; the mean is weighted by time |
+| `below`, `in_range`, `above` | share of the time in percent, range from the low (else urgent low) and high (else urgent high) thresholds |
+| `coverage` | share of the period with glucose data in percent |
+| `alarms`, `low_alarms` | number of alarms that started in the period |
+| `title`, `message` | ready-made texts |
+
+The statistics come from the history of the glucose sensor (recorder). A
+period that ends while Home Assistant is restarting is reported afterwards.
 
 Every entry has a *Status* sensor with the most important current state:
 `no_data` (data loss or no reading time), `urgent_low`, `low`,

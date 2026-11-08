@@ -19,11 +19,21 @@ from homeassistant.helpers.trigger import TriggerActionType, TriggerInfo
 from homeassistant.helpers.typing import ConfigType
 import probatio as vol
 
-from .const import ALARMS, DOMAIN, EVENT_ALARM, TRIGGER_ALERT, TRIGGER_ENDED
+from .const import (
+    ALARMS,
+    CONF_REPORT,
+    CONF_REPORT_ENTITY,
+    DOMAIN,
+    EVENT_ALARM,
+    TRIGGER_ALERT,
+    TRIGGER_ENDED,
+    TRIGGER_REPORT,
+)
 from .monitor import enabled_alarms
 
 TRIGGER_TYPES = [
-    f"{alarm}_{kind}" for alarm in ALARMS for kind in (TRIGGER_ALERT, TRIGGER_ENDED)
+    *(f"{alarm}_{kind}" for alarm in ALARMS for kind in (TRIGGER_ALERT, TRIGGER_ENDED)),
+    TRIGGER_REPORT,
 ]
 
 TRIGGER_SCHEMA = DEVICE_TRIGGER_BASE_SCHEMA.extend(
@@ -39,20 +49,28 @@ async def async_get_triggers(
     if device is None:
         return []
     alarms: set[str] = set()
+    report = False
     for entry_id in device.config_entries:
         entry = hass.config_entries.async_get_entry(entry_id)
         if entry is not None and entry.domain == DOMAIN:
             alarms.update(enabled_alarms(entry.options))
+            report |= bool(entry.options.get(CONF_REPORT, {}).get(CONF_REPORT_ENTITY))
+    types = [
+        f"{alarm}_{kind}"
+        for alarm in ALARMS
+        if alarm in alarms
+        for kind in (TRIGGER_ALERT, TRIGGER_ENDED)
+    ]
+    if report:
+        types.append(TRIGGER_REPORT)
     return [
         {
             CONF_PLATFORM: "device",
             CONF_DEVICE_ID: device_id,
             CONF_DOMAIN: DOMAIN,
-            CONF_TYPE: f"{alarm}_{kind}",
+            CONF_TYPE: trigger_type,
         }
-        for alarm in ALARMS
-        if alarm in alarms
-        for kind in (TRIGGER_ALERT, TRIGGER_ENDED)
+        for trigger_type in types
     ]
 
 
