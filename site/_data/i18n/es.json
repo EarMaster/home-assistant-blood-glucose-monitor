@@ -101,7 +101,7 @@
     "shot_status": "El sensor de estado con el estado actual más importante (datos ficticios).",
     "screenshots_note": "Las capturas de pantalla muestran la interfaz de Home Assistant en inglés.",
     "about_title": "Sobre este proyecto",
-    "about_text": "Desarrollo Blood Glucose Monitor para mí y para mi familia, y espero que también sea útil para otras personas. Si quieres apoyar mi trabajo, puedes hacerlo en <a href=\"%liberapay%\">Liberapay</a>.",
+    "about_text": "Desarrollo Blood Glucose Monitor para mí y para mi familia, y espero que también sea útil para otras personas. Si quieres apoyar mi trabajo, puedes hacerlo en <a href=\"%liberapay%\">Liberapay</a> o <a href=\"%buymeacoffee%\">Buy Me a Coffee</a>.",
     "contribute_title": "Participa",
     "contribute_text": "Blood Glucose Monitor es un proyecto abierto y las contribuciones son bienvenidas:",
     "contribute_points": [

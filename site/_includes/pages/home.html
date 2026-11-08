@@ -54,7 +54,7 @@
 {%- endif %}
 
 <h2 id="about">{{ h.about_title }}</h2>
-<p>{{ h.about_text | replace: "%liberapay%", "https://liberapay.com/EarMaster/" }}</p>
+<p>{{ h.about_text | replace: "%liberapay%", "https://liberapay.com/EarMaster/" | replace: "%buymeacoffee%", "https://buymeacoffee.com/EarMaster" }}</p>
 
 <h2 id="contribute">{{ h.contribute_title }}</h2>
 <p>{{ h.contribute_text }}</p>

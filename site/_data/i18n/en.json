@@ -101,7 +101,7 @@
     "shot_status": "The status sensor with the most important current state (synthetic data).",
     "screenshots_note": "Screenshots show the English interface of Home Assistant.",
     "about_title": "About this project",
-    "about_text": "I develop Blood Glucose Monitor for myself and my family, and I hope it is helpful for others too. If you would like to support my work, you can do so on <a href=\"%liberapay%\">Liberapay</a>.",
+    "about_text": "I develop Blood Glucose Monitor for myself and my family, and I hope it is helpful for others too. If you would like to support my work, you can do so on <a href=\"%liberapay%\">Liberapay</a> or <a href=\"%buymeacoffee%\">Buy Me a Coffee</a>.",
     "contribute_title": "Get involved",
     "contribute_text": "Blood Glucose Monitor is an open project, and contributions are welcome:",
     "contribute_points": [

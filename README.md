@@ -337,7 +337,8 @@ to issues, tests or fixtures.
 
 I develop Blood Glucose Monitor for myself and my family, and I hope it is
 helpful for others too. If you would like to support my work, you can do so on
-[Liberapay](https://liberapay.com/EarMaster/).
+[Liberapay](https://liberapay.com/EarMaster/) or
+[Buy Me a Coffee](https://buymeacoffee.com/EarMaster).
 
 ## Contributing
 
