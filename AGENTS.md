@@ -67,25 +67,40 @@ Keep it that way.
 
 `site/` is the documentation site (Jekyll with the vendored Serif theme,
 MIT): Information (`index.html`), automation builder (`builder.html`),
-documentation (`docs.html`); builder and documentation render from JS. `site/assets/js/data.js` is the single source for
-event types, their requirements and attributes; keep it in sync with the
-code. `scripts/screenshots/` holds the demo Home Assistant used by the Pages
+documentation (`docs.html`), shared templates in `site/_includes/pages/`;
+builder and documentation render from JS. `site/assets/js/data.js` is the
+single source for event types, their requirements and attributes; keep it in
+sync with the code. The site is multilingual (`site/_data/languages.json`,
+English at `/`, others at `/<language>/`, start page follows the browser
+language): texts in `site/_data/i18n/<language>.json` (same keys as `en.json`,
+`tests/test_site.py`), names Home Assistant shows in `site/_data/ha/` generated
+by `scripts/site_i18n.py` from the integration translations (rerun after any
+translation change; the test fails otherwise), pages of a language created by
+`scripts/site_pages.py`. `DOCS_LANGUAGES` in `const.py` must list the site
+languages; the builder link opens the page in Home Assistant's language.
+Screenshots are English only. `scripts/screenshots/` holds the demo Home Assistant used by the Pages
 workflow to take screenshots.
 
 ## Documentation
 
 After every change to behaviour, options, entities, events, attributes,
 actions or texts, run the `docs-sync` agent (`.claude/agents/docs-sync.md`) so
-`README.md`, `site/` (especially `site/assets/js/data.js`) and the `CHANGELOG.md`
-Unreleased section match the code. A change is not done before that.
+`README.md`, `site/` (especially `site/assets/js/data.js` and the English site
+texts) and the `CHANGELOG.md` Unreleased section match the code. Then run the
+`i18n-translate` agent (`.claude/agents/i18n-translate.md`) whenever an English
+text changed (`python scripts/i18n_diff.py` lists what the other languages
+have to follow). A change is not done before every language is in step.
+Translation rules and the glossary are in `TRANSLATIONS.md`.
 
 ## Conventions
 
 - Target Home Assistant 2026.11+. Python 3.14 syntax (`except A, B:`),
   `import probatio as vol`.
-- Code, entity names, UI texts and docs in English; German translations in
-  `translations/de.json` must cover every key of `en.json`
-  (`tests/test_translations.py` checks this).
+- Code, entity names, UI texts and docs in English; translations
+  (`translations/de.json`, `fr.json`, `es.json`, `nl.json`) must cover every key
+  of `en.json` with the same placeholders (`tests/test_translations.py`).
+  Medical terms follow the established terms of the language (Nightscout,
+  AndroidAPS, Dexcom/Libre); disclaimers keep their full strength.
 - Translation keys of entities: `<alarm>_alarm` (sensor and event share the
   name), `acknowledge_<alarm>`, `<alarm>_changed`, `<alarm>_due`, `report`.
 - Ruff for lint and format.

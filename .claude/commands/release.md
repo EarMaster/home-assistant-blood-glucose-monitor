@@ -41,7 +41,8 @@ AskUserQuestion: "Do README and documentation site need updates before this rele
 Options: ["Docs are fine as-is", "Please update them as described"]
 ```
 
-Apply the updates if wanted.
+Apply the updates if wanted. Then run `python scripts/i18n_diff.py <newest tag>`;
+if a language is behind, run the `i18n-translate` agent before going on.
 
 ## 3. Group uncommitted changes into conventional commits
 
