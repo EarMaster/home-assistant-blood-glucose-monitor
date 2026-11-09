@@ -24,8 +24,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    outputs:
+      screenshots: ${{ steps.changes.outputs.screenshots }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      # Without a base (schedule, manual run, call from the release) all runs.
+      - id: changes
+        env:
+          BASE: ${{ github.event.before || '' }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/ci_changes.py --base "$BASE" --head "$HEAD" --github-output "$GITHUB_OUTPUT"
+
   screenshots:
     name: Screenshots
+    # main always needs them for the site; develop only when they can change.
+    needs: changes
+    if: github.ref == 'refs/heads/main' || needs.changes.outputs.screenshots == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -65,7 +84,8 @@ jobs:
   build:
     name: Build site
     needs: screenshots
-    # A failed screenshot must not block the site; the pages hide missing images.
+    # A failed or skipped screenshot job must not block the site; the pages
+    # hide missing images.
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
