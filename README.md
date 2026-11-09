@@ -221,7 +221,7 @@ triggers:
       event_type:
         - low_ended
 variables:
-  event: "{{ trigger.to_state.attributes }}"
+  event: "{{ trigger.to_state.attributes if trigger.to_state is defined else {} }}"
 actions:
   - choose:
       - conditions:

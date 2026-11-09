@@ -205,7 +205,8 @@
       "triggers:",
       ...triggerLines,
       "variables:",
-      '  event: "{{ trigger.to_state.attributes }}"',
+      // Other triggers (a button, a time) have no to_state: event is empty.
+      '  event: "{{ trigger.to_state.attributes if trigger.to_state is defined else {} }}"',
       "actions:",
       ...indent(actionLines, 2),
     ];

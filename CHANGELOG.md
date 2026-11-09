@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Automation builder: the variable `event` is empty instead of an error for triggers other than the event entities, so an automation with an additional trigger (for example a button that records a change) runs
+
 ## [1.3.0] - 2026-11-08
 
 ### Added
