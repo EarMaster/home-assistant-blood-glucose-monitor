@@ -126,7 +126,7 @@
     "manual_note": "Astuce : ouvrez le générateur depuis Home Assistant (page de l'appareil de la personne → <b>Visiter</b>, ou <b>Configurer</b> de l'entrée) pour obtenir les bons ID d'entité. Ici, ils sont devinés à partir du nom ; vérifiez-les sous <b>Paramètres → Appareils et services → Entités</b>.",
     "person": "Personne",
     "notify": "Action de notification",
-    "notify_hint": "L'action de notification du téléphone, par exemple <code>notify.mobile_app_pixel_8</code> (voir <b>Outils de développement → Actions</b>). Plusieurs possibles, séparées par des virgules. Vide : <code>notify.notify</code>.",
+    "notify_hint": "Une seule action de notification : le téléphone, par exemple <code>notify.mobile_app_pixel_8</code> (voir <b>Outils de développement → Actions</b>), ou un <a href=\"docs.html#notify\">groupe de notification</a> pour plusieurs téléphones. Vide : <code>notify.notify</code>, qui envoie à tous les téléphones dotés de l'application Companion.",
     "channel": "Canal de notification",
     "channel_hint": "Canal de notification Android, pour régler le son et l'importance par canal dans l'application Companion. Vide : le nom de la personne issu de l'événement (person_name).",
     "ack": "Bouton d'acquittement dans les notifications d'alarme",
@@ -186,6 +186,12 @@
       "<b>Source</b> : les statistiques à long terme du recorder (moyennes horaires) du capteur de glucose. Elles n'existent que pour les capteurs ayant une classe d'état (par exemple <code>measurement</code>) ; sans elles, une réparation le signale et les capteurs sont inconnus.",
       "Si moins de 70 % de la période est couverte par des données, les deux capteurs sont inconnus. Ils sont mis à jour toutes les heures et lorsque l'entité de la période change.",
       "<b>Attributs</b> : <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> et <code>unit</code> (unité du capteur de glucose), <code>coverage</code> (part de la période avec des données, en pourcentage), <code>period_days</code>, <code>start</code> et <code>end</code> (ISO 8601)."
+    ],
+    "notify_title": "Notifications sur plusieurs téléphones",
+    "notify_points": [
+      "<code>notify.notify</code> est fourni par l'intégration Mobile App et envoie à <b>tous</b> les téléphones dotés de l'application Companion, avec toutes les options (tag, canal, bouton d'acquittement). Si une autre intégration de notification sans nom est configurée, <code>notify.notify</code> peut appartenir à celle-ci à la place.",
+      "Pour quelques téléphones seulement, créez un <b>groupe de notification</b> dans <code>configuration.yaml</code> et utilisez-le comme action de notification dans le générateur. Le groupe transmet les options à chaque téléphone, la notification n'est donc définie qu'une seule fois.",
+      "L'entrée de groupe de l'interface utilisateur regroupe des entités de notification ; elles n'acceptent qu'un titre et un message, sans tag, canal ni boutons. Utilisez plutôt le groupe dans <code>configuration.yaml</code>."
     ],
     "ack_title": "Acquitter et mettre en pause",
     "ack_points": [

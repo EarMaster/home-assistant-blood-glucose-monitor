@@ -159,8 +159,9 @@ prepares them for you; open it from the device page of the person
 (**Visit**) or from the **Configure** menu, and it already knows the
 entities of that person and opens in the language of Home Assistant when the
 site has it (else in English). It makes one trigger per selected event (the
-event type as trigger ID), uses `notify.notify` unless you name the notify
-action of the phone, and sets the icon of the alarm as notification icon and
+event type as trigger ID), uses one notify action (the phone, a notify group
+for several phones, or by default `notify.notify`, which the Mobile App
+integration provides for all phones with the Companion app), and sets the icon of the alarm as notification icon and
 an Android notification channel (by default the name of the person from
 the event, `{{ event.person_name }}`). The
 [documentation](https://earmaster.github.io/home-assistant-blood-glucose-monitor/docs.html)
@@ -220,7 +221,7 @@ triggers:
       event_type:
         - low_ended
 variables:
-  event: "{{ trigger.to_state.attributes }}"
+  event: "{{ trigger.to_state.attributes if trigger.to_state is defined else {} }}"
 actions:
   - choose:
       - conditions:

@@ -126,7 +126,7 @@
     "manual_note": "Tip: open the builder from Home Assistant (device page of the person → <b>Visit</b>, or <b>Configure</b> of the entry) to get the right entity IDs. Here they are guessed from the name; check them under <b>Settings → Devices &amp; services → Entities</b>.",
     "person": "Person",
     "notify": "Notify action",
-    "notify_hint": "The notify action of the phone, for example <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools → Actions</b>). Several, separated by commas. Empty: <code>notify.notify</code>.",
+    "notify_hint": "One notify action: the phone, for example <code>notify.mobile_app_pixel_8</code> (see <b>Developer tools → Actions</b>), or a <a href=\"docs.html#notify\">notify group</a> for several phones. Empty: <code>notify.notify</code>, which sends to all phones with the Companion app.",
     "channel": "Notification channel",
     "channel_hint": "Android notification channel, so the sound and importance can be set per channel in the Companion app. Empty: the name of the person from the event (person_name).",
     "ack": "Acknowledge button in alarm notifications",
@@ -186,6 +186,12 @@
       "<b>Source</b>: the long-term statistics of the recorder (hourly means) of the glucose sensor. They exist only for sensors with a state class (for example <code>measurement</code>); without them a repair issue says so and the sensors are unknown.",
       "With less than 70 % of the period covered by data, both sensors are unknown. They are updated every hour and when the period entity changes.",
       "<b>Attributes</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> and <code>unit</code> (unit of the glucose sensor), <code>coverage</code> (share of the period with data in percent), <code>period_days</code>, <code>start</code> and <code>end</code> (ISO 8601)."
+    ],
+    "notify_title": "Notifications on several phones",
+    "notify_points": [
+      "<code>notify.notify</code> is provided by the Mobile App integration and sends to <b>all</b> phones with the Companion app, with every option (tag, channel, acknowledge button). If another notify integration without a name is set up, <code>notify.notify</code> may belong to that one instead.",
+      "For some phones only, create a <b>notify group</b> in <code>configuration.yaml</code> and use it as the notify action in the builder. The group passes the options on to every phone, so the notification is defined only once.",
+      "The group helper of the user interface groups notify entities; they only take a title and a message, without tag, channel or buttons. Use the group in <code>configuration.yaml</code> instead."
     ],
     "ack_title": "Acknowledge and pause",
     "ack_points": [

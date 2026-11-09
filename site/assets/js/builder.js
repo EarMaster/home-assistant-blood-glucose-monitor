@@ -154,19 +154,16 @@
       return;
     }
 
-    const actions = notifyInput.value
-      .split(",")
-      .map((text) => text.trim())
-      .filter(Boolean);
-    if (!actions.length) actions.push("notify.notify");
+    // One notify action: a phone, a notify group for several phones, or
+    // notify.notify (all phones with the Companion app).
+    const action = notifyInput.value.trim() || "notify.notify";
     const ack = ackInput.checked;
     const kinds = KINDS.map((id) => {
       const items = selected.filter(({ type }) => kindOf(type) === id);
-      const lines = actions.flatMap((action) =>
+      const lines =
         id === "ended"
           ? clearLines(action)
-          : notifyLines(action, id === "alert", ack && id === "alert"),
-      );
+          : notifyLines(action, id === "alert", ack && id === "alert");
       return { id, items, lines };
     }).filter(({ items }) => items.length);
 
@@ -208,7 +205,8 @@
       "triggers:",
       ...triggerLines,
       "variables:",
-      '  event: "{{ trigger.to_state.attributes }}"',
+      // Other triggers (a button, a time) have no to_state: event is empty.
+      '  event: "{{ trigger.to_state.attributes if trigger.to_state is defined else {} }}"',
       "actions:",
       ...indent(actionLines, 2),
     ];

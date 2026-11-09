@@ -126,7 +126,7 @@
     "manual_note": "Consejo: abre el generador desde Home Assistant (página del dispositivo de la persona → <b>Visitar</b>, o <b>Configurar</b> de la entrada) para obtener los ID de entidad correctos. Aquí se deducen a partir del nombre; compruébalos en <b>Ajustes → Dispositivos y servicios → Entidades</b>.",
     "person": "Persona",
     "notify": "Acción de notificación",
-    "notify_hint": "La acción de notificación del teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>). Varias, separadas por comas. Vacío: <code>notify.notify</code>.",
+    "notify_hint": "Una acción de notificación: el teléfono, por ejemplo <code>notify.mobile_app_pixel_8</code> (consulta <b>Herramientas para desarrolladores → Acciones</b>), o un <a href=\"docs.html#notify\">grupo de notificación</a> para varios teléfonos. Vacío: <code>notify.notify</code>, que envía a todos los teléfonos con la app Companion.",
     "channel": "Canal de notificación",
     "channel_hint": "Canal de notificación de Android, para ajustar el sonido y la importancia por canal en la app Companion. Vacío: el nombre de la persona del evento (person_name).",
     "ack": "Botón para confirmar en las notificaciones de alarma",
@@ -186,6 +186,12 @@
       "<b>Origen</b>: las estadísticas a largo plazo del recorder (medias horarias) del sensor de glucosa. Solo existen para sensores con una clase de estado (por ejemplo <code>measurement</code>); sin ellas, una reparación lo indica y los sensores son desconocidos.",
       "Si menos del 70 % del periodo está cubierto por datos, ambos sensores son desconocidos. Se actualizan cada hora y cuando cambia la entidad del periodo.",
       "<b>Atributos</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> y <code>unit</code> (unidad del sensor de glucosa), <code>coverage</code> (porcentaje del periodo con datos), <code>period_days</code>, <code>start</code> y <code>end</code> (ISO 8601)."
+    ],
+    "notify_title": "Notificaciones en varios teléfonos",
+    "notify_points": [
+      "<code>notify.notify</code> lo proporciona la integración Mobile App y envía a <b>todos</b> los teléfonos con la app Companion, con todas las opciones (etiqueta, canal, botón de confirmar). Si hay configurada otra integración de notificación sin nombre, <code>notify.notify</code> puede pertenecer a esa en su lugar.",
+      "Para solo algunos teléfonos, crea un <b>grupo de notificación</b> en <code>configuration.yaml</code> y úsalo como acción de notificación en el generador. El grupo transmite las opciones a cada teléfono, así que la notificación se define una sola vez.",
+      "El ayudante de grupo de la interfaz de usuario agrupa entidades de notificación; estas solo admiten un título y un mensaje, sin etiqueta, canal ni botones. Usa en su lugar el grupo de <code>configuration.yaml</code>."
     ],
     "ack_title": "Confirmar y pausar",
     "ack_points": [
