@@ -135,9 +135,14 @@ Hassfest and the Marketplace validation run in GitHub Actions only.
   README, scripts or tests are `docs:`/`test:`/`chore:`, never `feat:`.
 - **Docs update:** a pull request `develop` → `main` that changes nothing
   under `custom_components/` (and not `hacs.json`) may keep the version; the
-  release workflow then runs tests and validation but makes no tag and no
-  release, and the Pages workflow publishes the site
-  (`check_version.py --release --base <old main>`).
+  release workflow then skips tests and validation (the pull request ran
+  them) and makes no tag and no release, and the Pages workflow publishes
+  the site (`check_version.py --release --base <old main>`).
 - The Pages workflow deploys the site from `main`; on `develop` it only
-  produces the screenshots as an artifact.
+  builds the site and takes the screenshots when the integration or
+  `scripts/screenshots/` changed.
+- Workflows only run what a change touches (`scripts/ci_changes.py`, groups
+  `integration`, `tests`, `screenshots`): hassfest and the Marketplace
+  validation only for the integration, lint and tests not for README or
+  changelog alone. Skipped jobs count as passed for the required checks.
 - Commit and push only when asked.

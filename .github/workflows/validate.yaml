@@ -6,6 +6,11 @@ on:
     branches-ignore: [main]
   pull_request:
   workflow_call:
+    inputs:
+      all:
+        description: Run every job, whatever changed.
+        type: boolean
+        default: false
   schedule:
     - cron: "0 3 * * *"
   workflow_dispatch:
@@ -13,8 +18,27 @@ on:
 permissions: {}
 
 jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    outputs:
+      integration: ${{ steps.changes.outputs.integration }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      # Without a base (schedule, manual run, call from the release) all runs.
+      - id: changes
+        env:
+          BASE: ${{ !inputs.all && (github.event.pull_request.base.sha || github.event.before) || '' }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/ci_changes.py --base "$BASE" --head "$HEAD" --github-output "$GITHUB_OUTPUT"
+
   hassfest:
     name: Hassfest
+    # Skipped jobs count as passed for the required checks of main.
+    needs: changes
+    if: needs.changes.outputs.integration == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -22,6 +46,8 @@ jobs:
 
   marketplace:
     name: Marketplace (HACS) validation
+    needs: changes
+    if: needs.changes.outputs.integration == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: hacs/action@main

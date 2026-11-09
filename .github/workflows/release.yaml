@@ -3,9 +3,9 @@ name: Release
 # A release is made by merging a pull request from develop into main. The
 # version in manifest.json must be higher than the newest tag; the tag and the
 # GitHub release are created here. A merge that changes nothing of the
-# integration (only README, site, scripts, tests) is a docs update: tests and
-# validation run, but no tag and no release are made (the Pages workflow
-# publishes the site).
+# integration (only README, site, scripts, tests) is a docs update: no tests
+# and validation again (the pull request ran them), no tag and no release (the
+# Pages workflow publishes the site).
 
 on:
   push:
@@ -42,11 +42,21 @@ jobs:
           name: release-notes
           path: release_notes.md
 
+  # The pull request into main ran them already; a release runs them once
+  # more on the merge, a docs update does not.
   tests:
+    needs: version
+    if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/tests.yaml
+    with:
+      all: true
 
   validate:
+    needs: version
+    if: needs.version.outputs.release == 'true'
     uses: ./.github/workflows/validate.yaml
+    with:
+      all: true
 
   release:
     name: GitHub release

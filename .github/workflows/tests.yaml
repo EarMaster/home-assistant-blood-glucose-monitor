@@ -6,14 +6,38 @@ on:
     branches-ignore: [main]
   pull_request:
   workflow_call:
+    inputs:
+      all:
+        description: Run every job, whatever changed.
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    outputs:
+      tests: ${{ steps.changes.outputs.tests }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      # Without a base (schedule, manual run, call from the release) all runs.
+      - id: changes
+        env:
+          BASE: ${{ !inputs.all && (github.event.pull_request.base.sha || github.event.before) || '' }}
+          HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python3 scripts/ci_changes.py --base "$BASE" --head "$HEAD" --github-output "$GITHUB_OUTPUT"
+
   tests:
     name: Lint and tests
+    # Skipped jobs count as passed for the required checks of main.
+    needs: changes
+    if: needs.changes.outputs.tests == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
