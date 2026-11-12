@@ -359,10 +359,12 @@
         "description": "Ein Bericht je Zeitraum, in dem die gewählte Entität an ist, zum Beispiel je Abschnitt eines Zeitplans. Endet ein Zeitraum, feuert die Ereignis-Entität „Bericht“ dieser Person mit der Statistik, dem Beginn und dem Ende des Zeitraums, und der Sensor „Letzter Bericht“ wird aktualisiert. Die Statistik stammt aus dem Verlauf (Recorder).",
         "data": {
           "report_entity": "Zeiträume",
+          "cooldown": "Karenzzeit",
           "only_when_home": "Nur wenn die Person zu Hause ist"
         },
         "data_description": {
           "report_entity": "Zeitplan, Schalter-Helfer oder Binärsensor. Leer lassen, um die Berichte auszuschalten.",
+          "cooldown": "Ein Alarm, der innerhalb dieser Zeit nach seinem Ende erneut beginnt, zählt im Bericht als derselbe Alarm (und derselbe Unterzucker). 0 zählt jeden neuen Beginn.",
           "only_when_home": "Das Ereignis „Bericht“ feuert nur, während die Person zu Hause ist. Bericht und Sensor „Letzter Bericht“ werden trotzdem aktualisiert."
         }
       },
@@ -380,9 +382,14 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "Der Pause-Schalter schaltet alle Alarme außer dringend niedrig für diese Dauer stumm. Der Alarm dringend niedrig wird nie pausiert. Endet die Pause, werden die Alarme sofort neu geprüft.",
+        "description": "Die Pause schaltet alle Alarme außer dringend niedrig stumm. Der Alarm dringend niedrig wird nie pausiert. Der Pause-Schalter pausiert für die Dauer der Pause; endet sie, werden die Alarme sofort neu geprüft. Zusätzlich sind die Alarme pausiert, solange eine der Pause-Entitäten an ist, zum Beispiel während der Blöcke eines Zeitplans (Kita, Schule).",
         "data": {
-          "duration": "Dauer der Pause"
+          "duration": "Dauer der Pause",
+          "pause_entities": "Pause-Entitäten"
+        },
+        "data_description": {
+          "duration": "Wie lange der Pause-Schalter die Alarme pausiert.",
+          "pause_entities": "Zeitpläne, Schalter-Helfer oder Binärsensoren. Solange eine davon an ist, sind die Alarme pausiert; laufende Alarme werden bestätigt. Sind alle wieder aus, startet ein Alarm wieder mit seiner Verzögerung, wenn die Glukose noch im Alarmbereich ist. Leer lassen für keine Pause-Entität."
         }
       }
     },
@@ -796,7 +803,7 @@
             "name": "Alarme"
           },
           "low_alarms": {
-            "name": "Unterzucker-Alarme"
+            "name": "Unterzucker"
           },
           "message": {
             "name": "Nachricht"
@@ -927,8 +934,8 @@
         "charging": "{name}: Handy laden",
         "charging_message": "Akku bei {battery} %, lädt nicht.",
         "report": "{name}: Bericht",
-        "report_message": "{period}: {in_range} % im Zielbereich, {below} % darunter, {above} % darüber. Mittelwert {mean} {unit} ({min}–{max}). Unterzucker-Alarme: {low_alarms}.",
-        "report_message_no_range": "{period}: Mittelwert {mean} {unit} ({min}–{max}). Unterzucker-Alarme: {low_alarms}.",
+        "report_message": "{period}: {in_range} % im Zielbereich, {below} % darunter, {above} % darüber. Mittelwert {mean} {unit} ({min}–{max}). Unterzucker: {low_alarms}.",
+        "report_message_no_range": "{period}: Mittelwert {mean} {unit} ({min}–{max}). Unterzucker: {low_alarms}.",
         "report_no_data": "{period}: keine Glukosedaten.",
         "cannula_change": "{name}: Kanüle wechseln",
         "cannula_change_soon": "{name}: Kanülenwechsel bald fällig",

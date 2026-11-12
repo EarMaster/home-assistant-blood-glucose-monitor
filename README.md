@@ -141,8 +141,16 @@ entities.
   Acknowledging low does not hold urgent low: if glucose falls further,
   urgent low still starts. The same applies to urgent high and high.
 - **Pause:** the *Pause alarms* switch silences all alarms except urgent low
-  for the configured duration and turns off by itself. Urgent low is never
-  paused.
+  for the configured duration and turns off by itself; when it ends, the
+  alarms are checked again at once. In addition, optional *Pause entities*
+  (schedules, input booleans or binary sensors) pause the same alarms while
+  any of them is on, for example during the blocks of a schedule for nursery
+  or school; an unknown or unavailable entity counts as off. When all pause
+  entities are off again, an alarm whose condition still applies starts
+  again with its delay. A pause acknowledges running alarms (their `…_ended` event fires
+  with phase `acknowledged`), and no new ones start. The switch shows on
+  while either pauses (its `until` attribute only for its own pause), the
+  status sensor shows `paused`. Urgent low is never paused.
 - **Only when the person is at home:** new alarms only start while the
   selected person is at home; a running alarm continues.
 - **Stale data:** readings older than the maximum data age neither start nor
@@ -305,7 +313,8 @@ works too. When a period ends, the *Report* event entity of the person fires
 | `glucose_min`, `glucose_max`, `glucose_mean`, `unit` | values in the unit of the glucose sensor; the mean is weighted by time |
 | `below`, `in_range`, `above` | share of the time in percent, range from the low (else urgent low) and high (else urgent high) thresholds |
 | `coverage` | share of the period with glucose data in percent |
-| `alarms`, `low_alarms` | number of alarms that started in the period |
+| `alarms` | per alarm, the number of alarm episodes that started in the period; repeats and the re-check after a snooze or the pause belong to the same episode, which ends when the alarm is idle again; a new start within the cooldown continues it |
+| `low_alarms` | number of lows that started in the period; a low lasts as long as the low or urgent low alarm runs (pending, active or snoozed), so a change between low and urgent low counts once, and so does a new low within the cooldown |
 | `title`, `message` | ready-made texts |
 | `tag` | notification tag, unique per entry |
 | `icon` | `mdi:clipboard-text-clock` |
@@ -315,6 +324,11 @@ The statistics come from the history of the glucose sensor (recorder). A
 period that ends while Home Assistant is restarting is reported afterwards.
 With **only when the person is at home**, the event only fires while the
 person is at home; the report and the *Last report* sensor are updated anyway.
+
+**Cooldown** (minutes, default 15, 0 = off): an alarm that starts again
+within this time after its episode ended counts as the same episode in the
+report, per alarm in `alarms` and for the lows in `low_alarms`. The alarm
+itself is not affected: it starts and fires its event as usual.
 
 ### GMI and estimated HbA1c
 

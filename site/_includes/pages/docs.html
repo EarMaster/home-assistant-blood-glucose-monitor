@@ -61,6 +61,57 @@ actions:
   {%- endfor %}
 </ul>
 
+<h2 id="dashboard">{{ d.dashboard_title }}</h2>
+<p>{{ d.dashboard_text }}</p>
+<h3>{{ d.dashboard_value_title }}</h3>
+<p>{{ d.dashboard_value_text }}</p>
+{% raw %}<pre><code>type: markdown
+content: |
+  {% set s = 'sensor.alex_status' %}
+  ## {{ state_attr(s, 'glucose') }} {{ state_attr(s, 'unit') }} {{ state_attr(s, 'trend_arrow') or '' }}
+  {{ state_translated(s) }} ·
+  {{ relative_time(as_datetime(state_attr(s, 'reading_time'))) }} ago</code></pre>{% endraw %}
+<h3>{{ d.dashboard_history_title }}</h3>
+<p>{{ d.dashboard_history_text }}</p>
+<pre><code>type: history-graph
+hours_to_show: 24
+entities:
+  - entity: sensor.alex_glucose</code></pre>
+<h3>{{ d.dashboard_gmi_title }}</h3>
+<p>{{ d.dashboard_gmi_text }}</p>
+<pre><code>type: grid
+columns: 2
+square: false
+cards:
+  - type: tile
+    entity: sensor.alex_gmi
+  - type: tile
+    entity: sensor.alex_estimated_hba1c</code></pre>
+<h3>{{ d.dashboard_cannula_title }}</h3>
+<p>{{ d.dashboard_cannula_text }}</p>
+{% raw %}<pre><code>type: vertical-stack
+cards:
+  - type: tile
+    entity: sensor.alex_cannula_change_due
+    name: Cannula
+    icon: mdi:needle
+    icon_tap_action:
+      action: perform-action
+      perform_action: button.press
+      target:
+        entity_id: button.alex_cannula_changed
+      confirmation:
+        text: Record a cannula change now?
+  - type: markdown
+    content: |
+      {% set last = state_attr('sensor.alex_cannula_change_due', 'last_change') %}
+      {% if last %}In use for {{ relative_time(as_datetime(last)) }}.{% endif %}</code></pre>{% endraw %}
+<h3>{{ d.dashboard_report_title }}</h3>
+<p>{{ d.dashboard_report_text }}</p>
+{% raw %}<pre><code>type: markdown
+content: |
+  {{ state_attr('sensor.alex_last_report', 'message') }}</code></pre>{% endraw %}
+
 <h2 id="notify">{{ d.notify_title }}</h2>
 <ul>
   {%- for point in d.notify_points %}

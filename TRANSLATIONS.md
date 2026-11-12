@@ -43,6 +43,7 @@ and then `python scripts/site_i18n.py`.
 | reading / reading time | Messwert / Messzeitpunkt | mesure / heure de mesure | lectura / hora de la lectura | meting / meettijdstip |
 | Urgent low alarm | Alarm dringend niedrig | Alarme d'urgence glucose bas | Alarma de glucosa baja urgente | Alarm urgent laag |
 | Low alarm | Alarm niedrig | Alarme de glucose bas | Alarma de glucosa baja | Alarm laag |
+| Low (episode, report count) | Unterzucker | hypoglycémie | hipoglucemia | hypoglykemie (plural hypoglykemieën) |
 | High alarm | Alarm hoch | Alarme de glucose élevé | Alarma de glucosa alta | Alarm hoog |
 | Urgent high alarm | Alarm dringend hoch | Alarme d'urgence glucose élevé | Alarma de glucosa alta urgente | Alarm urgent hoog |
 | Falling fast / Rising fast | schnell fallend / schnell steigend | Chute rapide / Hausse rapide | Bajada rápida / Subida rápida | Snel dalend / Snel stijgend |
@@ -58,6 +59,7 @@ and then `python scripts/site_i18n.py`.
 | Acknowledge | Bestätigen | Acquitter | Confirmar | Bevestigen |
 | Pause | Pause | Pause | Pausa | Pauze |
 | Report | Bericht | Rapport | Informe | Rapport |
+| Cooldown (report: restart counts as the same episode) | Karenzzeit | Délai de grâce | Periodo de gracia | Wachttijd |
 | Event received (trigger) | Ereignis empfangen | Un événement a été reçu | Evento recibido | Gebeurtenis ontvangen |
 | automation builder | Automation-Builder | générateur d'automatisations | generador de automatizaciones | automatiseringsbouwer |
 | Visit (device page link) | Besuchen | Visiter | Visitar | Bezoeken |

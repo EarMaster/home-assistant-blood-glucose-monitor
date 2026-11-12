@@ -86,7 +86,7 @@
       ],
       [
         "Interrupteur <i>Mettre les alarmes en pause</i>",
-        "Rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée."
+        "Rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée. Également activé tant qu'une entité de pause met les alarmes en pause."
       ],
       [
         "Capteur <i>Échéance du changement de …</i>, bouton <i>… changé(e)</i>",
@@ -187,6 +187,18 @@
       "Si moins de 70 % de la période est couverte par des données, les deux capteurs sont inconnus. Ils sont mis à jour toutes les heures et lorsque l'entité de la période change.",
       "<b>Attributs</b> : <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> et <code>unit</code> (unité du capteur de glucose), <code>coverage</code> (part de la période avec des données, en pourcentage), <code>period_days</code>, <code>start</code> et <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Exemples de tableau de bord",
+    "dashboard_text": "Des cartes pour le tableau de bord avec les cartes intégrées de Home Assistant : modifiez un tableau de bord, ajoutez une carte, choisissez <i>Manuel</i> et collez le YAML. Remplacez <code>alex</code> par les ID d'entité de votre personne et <code>sensor.alex_glucose</code> par votre capteur de glucose.",
+    "dashboard_value_title": "Valeur actuelle",
+    "dashboard_value_text": "Le capteur <i>Statut</i> porte la dernière valeur de glucose, l'unité, la flèche de tendance et l'heure de mesure comme attributs ; son état est <i>Aucune donnée</i>, l'alarme en cours la plus importante, <i>En pause</i> ou <i>OK</i>.",
+    "dashboard_history_title": "Historique",
+    "dashboard_history_text": "L'historique du capteur de glucose de l'intégration source.",
+    "dashboard_gmi_title": "GMI et HbA1c estimée",
+    "dashboard_gmi_text": "Les capteurs <i>GMI</i> et <i>HbA1c estimée</i> côte à côte. Ce sont des estimations, pas une HbA1c de laboratoire.",
+    "dashboard_cannula_title": "Canule avec bouton",
+    "dashboard_cannula_text": "La tuile indique quand le prochain changement de canule est dû ; un appui sur l'icône enregistre, après confirmation, un changement avec le bouton <i>Canule changée</i>. En dessous, depuis combien de temps la canule est utilisée. Il en va de même pour le capteur et le réservoir. Le bouton n'existe que si l'intégration enregistre elle-même les changements (pas d'entité du dernier changement).",
+    "dashboard_report_title": "Dernier rapport",
+    "dashboard_report_text": "Le texte du dernier rapport, issu du capteur <i>Dernier rapport</i>.",
     "notify_title": "Notifications sur plusieurs téléphones",
     "notify_points": [
       "<code>notify.notify</code> est fourni par l'intégration Mobile App et envoie à <b>tous</b> les téléphones dotés de l'application Companion, avec toutes les options (tag, canal, bouton d'acquittement). Si une autre intégration de notification sans nom est configurée, <code>notify.notify</code> peut appartenir à celle-ci à la place.",
@@ -196,7 +208,7 @@
     "ack_title": "Acquitter et mettre en pause",
     "ack_points": [
       "<b>Acquitter</b> rend une alarme silencieuse pendant sa durée de mise en sourdine ; ensuite, elle est vérifiée à nouveau et se déclenche immédiatement si elle s'applique toujours. Acquitter l'urgence glucose bas rend aussi silencieuse l'alarme glucose bas pendant cette durée (l'urgence glucose élevé aussi l'alarme glucose élevé) ; acquitter l'alarme glucose bas ne rend pas silencieuse l'urgence glucose bas. Moyens : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou une action de notification avec l'identifiant de <code>ack_action</code>.",
-      "<b>Mettre les alarmes en pause</b> rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée et se désactive tout seul.",
+      "<b>Mettre les alarmes en pause</b> rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée et se désactive tout seul ; les alarmes sont alors immédiatement vérifiées à nouveau. Les <b>entités de pause</b> facultatives sous <b>Configurer → Pause</b>, des planifications, entrées booléennes ou capteurs binaires, mettent les mêmes alarmes en pause tant que l'une d'elles est activée, par exemple pendant la crèche ou l'école. Une entité inconnue ou indisponible est considérée comme désactivée. Lorsque toutes sont de nouveau désactivées, une alarme toujours valable redémarre avec son délai. Tant que la pause dure, l'interrupteur <i>Mettre les alarmes en pause</i> est activé et le capteur d'état indique <code>paused</code>.",
       "<b>Enregistrer un changement</b> de canule, de capteur ou de réservoir avec le bouton <i>… changé(e)</i> ou l'action <code>blood_glucose_monitor.record_change</code> (éventuellement avec une heure dans le passé)."
     ]
   },
@@ -230,7 +242,8 @@
       "home": "Avec <i>Uniquement lorsque la personne est à la maison</i> dans {menu} : la personne est à la maison au moment où l'alarme se déclencherait. Une alarme en cours continue lorsque la personne part.",
       "not_acknowledged": "L'alarme n'est pas acquittée : après un acquittement, elle reste silencieuse pendant la durée de mise en sourdine, puis elle est vérifiée à nouveau.",
       "not_superseded": "{urgent} n'est pas en cours (en attente, active ou en sourdine) : tant qu'elle est en cours, cette alarme ne se déclenche pas et ne se répète pas. Après l'acquittement de {urgent}, cette alarme reste silencieuse jusqu'à la fin de la mise en sourdine de {urgent} (et non de la sienne), puis elle est vérifiée à nouveau.",
-      "pause_off": "L'interrupteur <i>{pause}</i> est désactivé.",
+      "pause_off": "Les alarmes ne sont pas en pause : l'interrupteur <i>{pause}</i> est désactivé (il est aussi activé tant que l'une des entités de pause de {menu} est activée). Lorsque toutes les entités de pause sont de nouveau désactivées, l'alarme redémarre avec son délai.",
+      "paused": "Une pause commence (l'interrupteur <i>{pause}</i> ou l'une des entités de pause de {menu}) : une alarme en cours est acquittée (phase <code>acknowledged</code>).",
       "pause_never": "La pause ne s'applique pas à cette alarme.",
       "repeats": "Répétitions : l'événement se déclenche à nouveau selon l'intervalle de répétition tant que l'alarme est active (intervalle de répétition 0 = une seule fois).",
       "acknowledged": "L'alarme est acquittée : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou l'action de notification <code>ack_action</code>.",
@@ -300,8 +313,8 @@
       "in_range": "Part du temps dans la cible en pourcentage (vide sans les deux seuils).",
       "above": "Part du temps au-dessus de la cible en pourcentage (vide sans les deux seuils).",
       "coverage": "Part de la période avec des données de glucose en pourcentage.",
-      "alarms": "Nombre d'alarmes déclenchées pendant la période, par alarme.",
-      "low_alarms": "Nombre d'alarmes de glucose bas et d'urgence glucose bas pendant la période.",
+      "alarms": "Par alarme, le nombre d'épisodes d'alarme ayant commencé pendant la période. Les répétitions et la nouvelle vérification après une mise en sourdine ou la pause font partie du même épisode ; il se termine quand l'alarme est de nouveau inactive. Une alarme qui redémarre dans le <i>Délai de grâce</i> des options du rapport (15 minutes par défaut, 0 = désactivé) poursuit son épisode.",
+      "low_alarms": "Nombre d'hypoglycémies ayant commencé pendant la période. Une hypoglycémie dure tant que l'alarme de glucose bas ou d'urgence glucose bas est en cours (en attente, active ou en sourdine) ; un passage entre glucose bas et urgence glucose bas compte une seule fois, tout comme une nouvelle hypoglycémie dans le <i>Délai de grâce</i>.",
       "tag": "Tag de notification, unique par personne, afin qu'un nouveau rapport remplace le précédent.",
       "icon": "Icône du rapport : <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Nom de l'entrée (la personne).",

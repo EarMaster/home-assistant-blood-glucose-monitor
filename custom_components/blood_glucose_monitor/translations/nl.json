@@ -359,10 +359,12 @@
         "description": "Eén rapport per periode waarin de geselecteerde entiteit aan staat, bijvoorbeeld per blok van een schema. Wanneer een periode eindigt, ontvangt de gebeurtenisentiteit \"Rapport\" van deze persoon een gebeurtenis met de statistieken, het begin en het einde van de periode, en wordt de sensor \"Laatste rapport\" bijgewerkt. De statistieken komen uit de geschiedenis (recorder).",
         "data": {
           "report_entity": "Periodes",
+          "cooldown": "Wachttijd",
           "only_when_home": "Alleen als de persoon thuis is"
         },
         "data_description": {
           "report_entity": "Schema, boolean invoer of binaire sensor. Laat leeg om de rapporten uit te schakelen.",
+          "cooldown": "Een alarm dat binnen deze tijd na afloop opnieuw start, telt in het rapport als hetzelfde alarm (en dezelfde hypoglykemie). 0 telt elke nieuwe start.",
           "only_when_home": "De gebeurtenis \"Rapport\" wordt alleen geactiveerd terwijl de persoon thuis is. Het rapport en de sensor \"Laatste rapport\" worden toch bijgewerkt."
         }
       },
@@ -380,9 +382,14 @@
       },
       "pause": {
         "title": "Pauze",
-        "description": "De pauzeschakelaar dempt gedurende deze tijd alle alarmen behalve urgent laag. Het alarm urgent laag wordt nooit gepauzeerd. Wanneer de pauze eindigt, worden de alarmen meteen opnieuw gecontroleerd.",
+        "description": "De pauze dempt alle alarmen behalve urgent laag. Het alarm urgent laag wordt nooit gepauzeerd. De pauzeschakelaar pauzeert gedurende de pauzeduur; wanneer die eindigt, worden de alarmen meteen opnieuw gecontroleerd. Daarnaast zijn de alarmen gepauzeerd zolang een van de pauze-entiteiten aan staat, bijvoorbeeld tijdens de blokken van een schema (kinderopvang, school).",
         "data": {
-          "duration": "Pauzeduur"
+          "duration": "Pauzeduur",
+          "pause_entities": "Pauze-entiteiten"
+        },
+        "data_description": {
+          "duration": "Hoe lang de pauzeschakelaar de alarmen pauzeert.",
+          "pause_entities": "Schema's, boolean invoer of binaire sensoren. Zolang een ervan aan staat, zijn de alarmen gepauzeerd; lopende alarmen worden bevestigd. Wanneer alle weer uit staan, start een alarm opnieuw met zijn vertraging als de glucose nog binnen zijn bereik is. Laat leeg voor geen pauze-entiteit."
         }
       }
     },
@@ -796,7 +803,7 @@
             "name": "Alarmen"
           },
           "low_alarms": {
-            "name": "Alarmen lage glucose"
+            "name": "Hypoglykemieën"
           },
           "message": {
             "name": "Bericht"
@@ -927,8 +934,8 @@
         "charging": "{name}: laad de telefoon op",
         "charging_message": "Batterij op {battery} % en laadt niet op.",
         "report": "{name}: rapport",
-        "report_message": "{period}: {in_range} % binnen bereik, {below} % eronder, {above} % erboven. Gemiddelde {mean} {unit} ({min}–{max}). Alarmen lage glucose: {low_alarms}.",
-        "report_message_no_range": "{period}: gemiddelde {mean} {unit} ({min}–{max}). Alarmen lage glucose: {low_alarms}.",
+        "report_message": "{period}: {in_range} % binnen bereik, {below} % eronder, {above} % erboven. Gemiddelde {mean} {unit} ({min}–{max}). Hypoglykemieën: {low_alarms}.",
+        "report_message_no_range": "{period}: gemiddelde {mean} {unit} ({min}–{max}). Hypoglykemieën: {low_alarms}.",
         "report_no_data": "{period}: geen glucosegegevens.",
         "cannula_change": "{name}: vervang de canule",
         "cannula_change_soon": "{name}: canulewissel binnenkort nodig",

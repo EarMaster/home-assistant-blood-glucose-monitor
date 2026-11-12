@@ -86,7 +86,7 @@
       ],
       [
         "<i>Pause alarms</i> switch",
-        "Silences all alarms except urgent low for the configured time."
+        "Silences all alarms except urgent low for the configured time. Also on while a pause entity pauses the alarms."
       ],
       [
         "<i>… change due</i> sensor, <i>… changed</i> button",
@@ -187,6 +187,18 @@
       "With less than 70 % of the period covered by data, both sensors are unknown. They are updated every hour and when the period entity changes.",
       "<b>Attributes</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> and <code>unit</code> (unit of the glucose sensor), <code>coverage</code> (share of the period with data in percent), <code>period_days</code>, <code>start</code> and <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Dashboard examples",
+    "dashboard_text": "Cards for the dashboard with the built-in cards of Home Assistant: edit a dashboard, add a card, choose <i>Manual</i> and paste the YAML. Replace <code>alex</code> with the entity IDs of your person and <code>sensor.alex_glucose</code> with your glucose sensor.",
+    "dashboard_value_title": "Current value",
+    "dashboard_value_text": "The sensor <i>Status</i> carries the latest glucose value, unit, trend arrow and reading time as attributes; its state is <i>No data</i>, the most important running alarm, <i>Paused</i> or <i>OK</i>.",
+    "dashboard_history_title": "History",
+    "dashboard_history_text": "The history of the glucose sensor of the source integration.",
+    "dashboard_gmi_title": "GMI and estimated HbA1c",
+    "dashboard_gmi_text": "The sensors <i>GMI</i> and <i>Estimated HbA1c</i> side by side. They are estimates, not a laboratory HbA1c.",
+    "dashboard_cannula_title": "Cannula with button",
+    "dashboard_cannula_text": "The tile shows when the next cannula change is due; a tap on the icon records a change with the button <i>Cannula changed</i> after a confirmation. Below it, how long the cannula has been in use. The same works for the sensor and the reservoir. The button only exists when the integration records the changes itself (no last change entity).",
+    "dashboard_report_title": "Last report",
+    "dashboard_report_text": "The text of the last report from the sensor <i>Last report</i>.",
     "notify_title": "Notifications on several phones",
     "notify_points": [
       "<code>notify.notify</code> is provided by the Mobile App integration and sends to <b>all</b> phones with the Companion app, with every option (tag, channel, acknowledge button). If another notify integration without a name is set up, <code>notify.notify</code> may belong to that one instead.",
@@ -196,7 +208,7 @@
     "ack_title": "Acknowledge and pause",
     "ack_points": [
       "<b>Acknowledge</b> silences an alarm for its snooze time; then it is checked again and starts at once if it still applies. Acknowledging urgent low also silences low for that time (urgent high also high); acknowledging low does not silence urgent low. Ways: the <i>Acknowledge …</i> button, the action <code>blood_glucose_monitor.acknowledge</code> or a notification action with the id from <code>ack_action</code>.",
-      "<b>Pause alarms</b> silences all alarms except urgent low for the configured duration and turns off by itself.",
+      "<b>Pause alarms</b> silences all alarms except urgent low for the configured duration and turns off by itself; then the alarms are checked again at once. The optional <b>pause entities</b> under <b>Configure → Pause</b>, schedules, input booleans or binary sensors, pause the same alarms while any of them is on, for example during nursery or school. An unknown or unavailable entity counts as off. When all are off again, an alarm that still applies starts again with its delay. The switch <i>Pause alarms</i> shows on and the status sensor <code>paused</code> while it pauses.",
       "<b>Record a change</b> of cannula, sensor or reservoir with the <i>… changed</i> button or the action <code>blood_glucose_monitor.record_change</code> (optionally with a time in the past)."
     ]
   },
@@ -230,7 +242,8 @@
       "home": "With <i>Only when the person is at home</i> in {menu}: the person is at home when the alarm would start. A running alarm continues when the person leaves.",
       "not_acknowledged": "The alarm is not acknowledged: after an acknowledgement it stays silent for the snooze time and is then checked again.",
       "not_superseded": "{urgent} is not running (pending, active or snoozed): while it runs, this alarm neither starts nor repeats. After {urgent} is acknowledged, this alarm stays silent until the snooze time of {urgent} ends (not its own) and is then checked again.",
-      "pause_off": "The switch <i>{pause}</i> is off.",
+      "pause_off": "The alarms are not paused: the switch <i>{pause}</i> is off (it is also on while one of the pause entities of {menu} is on). When all pause entities are off again, the alarm starts again with its delay.",
+      "paused": "A pause starts (the switch <i>{pause}</i> or one of the pause entities of {menu}): a running alarm is acknowledged (phase <code>acknowledged</code>).",
       "pause_never": "The pause does not apply to this alarm.",
       "repeats": "Repeats: the event fires again in the repeat interval while the alarm is active (repeat interval 0 = only once).",
       "acknowledged": "The alarm is acknowledged: the <i>Acknowledge …</i> button, the action <code>blood_glucose_monitor.acknowledge</code> or the notification action <code>ack_action</code>.",
@@ -300,8 +313,8 @@
       "in_range": "Share of the time in range in percent (empty without both thresholds).",
       "above": "Share of the time above range in percent (empty without both thresholds).",
       "coverage": "Share of the period with glucose data in percent.",
-      "alarms": "Number of alarms that started in the period, per alarm.",
-      "low_alarms": "Number of low and urgent low alarms in the period.",
+      "alarms": "Per alarm, the number of alarm episodes that started in the period. Repeats and the re-check after a snooze or the pause belong to the same episode; it ends when the alarm is idle again. An alarm that starts again within the <i>Cooldown</i> of the report options (default 15 minutes, 0 = off) continues its episode.",
+      "low_alarms": "Number of lows that started in the period. A low lasts as long as the low or urgent low alarm runs (pending, active or snoozed); a change between low and urgent low counts once, and so does a new low within the <i>Cooldown</i>.",
       "tag": "Notification tag, unique per person, so a new report replaces the last one.",
       "icon": "Icon of the report: <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Name of the entry (the person).",

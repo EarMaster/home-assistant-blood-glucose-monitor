@@ -359,10 +359,12 @@
         "description": "One report per period in which the selected entity is on, for example per block of a schedule. When a period ends, the event entity \"Report\" of this person fires with the statistics, the start and the end of the period, and the sensor \"Last report\" is updated. The statistics come from the history (recorder).",
         "data": {
           "report_entity": "Periods",
+          "cooldown": "Cooldown",
           "only_when_home": "Only when the person is at home"
         },
         "data_description": {
           "report_entity": "Schedule, input boolean or binary sensor. Leave empty to switch the reports off.",
+          "cooldown": "An alarm that starts again within this time after it was over counts as the same alarm (and the same low) in the report. 0 counts every new start.",
           "only_when_home": "The event \"Report\" only fires while the person is at home. The report and the sensor \"Last report\" are updated anyway."
         }
       },
@@ -380,9 +382,14 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "The pause switch silences all alarms except urgent low for this duration. The urgent low alarm is never paused. When the pause ends, the alarms are checked again at once.",
+        "description": "The pause silences all alarms except urgent low. The urgent low alarm is never paused. The pause switch pauses for the pause duration; when it ends, the alarms are checked again at once. In addition, the alarms are paused while one of the pause entities is on, for example during the blocks of a schedule (nursery, school).",
         "data": {
-          "duration": "Pause duration"
+          "duration": "Pause duration",
+          "pause_entities": "Pause entities"
+        },
+        "data_description": {
+          "duration": "How long the pause switch pauses the alarms.",
+          "pause_entities": "Schedules, input booleans or binary sensors. While one of them is on, the alarms are paused; running alarms are acknowledged. When all are off again, an alarm starts again with its delay if the glucose is still in its range. Leave empty for no pause entity."
         }
       }
     },
@@ -796,7 +803,7 @@
             "name": "Alarms"
           },
           "low_alarms": {
-            "name": "Low alarms"
+            "name": "Lows"
           },
           "message": {
             "name": "Message"
@@ -927,8 +934,8 @@
         "charging": "{name}: charge the phone",
         "charging_message": "Battery at {battery} % and not charging.",
         "report": "{name}: report",
-        "report_message": "{period}: {in_range} % in range, {below} % below, {above} % above. Mean {mean} {unit} ({min}–{max}). Low alarms: {low_alarms}.",
-        "report_message_no_range": "{period}: mean {mean} {unit} ({min}–{max}). Low alarms: {low_alarms}.",
+        "report_message": "{period}: {in_range} % in range, {below} % below, {above} % above. Mean {mean} {unit} ({min}–{max}). Lows: {low_alarms}.",
+        "report_message_no_range": "{period}: mean {mean} {unit} ({min}–{max}). Lows: {low_alarms}.",
         "report_no_data": "{period}: no glucose data.",
         "cannula_change": "{name}: change the cannula",
         "cannula_change_soon": "{name}: cannula change due soon",

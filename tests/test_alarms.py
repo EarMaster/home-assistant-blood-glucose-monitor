@@ -422,6 +422,75 @@ async def test_pause_turned_off(scenario: Scenario) -> None:
     assert scenario.phases()[-1] == ("low", "triggered")
 
 
+PAUSE_ENTITY = "schedule.school"
+
+
+async def test_pause_entity(scenario: Scenario) -> None:
+    """While the pause entity is on, all alarms except urgent low are paused."""
+    hass = scenario.hass
+    hass.states.async_set(PAUSE_ENTITY, "off")
+    await scenario.setup(
+        options(pause={"duration": 60, "pause_entities": [PAUSE_ENTITY]})
+    )
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    assert scenario.phases() == [("low", "triggered")]
+
+    hass.states.async_set(PAUSE_ENTITY, "on")
+    await hass.async_block_till_done()
+    assert scenario.phases(scenario.ends) == [("low", "acknowledged")]
+    assert scenario.state(PAUSE_SWITCH) == "on"
+    assert scenario.state(STATUS_SENSOR) == "paused"
+    assert scenario.hass.states.get(PAUSE_SWITCH).attributes["until"] is None
+    await scenario.wait(30, 65)
+    assert scenario.state(LOW_SENSOR) == "idle"
+    assert scenario.phases() == [("low", "triggered")]
+    await scenario.reading(50)
+    assert scenario.phases()[-1] == ("urgent_low", "triggered")
+    await scenario.reading(90)
+
+    # Off again: a new low starts with its delay.
+    await scenario.reading(65)
+    hass.states.async_set(PAUSE_ENTITY, "off")
+    await hass.async_block_till_done()
+    assert scenario.state(PAUSE_SWITCH) == "off"
+    assert scenario.state(LOW_SENSOR) == "pending"
+    await scenario.wait(5, 65)
+    assert scenario.phases()[-1] == ("low", "triggered")
+
+
+async def test_several_pause_entities(scenario: Scenario) -> None:
+    """The alarms are paused while any of the pause entities is on."""
+    hass = scenario.hass
+    trip = "input_boolean.trip"
+    hass.states.async_set(PAUSE_ENTITY, "on")
+    hass.states.async_set(trip, "off")
+    await scenario.setup(
+        options(pause={"duration": 60, "pause_entities": [PAUSE_ENTITY, trip]})
+    )
+    hass.states.async_set(trip, "on")
+    hass.states.async_set(PAUSE_ENTITY, "off")
+    await scenario.reading(65)
+    await scenario.wait(10, 65)
+    assert scenario.phases() == []
+    assert scenario.state(PAUSE_SWITCH) == "on"
+
+    hass.states.async_set(trip, "off")
+    await scenario.wait(5, 65)
+    assert scenario.phases() == [("low", "triggered")]
+
+
+async def test_pause_entity_unknown(scenario: Scenario) -> None:
+    """An unavailable pause entity pauses nothing."""
+    scenario.hass.states.async_set(PAUSE_ENTITY, STATE_UNAVAILABLE)
+    await scenario.setup(
+        options(pause={"duration": 60, "pause_entities": [PAUSE_ENTITY]})
+    )
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    assert scenario.phases() == [("low", "triggered")]
+
+
 async def test_only_when_home(scenario: Scenario) -> None:
     """With the home option, new alarms only start while the person is home."""
     entry_options = options()

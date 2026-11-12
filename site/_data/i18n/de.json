@@ -86,7 +86,7 @@
       ],
       [
         "Schalter <i>Alarme pausieren</i>",
-        "Schaltet alle Alarme außer dringend niedrig für die eingestellte Zeit stumm."
+        "Schaltet alle Alarme außer dringend niedrig für die eingestellte Zeit stumm. Auch an, solange eine Pause-Entität die Alarme pausiert."
       ],
       [
         "Sensor <i>… fällig</i>, Button <i>… gewechselt</i>",
@@ -187,6 +187,18 @@
       "Sind weniger als 70 % des Zeitraums durch Daten abgedeckt, sind beide Sensoren unbekannt. Sie werden jede Stunde aktualisiert und wenn sich die Entität des Zeitraums ändert.",
       "<b>Attribute</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> und <code>unit</code> (Einheit des Glukosesensors), <code>coverage</code> (Anteil des Zeitraums mit Daten in Prozent), <code>period_days</code>, <code>start</code> und <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Dashboard-Beispiele",
+    "dashboard_text": "Karten für das Dashboard mit den eingebauten Karten von Home Assistant: Dashboard bearbeiten, Karte hinzufügen, <i>Manuell</i> wählen und das YAML einfügen. Ersetze <code>alex</code> durch die Entitäts-IDs deiner Person und <code>sensor.alex_glucose</code> durch deinen Glukosesensor.",
+    "dashboard_value_title": "Aktueller Wert",
+    "dashboard_value_text": "Der Sensor <i>Status</i> trägt den letzten Glukosewert, die Einheit, den Trendpfeil und den Messzeitpunkt als Attribute; sein Zustand ist <i>Keine Daten</i>, der wichtigste laufende Alarm, <i>Pausiert</i> oder <i>OK</i>.",
+    "dashboard_history_title": "Verlauf",
+    "dashboard_history_text": "Der Verlauf des Glukosesensors der Quell-Integration.",
+    "dashboard_gmi_title": "GMI und geschätzter HbA1c",
+    "dashboard_gmi_text": "Die Sensoren <i>GMI</i> und <i>Geschätzter HbA1c</i> nebeneinander. Es sind Schätzwerte, kein im Labor bestimmter HbA1c.",
+    "dashboard_cannula_title": "Kanüle mit Button",
+    "dashboard_cannula_text": "Die Kachel zeigt, wann der nächste Kanülenwechsel fällig ist; ein Tippen auf das Symbol erfasst nach einer Bestätigung einen Wechsel mit dem Button <i>Kanüle gewechselt</i>. Darunter steht, wie lange die Kanüle schon in Gebrauch ist. Für Sensor und Reservoir geht es genauso. Den Button gibt es nur, wenn die Integration die Wechsel selbst erfasst (keine Entität mit dem letzten Wechsel).",
+    "dashboard_report_title": "Letzter Bericht",
+    "dashboard_report_text": "Der Text des letzten Berichts aus dem Sensor <i>Letzter Bericht</i>.",
     "notify_title": "Benachrichtigungen auf mehreren Handys",
     "notify_points": [
       "<code>notify.notify</code> stellt die Mobile-App-Integration bereit; es sendet an <b>alle</b> Handys mit der Companion-App, mit allen Optionen (Tag, Kanal, Bestätigen-Button). Ist eine weitere Notify-Integration ohne Namen eingerichtet, kann <code>notify.notify</code> stattdessen zu dieser gehören.",
@@ -196,7 +208,7 @@
     "ack_title": "Bestätigen und pausieren",
     "ack_points": [
       "<b>Bestätigen</b> schaltet einen Alarm für seine Schlummerzeit stumm; danach wird er erneut geprüft und startet sofort, wenn er noch zutrifft. Wer dringend niedrig bestätigt, schaltet für diese Zeit auch niedrig stumm (dringend hoch auch hoch); wer niedrig bestätigt, schaltet dringend niedrig nicht stumm. Wege: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder eine Benachrichtigungsaktion mit der ID aus <code>ack_action</code>.",
-      "<b>Alarme pausieren</b> schaltet alle Alarme außer dringend niedrig für die eingestellte Dauer stumm und schaltet sich selbst wieder aus.",
+      "<b>Alarme pausieren</b> schaltet alle Alarme außer dringend niedrig für die eingestellte Dauer stumm und schaltet sich selbst wieder aus; dann werden die Alarme sofort neu geprüft. Die optionalen <b>Pause-Entitäten</b> unter <b>Konfigurieren → Pause</b>, Zeitpläne, Schalter-Helfer oder Binärsensoren, pausieren dieselben Alarme, solange eine davon an ist, zum Beispiel während Kita oder Schule. Eine unbekannte oder nicht verfügbare Entität gilt als aus. Sind alle wieder aus, startet ein Alarm, der noch zutrifft, wieder mit seiner Verzögerung. Solange pausiert ist, ist der Schalter <i>Alarme pausieren</i> an und der Status-Sensor zeigt <code>paused</code>.",
       "<b>Wechsel erfassen</b> für Kanüle, Sensor oder Reservoir mit dem Button <i>… gewechselt</i> oder der Aktion <code>blood_glucose_monitor.record_change</code> (optional mit einem Zeitpunkt in der Vergangenheit)."
     ]
   },
@@ -230,7 +242,8 @@
       "home": "Mit <i>Nur wenn die Person zu Hause ist</i> in {menu}: Die Person ist zu Hause, wenn der Alarm starten würde. Ein laufender Alarm läuft weiter, wenn die Person geht.",
       "not_acknowledged": "Der Alarm ist nicht bestätigt: Nach einer Bestätigung bleibt er für die Schlummerzeit still und wird dann erneut geprüft.",
       "not_superseded": "{urgent} läuft nicht (ausstehend, aktiv oder geschlummert): Solange er läuft, startet dieser Alarm nicht und wiederholt sich nicht. Nachdem {urgent} bestätigt wurde, bleibt dieser Alarm still, bis die Schlummerzeit von {urgent} endet (nicht die eigene), und wird dann erneut geprüft.",
-      "pause_off": "Der Schalter <i>{pause}</i> ist aus.",
+      "pause_off": "Die Alarme sind nicht pausiert: Der Schalter <i>{pause}</i> ist aus (er ist auch an, solange eine der Pause-Entitäten in {menu} an ist). Sind alle Pause-Entitäten wieder aus, startet der Alarm wieder mit seiner Verzögerung.",
+      "paused": "Eine Pause beginnt (der Schalter <i>{pause}</i> oder eine der Pause-Entitäten in {menu}): Ein laufender Alarm wird bestätigt (Phase <code>acknowledged</code>).",
       "pause_never": "Die Pause gilt für diesen Alarm nicht.",
       "repeats": "Wiederholungen: Das Ereignis löst im Wiederholungsintervall erneut aus, solange der Alarm aktiv ist (Intervall 0 = nur einmal).",
       "acknowledged": "Der Alarm wird bestätigt: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder die Benachrichtigungsaktion <code>ack_action</code>.",
@@ -300,8 +313,8 @@
       "in_range": "Anteil der Zeit im Zielbereich in Prozent (leer ohne beide Schwellwerte).",
       "above": "Anteil der Zeit über dem Zielbereich in Prozent (leer ohne beide Schwellwerte).",
       "coverage": "Anteil des Zeitraums mit Glukosedaten in Prozent.",
-      "alarms": "Anzahl der Alarme, die im Zeitraum gestartet sind, je Alarm.",
-      "low_alarms": "Anzahl der Alarme niedrig und dringend niedrig im Zeitraum.",
+      "alarms": "Je Alarm die Anzahl der Alarmepisoden, die im Zeitraum begonnen haben. Wiederholungen und die erneute Prüfung nach dem Schlummern oder der Pause gehören zur selben Episode; sie endet, wenn der Alarm wieder ruhig ist. Ein Alarm, der innerhalb der <i>Karenzzeit</i> aus den Berichtsoptionen (Standard 15 Minuten, 0 = aus) erneut beginnt, setzt seine Episode fort.",
+      "low_alarms": "Anzahl der Unterzucker, die im Zeitraum begonnen haben. Ein Unterzucker dauert, solange der Alarm niedrig oder dringend niedrig läuft (ausstehend, aktiv oder geschlummert); ein Wechsel zwischen niedrig und dringend niedrig zählt einmal, ebenso ein neuer Unterzucker innerhalb der <i>Karenzzeit</i>.",
       "tag": "Benachrichtigungs-Tag, eindeutig pro Person, damit ein neuer Bericht den letzten ersetzt.",
       "icon": "Icon des Berichts: <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Name des Eintrags (der Person).",

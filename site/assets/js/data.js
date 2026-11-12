@@ -26,7 +26,7 @@ window.BGM = (() => {
   const common = (key, pausable = true) => [
     req("home", key),
     req("not_acknowledged"),
-    req(pausable ? "pause_off" : "pause_never"),
+    pausable ? req("pause_off", "pause") : req("pause_never"),
     req("repeats"),
   ];
 
@@ -53,11 +53,16 @@ window.BGM = (() => {
     T.attributes,
   );
 
-  const alarm = (key, alert, ended, extra = {}) => ({
+  // pausable: a pause (switch or a pause entity) acknowledges the alarm.
+  const alarm = (key, alert, ended, extra = {}, pausable = true) => ({
     key,
     name: HA.names[key],
     alert,
-    ended: [req("acknowledged"), ...ended],
+    ended: [
+      req("acknowledged"),
+      ...(pausable ? [req("paused", "pause")] : []),
+      ...ended,
+    ],
     ...extra,
   });
 
@@ -76,6 +81,8 @@ window.BGM = (() => {
         ...(urgent ? [req("urgent_acknowledged", null, urgent)] : []),
         req(below ? "back_above" : "back_below"),
       ],
+      {},
+      pausable,
     );
 
   const rate = (key, prefix) =>

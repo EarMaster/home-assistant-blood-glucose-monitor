@@ -571,13 +571,25 @@ async def test_data_loss_and_pause_options(
 
     result = await open_options_step(hass, config_entry, "pause")
     assert suggested_values(result) == {"duration": 60}
+    hass.states.async_set("binary_sensor.mode", "school")
+    hass.states.async_set("schedule.school", "off")
+    hass.states.async_set("input_boolean.trip", "on")
     result = await hass.config_entries.options.async_configure(
-        result["flow_id"], {"duration": 30}
+        result["flow_id"],
+        {"duration": 30, "pause_entities": ["schedule.school", "binary_sensor.mode"]},
+    )
+    assert result["errors"] == {"pause_entities": "not_on_off"}
+    result = await hass.config_entries.options.async_configure(
+        result["flow_id"],
+        {"duration": 30, "pause_entities": ["schedule.school", "input_boolean.trip"]},
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
     await hass.async_block_till_done()
     assert config_entry.options["data_loss"] == data_loss
-    assert config_entry.options["pause"] == {"duration": 30}
+    assert config_entry.options["pause"] == {
+        "duration": 30,
+        "pause_entities": ["schedule.school", "input_boolean.trip"],
+    }
 
 
 RAPID_INPUT = {
@@ -887,6 +899,7 @@ async def test_report_options(
     await hass.async_block_till_done()
     assert config_entry.options["report"] == {
         "report_entity": "schedule.blocks",
+        "cooldown": 15,
         "only_when_home": False,
     }
 

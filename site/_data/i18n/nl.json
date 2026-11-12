@@ -86,7 +86,7 @@
       ],
       [
         "Schakelaar <i>Alarmen pauzeren</i>",
-        "Dempt alle alarmen behalve urgent laag gedurende de ingestelde tijd."
+        "Dempt alle alarmen behalve urgent laag gedurende de ingestelde tijd. Staat ook aan zolang een pauze-entiteit de alarmen pauzeert."
       ],
       [
         "Sensor <i>… nodig</i>, knop <i>… gewisseld</i>",
@@ -187,6 +187,18 @@
       "Als minder dan 70% van de periode door gegevens wordt gedekt, zijn beide sensoren onbekend. Ze worden elk uur bijgewerkt en wanneer de entiteit van de periode verandert.",
       "<b>Attributen</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> en <code>unit</code> (eenheid van de glucosesensor), <code>coverage</code> (deel van de periode met gegevens in procent), <code>period_days</code>, <code>start</code> en <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Dashboardvoorbeelden",
+    "dashboard_text": "Kaarten voor het dashboard met de ingebouwde kaarten van Home Assistant: bewerk een dashboard, voeg een kaart toe, kies <i>Handmatig</i> en plak de YAML. Vervang <code>alex</code> door de entiteit-ID's van je persoon en <code>sensor.alex_glucose</code> door je glucosesensor.",
+    "dashboard_value_title": "Huidige waarde",
+    "dashboard_value_text": "De sensor <i>Status</i> bevat de laatste glucosewaarde, de eenheid, de trendpijl en het meettijdstip als attributen; zijn status is <i>Geen gegevens</i>, het belangrijkste lopende alarm, <i>Gepauzeerd</i> of <i>OK</i>.",
+    "dashboard_history_title": "Geschiedenis",
+    "dashboard_history_text": "De geschiedenis van de glucosesensor van de bronintegratie.",
+    "dashboard_gmi_title": "GMI en geschatte HbA1c",
+    "dashboard_gmi_text": "De sensoren <i>GMI</i> en <i>Geschatte HbA1c</i> naast elkaar. Het zijn schattingen, geen HbA1c uit het laboratorium.",
+    "dashboard_cannula_title": "Canule met knop",
+    "dashboard_cannula_text": "De tegel toont wanneer de volgende canulewissel nodig is; een tik op het pictogram registreert na een bevestiging een wissel met de knop <i>Canule gewisseld</i>. Daaronder staat hoe lang de canule al in gebruik is. Hetzelfde werkt voor de sensor en het reservoir. De knop bestaat alleen als de integratie de wissels zelf registreert (geen entiteit voor de laatste wissel).",
+    "dashboard_report_title": "Laatste rapport",
+    "dashboard_report_text": "De tekst van het laatste rapport uit de sensor <i>Laatste rapport</i>.",
     "notify_title": "Meldingen op meerdere telefoons",
     "notify_points": [
       "<code>notify.notify</code> wordt geleverd door de Mobile App-integratie en stuurt naar <b>alle</b> telefoons met de Companion-app, met alle opties (tag, kanaal, bevestigknop). Is er een andere notify-integratie zonder naam ingesteld, dan kan <code>notify.notify</code> in plaats daarvan bij die integratie horen.",
@@ -196,7 +208,7 @@
     "ack_title": "Bevestigen en pauzeren",
     "ack_points": [
       "<b>Bevestigen</b> dempt een alarm voor de duur van het sluimeren; daarna wordt het opnieuw gecontroleerd en start het meteen als het nog van toepassing is. Wie urgent laag bevestigt, dempt voor die tijd ook laag (urgent hoog ook hoog); wie laag bevestigt, dempt urgent laag niet. Manieren: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of een meldingsactie met de ID uit <code>ack_action</code>.",
-      "<b>Alarmen pauzeren</b> dempt alle alarmen behalve urgent laag gedurende de ingestelde duur en schakelt daarna vanzelf uit.",
+      "<b>Alarmen pauzeren</b> dempt alle alarmen behalve urgent laag gedurende de ingestelde duur en schakelt daarna vanzelf uit; dan worden de alarmen meteen opnieuw gecontroleerd. De optionele <b>pauze-entiteiten</b> onder <b>Configureren → Pauze</b>, schema's, boolean invoer of binaire sensoren, pauzeren dezelfde alarmen zolang een ervan aan staat, bijvoorbeeld tijdens de kinderopvang of school. Een onbekende of niet-beschikbare entiteit telt als uit. Wanneer alle weer uit staan, start een alarm dat nog van toepassing is opnieuw met zijn vertraging. Zolang er gepauzeerd wordt, staat de schakelaar <i>Alarmen pauzeren</i> aan en toont de statussensor <code>paused</code>.",
       "<b>Wissel registreren</b> van canule, sensor of reservoir met de knop <i>… gewisseld</i> of de actie <code>blood_glucose_monitor.record_change</code> (optioneel met een tijdstip in het verleden)."
     ]
   },
@@ -230,7 +242,8 @@
       "home": "Met <i>Alleen als de persoon thuis is</i> in {menu}: de persoon is thuis wanneer het alarm zou starten. Een lopend alarm gaat door als de persoon vertrekt.",
       "not_acknowledged": "Het alarm is niet bevestigd: na een bevestiging blijft het stil voor de duur van het sluimeren en wordt het daarna opnieuw gecontroleerd.",
       "not_superseded": "{urgent} loopt niet (in afwachting, actief of sluimerend): zolang het loopt, start dit alarm niet en herhaalt het zich niet. Nadat {urgent} is bevestigd, blijft dit alarm stil tot de sluimertijd van {urgent} afloopt (niet de eigen) en wordt het daarna opnieuw gecontroleerd.",
-      "pause_off": "De schakelaar <i>{pause}</i> staat uit.",
+      "pause_off": "De alarmen zijn niet gepauzeerd: de schakelaar <i>{pause}</i> staat uit (deze staat ook aan zolang een van de pauze-entiteiten in {menu} aan staat). Wanneer alle pauze-entiteiten weer uit staan, start het alarm opnieuw met zijn vertraging.",
+      "paused": "Een pauze begint (de schakelaar <i>{pause}</i> of een van de pauze-entiteiten in {menu}): een lopend alarm wordt bevestigd (fase <code>acknowledged</code>).",
       "pause_never": "De pauze geldt niet voor dit alarm.",
       "repeats": "Herhalingen: de gebeurtenis wordt opnieuw geactiveerd na het herhaalinterval zolang het alarm actief is (herhaalinterval 0 = slechts één keer).",
       "acknowledged": "Het alarm wordt bevestigd: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of de meldingsactie <code>ack_action</code>.",
@@ -300,8 +313,8 @@
       "in_range": "Aandeel van de tijd binnen bereik in procent (leeg zonder beide drempelwaarden).",
       "above": "Aandeel van de tijd boven bereik in procent (leeg zonder beide drempelwaarden).",
       "coverage": "Aandeel van de periode met glucosegegevens in procent.",
-      "alarms": "Aantal alarmen dat in de periode is gestart, per alarm.",
-      "low_alarms": "Aantal alarmen laag en urgent laag in de periode.",
+      "alarms": "Per alarm het aantal alarmepisodes dat in de periode is gestart. Herhalingen en de nieuwe controle na sluimeren of de pauze horen bij dezelfde episode; die eindigt wanneer het alarm weer inactief is. Een alarm dat binnen de <i>Wachttijd</i> uit de rapportopties (standaard 15 minuten, 0 = uit) opnieuw start, zet zijn episode voort.",
+      "low_alarms": "Aantal hypoglykemieën dat in de periode is gestart. Een hypoglykemie duurt zolang het alarm laag of urgent laag loopt (in afwachting, actief of sluimerend); een wisseling tussen laag en urgent laag telt één keer, net als een nieuwe hypoglykemie binnen de <i>Wachttijd</i>.",
       "tag": "Meldingstag, uniek per persoon, zodat een nieuw rapport het vorige vervangt.",
       "icon": "Pictogram van het rapport: <code>mdi:clipboard-text-clock</code>.",
       "person_name": "Naam van het item (de persoon).",
