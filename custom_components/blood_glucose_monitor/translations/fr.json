@@ -359,10 +359,12 @@
         "description": "Un rapport par période pendant laquelle l'entité sélectionnée est activée, par exemple par bloc d'une planification. À la fin d'une période, l'entité d'événement « Rapport » de cette personne se déclenche avec les statistiques, le début et la fin de la période, et le capteur « Dernier rapport » est mis à jour. Les statistiques proviennent de l'historique (recorder).",
         "data": {
           "report_entity": "Périodes",
+          "cooldown": "Délai de grâce",
           "only_when_home": "Uniquement lorsque la personne est à la maison"
         },
         "data_description": {
           "report_entity": "Planification, entrée booléenne ou capteur binaire. Laissez vide pour désactiver les rapports.",
+          "cooldown": "Une alarme qui redémarre dans ce délai après sa fin compte comme la même alarme (et la même hypoglycémie) dans le rapport. 0 compte chaque nouveau démarrage.",
           "only_when_home": "L'événement « Rapport » n'est déclenché que lorsque la personne est à la maison. Le rapport et le capteur « Dernier rapport » sont tout de même mis à jour."
         }
       },
@@ -796,7 +798,7 @@
             "name": "Alarmes"
           },
           "low_alarms": {
-            "name": "Alarmes de glucose bas"
+            "name": "Hypoglycémies"
           },
           "message": {
             "name": "Message"
@@ -927,8 +929,8 @@
         "charging": "{name} : charger le téléphone",
         "charging_message": "Batterie à {battery} % et pas en charge.",
         "report": "{name} : rapport",
-        "report_message": "{period} : {in_range} % dans la cible, {below} % en dessous, {above} % au-dessus. Moyenne {mean} {unit} ({min}–{max}). Alarmes de glucose bas : {low_alarms}.",
-        "report_message_no_range": "{period} : moyenne {mean} {unit} ({min}–{max}). Alarmes de glucose bas : {low_alarms}.",
+        "report_message": "{period} : {in_range} % dans la cible, {below} % en dessous, {above} % au-dessus. Moyenne {mean} {unit} ({min}–{max}). Hypoglycémies : {low_alarms}.",
+        "report_message_no_range": "{period} : moyenne {mean} {unit} ({min}–{max}). Hypoglycémies : {low_alarms}.",
         "report_no_data": "{period} : aucune donnée de glucose.",
         "cannula_change": "{name} : changer la canule",
         "cannula_change_soon": "{name} : changement de canule imminent",

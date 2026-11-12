@@ -305,7 +305,8 @@ works too. When a period ends, the *Report* event entity of the person fires
 | `glucose_min`, `glucose_max`, `glucose_mean`, `unit` | values in the unit of the glucose sensor; the mean is weighted by time |
 | `below`, `in_range`, `above` | share of the time in percent, range from the low (else urgent low) and high (else urgent high) thresholds |
 | `coverage` | share of the period with glucose data in percent |
-| `alarms`, `low_alarms` | number of alarms that started in the period |
+| `alarms` | per alarm, the number of alarm episodes that started in the period; repeats and the re-check after a snooze or the pause belong to the same episode, which ends when the alarm is idle again; a new start within the cooldown continues it |
+| `low_alarms` | number of lows that started in the period; a low lasts as long as the low or urgent low alarm runs (pending, active or snoozed), so a change between low and urgent low counts once, and so does a new low within the cooldown |
 | `title`, `message` | ready-made texts |
 | `tag` | notification tag, unique per entry |
 | `icon` | `mdi:clipboard-text-clock` |
@@ -315,6 +316,11 @@ The statistics come from the history of the glucose sensor (recorder). A
 period that ends while Home Assistant is restarting is reported afterwards.
 With **only when the person is at home**, the event only fires while the
 person is at home; the report and the *Last report* sensor are updated anyway.
+
+**Cooldown** (minutes, default 15, 0 = off): an alarm that starts again
+within this time after its episode ended counts as the same episode in the
+report, per alarm in `alarms` and for the lows in `low_alarms`. The alarm
+itself is not affected: it starts and fires its event as usual.
 
 ### GMI and estimated HbA1c
 

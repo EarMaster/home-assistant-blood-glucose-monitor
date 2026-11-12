@@ -62,6 +62,7 @@ from .const import (
     CONF_BATTERY_LIMIT_ENTITY,
     CONF_CHARGING_ENTITY,
     CONF_CLEAR_OFFSET,
+    CONF_COOLDOWN,
     CONF_DELAY,
     CONF_DETECTION,
     CONF_DUE_TIME,
@@ -88,6 +89,7 @@ from .const import (
     CONF_WARNING,
     CONF_WEAR_DURATION,
     CONF_WEAR_DURATION_ENTITY,
+    DEFAULT_COOLDOWN,
     DEFAULT_ESTIMATE_PERIOD,
     DEFAULT_PAUSE_DURATION,
     DETECTION_OFF,
@@ -291,16 +293,16 @@ class AlarmMonitor:
         self._issue = False
         # After a (re)start the source gets max_age to deliver data.
         self._started = dt_util.utcnow()
-        report_entity = options.get(CONF_REPORT, {}).get(CONF_REPORT_ENTITY)
+        report = options.get(CONF_REPORT, {})
+        report_entity = report.get(CONF_REPORT_ENTITY)
         self.report = (
             None
             if not report_entity
             else ReportTracker(
                 self,
                 report_entity,
-                only_when_home=bool(
-                    options.get(CONF_REPORT, {}).get(CONF_ONLY_WHEN_HOME)
-                ),
+                only_when_home=bool(report.get(CONF_ONLY_WHEN_HOME)),
+                cooldown=minutes(report.get(CONF_COOLDOWN, DEFAULT_COOLDOWN)),
             )
         )
         estimate = options.get(CONF_ESTIMATE, {CONF_PERIOD: DEFAULT_ESTIMATE_PERIOD})
@@ -667,6 +669,15 @@ class AlarmMonitor:
         for alarm in self.engines:
             if alarm in CHANGE_ALARMS:
                 self._async_check_warning(alarm, now)
+        if self.report is not None:
+            self.report.release(
+                {
+                    alarm
+                    for alarm, engine in self.engines.items()
+                    if engine.state is not AlarmState.IDLE
+                },
+                now,
+            )
 
         self._async_schedule(now)
         self.async_save()
@@ -978,7 +989,7 @@ class AlarmMonitor:
         _LOGGER.debug("%s: %s alarm %s", self.entry.title, alarm, phase)
         kind = TRIGGER_ALERT if phase in ALERT_PHASES else TRIGGER_ENDED
         if phase is Phase.TRIGGERED and self.report is not None:
-            self.report.count(alarm)
+            self.report.count(alarm, now)
         self.async_fire(f"{alarm}_{kind}", variables)
 
     def _variables(self, alarm: str, phase: Phase, now: datetime) -> dict[str, Any]:

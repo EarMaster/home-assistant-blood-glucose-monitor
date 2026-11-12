@@ -887,6 +887,7 @@ async def test_report_options(
     await hass.async_block_till_done()
     assert config_entry.options["report"] == {
         "report_entity": "schedule.blocks",
+        "cooldown": 15,
         "only_when_home": False,
     }
 

@@ -153,6 +153,10 @@ ATTR_TIME: Final = "time"
 # is on. Options dict under this key.
 CONF_REPORT: Final = "report"
 CONF_REPORT_ENTITY: Final = "report_entity"
+# An alarm that starts again within this many minutes after it ended is the
+# same episode in the report (not a new low).
+CONF_COOLDOWN: Final = "cooldown"
+DEFAULT_COOLDOWN: Final = 15
 TRIGGER_REPORT: Final = "report"
 
 # GMI and estimated HbA1c from the long-term statistics of the glucose

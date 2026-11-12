@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Report: option *Cooldown* (minutes, default 15, 0 = off); an alarm that starts again within this time after its episode ended counts as the same episode in `alarms` and as the same low in `low_alarms`; the alarms themselves are unchanged
+
 ### Fixed
+- Report: lows were counted once per alarm start, for example after every re-check after a snooze and for low and urgent low separately; `low_alarms` now counts each low once (as long as the low or urgent low alarm runs) and `alarms` counts alarm episodes, an episode that started before the period is not counted; the attribute and the report message say *Lows*
 - Automation builder: the variable `event` is empty instead of an error for triggers other than the event entities, so an automation with an additional trigger (for example a button that records a change) runs
 
 ## [1.3.0] - 2026-11-08

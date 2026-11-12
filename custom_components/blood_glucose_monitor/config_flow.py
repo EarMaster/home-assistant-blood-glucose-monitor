@@ -54,6 +54,7 @@ from .const import (
     CONF_CHANGE_ENTITY,
     CONF_CHARGING_ENTITY,
     CONF_CLEAR_OFFSET,
+    CONF_COOLDOWN,
     CONF_DELAY,
     CONF_DETECTION,
     CONF_DISCLAIMER_ACCEPTED,
@@ -87,6 +88,7 @@ from .const import (
     CONF_WEAR_DURATION,
     CONF_WEAR_DURATION_ENTITY,
     DEFAULT_CLEAR_OFFSET,
+    DEFAULT_COOLDOWN,
     DEFAULT_ESTIMATE_PERIOD,
     DEFAULT_PAUSE_DURATION,
     DEFAULT_RATE_LIMIT,
@@ -202,6 +204,7 @@ REPORT_SCHEMA = vol.Schema(
         vol.Optional(CONF_REPORT_ENTITY): EntitySelector(
             EntitySelectorConfig(domain=["schedule", "input_boolean", "binary_sensor"])
         ),
+        vol.Required(CONF_COOLDOWN, default=DEFAULT_COOLDOWN): _minutes(),
         vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
     }
 )

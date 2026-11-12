@@ -359,10 +359,12 @@
         "description": "Un informe por cada periodo en el que la entidad seleccionada está activada, por ejemplo por cada bloque de una programación. Cuando termina un periodo, la entidad de evento «Informe» de esta persona se dispara con las estadísticas, el inicio y el fin del periodo, y se actualiza el sensor «Último informe». Las estadísticas proceden del historial (recorder).",
         "data": {
           "report_entity": "Periodos",
+          "cooldown": "Periodo de gracia",
           "only_when_home": "Solo cuando la persona está en casa"
         },
         "data_description": {
           "report_entity": "Programación, entrada booleana o sensor binario. Déjalo vacío para desactivar los informes.",
+          "cooldown": "Una alarma que vuelve a iniciarse dentro de este tiempo tras haber terminado cuenta como la misma alarma (y la misma hipoglucemia) en el informe. 0 cuenta cada nuevo inicio.",
           "only_when_home": "El evento «Informe» solo se dispara mientras la persona está en casa. El informe y el sensor «Último informe» se actualizan igualmente."
         }
       },
@@ -796,7 +798,7 @@
             "name": "Alarmas"
           },
           "low_alarms": {
-            "name": "Alarmas de glucosa baja"
+            "name": "Hipoglucemias"
           },
           "message": {
             "name": "Mensaje"
@@ -927,8 +929,8 @@
         "charging": "{name}: carga el teléfono",
         "charging_message": "Batería al {battery} % y sin cargar.",
         "report": "{name}: informe",
-        "report_message": "{period}: {in_range} % en rango, {below} % por debajo, {above} % por encima. Media {mean} {unit} ({min}–{max}). Alarmas de glucosa baja: {low_alarms}.",
-        "report_message_no_range": "{period}: media {mean} {unit} ({min}–{max}). Alarmas de glucosa baja: {low_alarms}.",
+        "report_message": "{period}: {in_range} % en rango, {below} % por debajo, {above} % por encima. Media {mean} {unit} ({min}–{max}). Hipoglucemias: {low_alarms}.",
+        "report_message_no_range": "{period}: media {mean} {unit} ({min}–{max}). Hipoglucemias: {low_alarms}.",
         "report_no_data": "{period}: sin datos de glucosa.",
         "cannula_change": "{name}: cambia la cánula",
         "cannula_change_soon": "{name}: cambio de cánula en breve",

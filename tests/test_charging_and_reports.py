@@ -10,7 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import dt as dt_util
 import pytest
 
-from .test_alarms import PERSON, Scenario, alarm, options
+from .test_alarms import PERSON, Scenario, acknowledge, alarm, options
 
 BATTERY = "sensor.phone_battery_level"
 CHARGING = "sensor.phone_battery_state"
@@ -180,6 +180,102 @@ async def test_report_period(scenario: Scenario) -> None:
     assert report["glucose_mean"] is None
     assert report["message"] == "19:50–20:20: no glucose data."
     assert hass.states.get(LAST_REPORT).attributes["low_alarms"] == 1
+
+
+async def test_report_counts_lows_once(scenario: Scenario) -> None:
+    """Repeats, re-checks and low ↔ urgent low belong to one low."""
+    hass = scenario.hass
+    hass.states.async_set(REPORT_ENTITY, "on")
+    await scenario.setup(options(report={"report_entity": REPORT_ENTITY}))
+
+    # First low: repeat, acknowledge, re-check after the snooze, urgent low,
+    # back to low, over.
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    await scenario.wait(5, 64)
+    await acknowledge(scenario, "low")
+    await scenario.wait(15, 66)
+    await scenario.reading(50)
+    await scenario.wait(5, 50)
+    await scenario.reading(62)
+    await scenario.reading(85)
+    assert scenario.phases() == [
+        ("low", "triggered"),
+        ("low", "repeat"),
+        ("low", "triggered"),
+        ("urgent_low", "triggered"),
+        ("urgent_low", "repeat"),
+    ]
+
+    # Second low, after the cooldown.
+    await scenario.wait(20, 110)
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    await scenario.reading(90)
+
+    # Third low: urgent low first, low starts when urgent low is over.
+    await scenario.wait(20, 110)
+    await scenario.reading(50)
+    await scenario.reading(62)
+    await scenario.wait(5, 62)
+    assert scenario.phases()[-2:] == [
+        ("urgent_low", "triggered"),
+        ("low", "triggered"),
+    ]
+    await scenario.reading(90)
+
+    hass.states.async_set(REPORT_ENTITY, "off")
+    await hass.async_block_till_done(wait_background_tasks=True)
+    report = report_events(scenario)[0]
+    assert report["alarms"] == {"low": 3, "urgent_low": 2}
+    assert report["low_alarms"] == 3
+
+
+@pytest.mark.parametrize(("cooldown", "lows"), [(None, 1), (5, 2), (0, 2)])
+async def test_report_cooldown(
+    scenario: Scenario, cooldown: int | None, lows: int
+) -> None:
+    """A low that starts again within the cooldown (15 minutes) is the same."""
+    hass = scenario.hass
+    hass.states.async_set(REPORT_ENTITY, "on")
+    report: dict[str, Any] = {"report_entity": REPORT_ENTITY}
+    if cooldown is not None:
+        report["cooldown"] = cooldown
+    await scenario.setup(options(report=report))
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    await scenario.reading(90)
+    # Low again 10 minutes after the first one was over.
+    await scenario.wait(5, 90)
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    assert scenario.phases() == [("low", "triggered"), ("low", "triggered")]
+    await scenario.reading(90)
+    hass.states.async_set(REPORT_ENTITY, "off")
+    await hass.async_block_till_done(wait_background_tasks=True)
+    data = report_events(scenario)[0]
+    assert data["alarms"] == {"low": lows}
+    assert data["low_alarms"] == lows
+
+
+async def test_report_low_across_periods(scenario: Scenario) -> None:
+    """A low that started before the period does not count in the period."""
+    hass = scenario.hass
+    hass.states.async_set(REPORT_ENTITY, "off")
+    await scenario.setup(options(report={"report_entity": REPORT_ENTITY}))
+    await scenario.reading(65)
+    await scenario.wait(5, 65)
+    await acknowledge(scenario, "low")
+    hass.states.async_set(REPORT_ENTITY, "on")
+    # Re-check after the snooze: the same low.
+    await scenario.wait(15, 66)
+    assert scenario.phases()[-1] == ("low", "triggered")
+    await scenario.reading(90)
+    hass.states.async_set(REPORT_ENTITY, "off")
+    await hass.async_block_till_done(wait_background_tasks=True)
+    report = report_events(scenario)[0]
+    assert report["alarms"] == {}
+    assert report["low_alarms"] == 0
 
 
 async def test_report_only_when_home(scenario: Scenario) -> None:
