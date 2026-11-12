@@ -187,6 +187,18 @@
       "Sind weniger als 70 % des Zeitraums durch Daten abgedeckt, sind beide Sensoren unbekannt. Sie werden jede Stunde aktualisiert und wenn sich die Entität des Zeitraums ändert.",
       "<b>Attribute</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> und <code>unit</code> (Einheit des Glukosesensors), <code>coverage</code> (Anteil des Zeitraums mit Daten in Prozent), <code>period_days</code>, <code>start</code> und <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Dashboard-Beispiele",
+    "dashboard_text": "Karten für das Dashboard mit den eingebauten Karten von Home Assistant: Dashboard bearbeiten, Karte hinzufügen, <i>Manuell</i> wählen und das YAML einfügen. Ersetze <code>alex</code> durch die Entitäts-IDs deiner Person und <code>sensor.alex_glucose</code> durch deinen Glukosesensor.",
+    "dashboard_value_title": "Aktueller Wert",
+    "dashboard_value_text": "Der Sensor <i>Status</i> trägt den letzten Glukosewert, die Einheit, den Trendpfeil und den Messzeitpunkt als Attribute; sein Zustand ist <i>Keine Daten</i>, der wichtigste laufende Alarm, <i>Pausiert</i> oder <i>OK</i>.",
+    "dashboard_history_title": "Verlauf",
+    "dashboard_history_text": "Der Verlauf des Glukosesensors der Quell-Integration.",
+    "dashboard_gmi_title": "GMI und geschätzter HbA1c",
+    "dashboard_gmi_text": "Die Sensoren <i>GMI</i> und <i>Geschätzter HbA1c</i> nebeneinander. Es sind Schätzwerte, kein im Labor bestimmter HbA1c.",
+    "dashboard_cannula_title": "Kanüle mit Button",
+    "dashboard_cannula_text": "Die Kachel zeigt, wann der nächste Kanülenwechsel fällig ist; ein Tippen auf das Symbol erfasst nach einer Bestätigung einen Wechsel mit dem Button <i>Kanüle gewechselt</i>. Darunter steht, wie lange die Kanüle schon in Gebrauch ist. Für Sensor und Reservoir geht es genauso. Den Button gibt es nur, wenn die Integration die Wechsel selbst erfasst (keine Entität mit dem letzten Wechsel).",
+    "dashboard_report_title": "Letzter Bericht",
+    "dashboard_report_text": "Der Text des letzten Berichts aus dem Sensor <i>Letzter Bericht</i>.",
     "notify_title": "Benachrichtigungen auf mehreren Handys",
     "notify_points": [
       "<code>notify.notify</code> stellt die Mobile-App-Integration bereit; es sendet an <b>alle</b> Handys mit der Companion-App, mit allen Optionen (Tag, Kanal, Bestätigen-Button). Ist eine weitere Notify-Integration ohne Namen eingerichtet, kann <code>notify.notify</code> stattdessen zu dieser gehören.",

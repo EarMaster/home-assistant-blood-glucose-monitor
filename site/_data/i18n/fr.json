@@ -187,6 +187,18 @@
       "Si moins de 70 % de la période est couverte par des données, les deux capteurs sont inconnus. Ils sont mis à jour toutes les heures et lorsque l'entité de la période change.",
       "<b>Attributs</b> : <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> et <code>unit</code> (unité du capteur de glucose), <code>coverage</code> (part de la période avec des données, en pourcentage), <code>period_days</code>, <code>start</code> et <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Exemples de tableau de bord",
+    "dashboard_text": "Des cartes pour le tableau de bord avec les cartes intégrées de Home Assistant : modifiez un tableau de bord, ajoutez une carte, choisissez <i>Manuel</i> et collez le YAML. Remplacez <code>alex</code> par les ID d'entité de votre personne et <code>sensor.alex_glucose</code> par votre capteur de glucose.",
+    "dashboard_value_title": "Valeur actuelle",
+    "dashboard_value_text": "Le capteur <i>Statut</i> porte la dernière valeur de glucose, l'unité, la flèche de tendance et l'heure de mesure comme attributs ; son état est <i>Aucune donnée</i>, l'alarme en cours la plus importante, <i>En pause</i> ou <i>OK</i>.",
+    "dashboard_history_title": "Historique",
+    "dashboard_history_text": "L'historique du capteur de glucose de l'intégration source.",
+    "dashboard_gmi_title": "GMI et HbA1c estimée",
+    "dashboard_gmi_text": "Les capteurs <i>GMI</i> et <i>HbA1c estimée</i> côte à côte. Ce sont des estimations, pas une HbA1c de laboratoire.",
+    "dashboard_cannula_title": "Canule avec bouton",
+    "dashboard_cannula_text": "La tuile indique quand le prochain changement de canule est dû ; un appui sur l'icône enregistre, après confirmation, un changement avec le bouton <i>Canule changée</i>. En dessous, depuis combien de temps la canule est utilisée. Il en va de même pour le capteur et le réservoir. Le bouton n'existe que si l'intégration enregistre elle-même les changements (pas d'entité du dernier changement).",
+    "dashboard_report_title": "Dernier rapport",
+    "dashboard_report_text": "Le texte du dernier rapport, issu du capteur <i>Dernier rapport</i>.",
     "notify_title": "Notifications sur plusieurs téléphones",
     "notify_points": [
       "<code>notify.notify</code> est fourni par l'intégration Mobile App et envoie à <b>tous</b> les téléphones dotés de l'application Companion, avec toutes les options (tag, canal, bouton d'acquittement). Si une autre intégration de notification sans nom est configurée, <code>notify.notify</code> peut appartenir à celle-ci à la place.",

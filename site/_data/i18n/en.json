@@ -187,6 +187,18 @@
       "With less than 70 % of the period covered by data, both sensors are unknown. They are updated every hour and when the period entity changes.",
       "<b>Attributes</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> and <code>unit</code> (unit of the glucose sensor), <code>coverage</code> (share of the period with data in percent), <code>period_days</code>, <code>start</code> and <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Dashboard examples",
+    "dashboard_text": "Cards for the dashboard with the built-in cards of Home Assistant: edit a dashboard, add a card, choose <i>Manual</i> and paste the YAML. Replace <code>alex</code> with the entity IDs of your person and <code>sensor.alex_glucose</code> with your glucose sensor.",
+    "dashboard_value_title": "Current value",
+    "dashboard_value_text": "The sensor <i>Status</i> carries the latest glucose value, unit, trend arrow and reading time as attributes; its state is <i>No data</i>, the most important running alarm, <i>Paused</i> or <i>OK</i>.",
+    "dashboard_history_title": "History",
+    "dashboard_history_text": "The history of the glucose sensor of the source integration.",
+    "dashboard_gmi_title": "GMI and estimated HbA1c",
+    "dashboard_gmi_text": "The sensors <i>GMI</i> and <i>Estimated HbA1c</i> side by side. They are estimates, not a laboratory HbA1c.",
+    "dashboard_cannula_title": "Cannula with button",
+    "dashboard_cannula_text": "The tile shows when the next cannula change is due; a tap on the icon records a change with the button <i>Cannula changed</i> after a confirmation. Below it, how long the cannula has been in use. The same works for the sensor and the reservoir. The button only exists when the integration records the changes itself (no last change entity).",
+    "dashboard_report_title": "Last report",
+    "dashboard_report_text": "The text of the last report from the sensor <i>Last report</i>.",
     "notify_title": "Notifications on several phones",
     "notify_points": [
       "<code>notify.notify</code> is provided by the Mobile App integration and sends to <b>all</b> phones with the Companion app, with every option (tag, channel, acknowledge button). If another notify integration without a name is set up, <code>notify.notify</code> may belong to that one instead.",

@@ -187,6 +187,18 @@
       "Als minder dan 70% van de periode door gegevens wordt gedekt, zijn beide sensoren onbekend. Ze worden elk uur bijgewerkt en wanneer de entiteit van de periode verandert.",
       "<b>Attributen</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> en <code>unit</code> (eenheid van de glucosesensor), <code>coverage</code> (deel van de periode met gegevens in procent), <code>period_days</code>, <code>start</code> en <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Dashboardvoorbeelden",
+    "dashboard_text": "Kaarten voor het dashboard met de ingebouwde kaarten van Home Assistant: bewerk een dashboard, voeg een kaart toe, kies <i>Handmatig</i> en plak de YAML. Vervang <code>alex</code> door de entiteit-ID's van je persoon en <code>sensor.alex_glucose</code> door je glucosesensor.",
+    "dashboard_value_title": "Huidige waarde",
+    "dashboard_value_text": "De sensor <i>Status</i> bevat de laatste glucosewaarde, de eenheid, de trendpijl en het meettijdstip als attributen; zijn status is <i>Geen gegevens</i>, het belangrijkste lopende alarm, <i>Gepauzeerd</i> of <i>OK</i>.",
+    "dashboard_history_title": "Geschiedenis",
+    "dashboard_history_text": "De geschiedenis van de glucosesensor van de bronintegratie.",
+    "dashboard_gmi_title": "GMI en geschatte HbA1c",
+    "dashboard_gmi_text": "De sensoren <i>GMI</i> en <i>Geschatte HbA1c</i> naast elkaar. Het zijn schattingen, geen HbA1c uit het laboratorium.",
+    "dashboard_cannula_title": "Canule met knop",
+    "dashboard_cannula_text": "De tegel toont wanneer de volgende canulewissel nodig is; een tik op het pictogram registreert na een bevestiging een wissel met de knop <i>Canule gewisseld</i>. Daaronder staat hoe lang de canule al in gebruik is. Hetzelfde werkt voor de sensor en het reservoir. De knop bestaat alleen als de integratie de wissels zelf registreert (geen entiteit voor de laatste wissel).",
+    "dashboard_report_title": "Laatste rapport",
+    "dashboard_report_text": "De tekst van het laatste rapport uit de sensor <i>Laatste rapport</i>.",
     "notify_title": "Meldingen op meerdere telefoons",
     "notify_points": [
       "<code>notify.notify</code> wordt geleverd door de Mobile App-integratie en stuurt naar <b>alle</b> telefoons met de Companion-app, met alle opties (tag, kanaal, bevestigknop). Is er een andere notify-integratie zonder naam ingesteld, dan kan <code>notify.notify</code> in plaats daarvan bij die integratie horen.",

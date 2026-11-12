@@ -187,6 +187,18 @@
       "Si menos del 70 % del periodo está cubierto por datos, ambos sensores son desconocidos. Se actualizan cada hora y cuando cambia la entidad del periodo.",
       "<b>Atributos</b>: <code>mmol_mol</code> (IFCC), <code>glucose_mean</code> y <code>unit</code> (unidad del sensor de glucosa), <code>coverage</code> (porcentaje del periodo con datos), <code>period_days</code>, <code>start</code> y <code>end</code> (ISO 8601)."
     ],
+    "dashboard_title": "Ejemplos de panel",
+    "dashboard_text": "Tarjetas para el panel con las tarjetas integradas de Home Assistant: edita un panel, añade una tarjeta, elige <i>Manual</i> y pega el YAML. Sustituye <code>alex</code> por los ID de entidad de tu persona y <code>sensor.alex_glucose</code> por tu sensor de glucosa.",
+    "dashboard_value_title": "Valor actual",
+    "dashboard_value_text": "El sensor <i>Estado</i> lleva como atributos el último valor de glucosa, la unidad, la flecha de tendencia y la hora de la lectura; su estado es <i>Sin datos</i>, la alarma activa más importante, <i>En pausa</i> u <i>OK</i>.",
+    "dashboard_history_title": "Historial",
+    "dashboard_history_text": "El historial del sensor de glucosa de la integración de origen.",
+    "dashboard_gmi_title": "GMI y HbA1c estimada",
+    "dashboard_gmi_text": "Los sensores <i>GMI</i> y <i>HbA1c estimada</i> uno al lado del otro. Son estimaciones, no una HbA1c de laboratorio.",
+    "dashboard_cannula_title": "Cánula con botón",
+    "dashboard_cannula_text": "El mosaico muestra cuándo toca el próximo cambio de cánula; al tocar el icono se registra, tras una confirmación, un cambio con el botón <i>Cánula cambiada</i>. Debajo, cuánto tiempo lleva en uso la cánula. Lo mismo funciona para el sensor y el reservorio. El botón solo existe cuando la integración registra los cambios por sí misma (sin entidad del último cambio).",
+    "dashboard_report_title": "Último informe",
+    "dashboard_report_text": "El texto del último informe del sensor <i>Último informe</i>.",
     "notify_title": "Notificaciones en varios teléfonos",
     "notify_points": [
       "<code>notify.notify</code> lo proporciona la integración Mobile App y envía a <b>todos</b> los teléfonos con la app Companion, con todas las opciones (etiqueta, canal, botón de confirmar). Si hay configurada otra integración de notificación sin nombre, <code>notify.notify</code> puede pertenecer a esa en su lugar.",
