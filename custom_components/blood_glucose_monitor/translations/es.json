@@ -382,9 +382,14 @@
       },
       "pause": {
         "title": "Pausa",
-        "description": "El interruptor de pausa silencia durante este tiempo todas las alarmas excepto la de glucosa baja urgente. La alarma de glucosa baja urgente nunca se pausa. Cuando termina la pausa, las alarmas se comprueban de nuevo de inmediato.",
+        "description": "La pausa silencia todas las alarmas excepto la de glucosa baja urgente. La alarma de glucosa baja urgente nunca se pausa. El interruptor de pausa las pausa durante la duración de la pausa; cuando termina, las alarmas se comprueban de nuevo de inmediato. Además, las alarmas están en pausa mientras una de las entidades de pausa está activada, por ejemplo durante los bloques de una programación (guardería, colegio).",
         "data": {
-          "duration": "Duración de la pausa"
+          "duration": "Duración de la pausa",
+          "pause_entities": "Entidades de pausa"
+        },
+        "data_description": {
+          "duration": "Cuánto tiempo pausa las alarmas el interruptor de pausa.",
+          "pause_entities": "Programaciones, entradas booleanas o sensores binarios. Mientras una de ellas está activada, las alarmas están en pausa; las alarmas en curso se confirman. Cuando todas vuelven a estar desactivadas, una alarma vuelve a iniciarse con su retraso si la glucosa sigue en su rango. Déjalo vacío para no usar ninguna entidad de pausa."
         }
       }
     },

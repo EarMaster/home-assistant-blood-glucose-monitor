@@ -382,9 +382,14 @@
       },
       "pause": {
         "title": "Pauze",
-        "description": "De pauzeschakelaar dempt gedurende deze tijd alle alarmen behalve urgent laag. Het alarm urgent laag wordt nooit gepauzeerd. Wanneer de pauze eindigt, worden de alarmen meteen opnieuw gecontroleerd.",
+        "description": "De pauze dempt alle alarmen behalve urgent laag. Het alarm urgent laag wordt nooit gepauzeerd. De pauzeschakelaar pauzeert gedurende de pauzeduur; wanneer die eindigt, worden de alarmen meteen opnieuw gecontroleerd. Daarnaast zijn de alarmen gepauzeerd zolang een van de pauze-entiteiten aan staat, bijvoorbeeld tijdens de blokken van een schema (kinderopvang, school).",
         "data": {
-          "duration": "Pauzeduur"
+          "duration": "Pauzeduur",
+          "pause_entities": "Pauze-entiteiten"
+        },
+        "data_description": {
+          "duration": "Hoe lang de pauzeschakelaar de alarmen pauzeert.",
+          "pause_entities": "Schema's, boolean invoer of binaire sensoren. Zolang een ervan aan staat, zijn de alarmen gepauzeerd; lopende alarmen worden bevestigd. Wanneer alle weer uit staan, start een alarm opnieuw met zijn vertraging als de glucose nog binnen zijn bereik is. Laat leeg voor geen pauze-entiteit."
         }
       }
     },

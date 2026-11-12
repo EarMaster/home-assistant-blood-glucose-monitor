@@ -40,7 +40,7 @@ class PauseSwitch(BloodGlucoseMonitorEntity, SwitchEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return when the pause ends."""
-        until = self.monitor.pause_until if self.monitor.paused else None
+        until = self.monitor.pause_until if self.monitor.paused_manually else None
         return {"until": None if until is None else until.isoformat()}
 
     async def async_turn_on(self, **kwargs: Any) -> None:

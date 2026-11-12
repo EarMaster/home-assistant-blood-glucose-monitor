@@ -382,9 +382,14 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "The pause switch silences all alarms except urgent low for this duration. The urgent low alarm is never paused. When the pause ends, the alarms are checked again at once.",
+        "description": "The pause silences all alarms except urgent low. The urgent low alarm is never paused. The pause switch pauses for the pause duration; when it ends, the alarms are checked again at once. In addition, the alarms are paused while one of the pause entities is on, for example during the blocks of a schedule (nursery, school).",
         "data": {
-          "duration": "Pause duration"
+          "duration": "Pause duration",
+          "pause_entities": "Pause entities"
+        },
+        "data_description": {
+          "duration": "How long the pause switch pauses the alarms.",
+          "pause_entities": "Schedules, input booleans or binary sensors. While one of them is on, the alarms are paused; running alarms are acknowledged. When all are off again, an alarm starts again with its delay if the glucose is still in its range. Leave empty for no pause entity."
         }
       }
     },

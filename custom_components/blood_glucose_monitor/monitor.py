@@ -72,6 +72,7 @@ from .const import (
     CONF_MAX_AGE,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
+    CONF_PAUSE_ENTITIES,
     CONF_PERIOD,
     CONF_PERIOD_ENTITY,
     CONF_PERSON_ENTITY,
@@ -274,9 +275,9 @@ class AlarmMonitor:
         }
         # Readings older than this are stale; also the data loss limit.
         self.max_age = minutes(self._options[ALARM_DATA_LOSS][CONF_MAX_AGE])
-        self.pause_duration = minutes(
-            options.get(CONF_PAUSE, {}).get(CONF_DURATION, DEFAULT_PAUSE_DURATION)
-        )
+        pause = options.get(CONF_PAUSE, {})
+        self.pause_duration = minutes(pause.get(CONF_DURATION, DEFAULT_PAUSE_DURATION))
+        self.pause_entities: list[str] = list(pause.get(CONF_PAUSE_ENTITIES, []))
         self.pause_until: datetime | None = None
         self.last_reading_time: datetime | None = None
         # Latest and previous (time, mg/dL) for the own rate of change.
@@ -327,7 +328,20 @@ class AlarmMonitor:
     @property
     def paused(self) -> bool:
         """Return True while the pausable alarms are paused."""
+        return self.paused_manually or self.paused_by_entity
+
+    @property
+    def paused_manually(self) -> bool:
+        """Return True while the pause switch pauses the alarms."""
         return self.pause_until is not None and dt_util.utcnow() < self.pause_until
+
+    @property
+    def paused_by_entity(self) -> bool:
+        """Return True while a pause entity is on (never when unknown)."""
+        return any(
+            state_value(self.hass.states.get(entity_id)) == STATE_ON
+            for entity_id in self.pause_entities
+        )
 
     def state(self, alarm: str) -> AlarmState:
         """Return the state of an enabled alarm."""
@@ -461,6 +475,7 @@ class AlarmMonitor:
         ]
         if person := entry.options.get(CONF_PERSON_ENTITY):
             tracked.append(person)
+        tracked.extend(self.pause_entities)
         if tracked:
             entry.async_on_unload(
                 async_track_state_change_event(
@@ -649,6 +664,12 @@ class AlarmMonitor:
         if self.pause_until is not None and now >= self.pause_until:
             self.pause_until = None
         self._async_update_issue(reading)
+        if self.paused_by_entity:
+            # Running alarms are acknowledged; they end at the next check and
+            # start again (with their delay) once the pause entity is off.
+            for alarm in PAUSABLE_ALARMS:
+                if (engine := self.engines.get(alarm)) is not None:
+                    self._async_notify_all(alarm, engine.acknowledge(now, now), now)
 
         # Urgent alarms first: they decide whether the plain ones may sound.
         for alarm, engine in sorted(

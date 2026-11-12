@@ -86,7 +86,7 @@
       ],
       [
         "Interruptor <i>Pausar alarmas</i>",
-        "Silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado."
+        "Silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado. También está activado mientras una entidad de pausa mantiene las alarmas en pausa."
       ],
       [
         "Sensor <i>Próximo cambio de …</i>, botón <i>Cánula cambiada</i> / <i>Sensor cambiado</i> / <i>Reservorio cambiado</i>",
@@ -196,7 +196,7 @@
     "ack_title": "Confirmar y pausar",
     "ack_points": [
       "<b>Confirmar</b> silencia una alarma durante su tiempo de silencio; después se comprueba de nuevo y se inicia de inmediato si sigue siendo aplicable. Confirmar la de glucosa baja urgente también silencia la de glucosa baja durante ese tiempo (la de glucosa alta urgente también la de glucosa alta); confirmar la de glucosa baja no silencia la de glucosa baja urgente. Formas: el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o una acción de notificación con el ID de <code>ack_action</code>.",
-      "<b>Pausar alarmas</b> silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado y se desactiva por sí solo.",
+      "<b>Pausar alarmas</b> silencia todas las alarmas excepto la de glucosa baja urgente durante el tiempo configurado y se desactiva por sí solo; después, las alarmas se comprueban de nuevo de inmediato. Las <b>entidades de pausa</b> opcionales en <b>Configurar → Pausa</b>, programaciones, entradas booleanas o sensores binarios, pausan las mismas alarmas mientras una de ellas está activada, por ejemplo durante la guardería o el colegio. Una entidad desconocida o no disponible cuenta como desactivada. Cuando todas vuelven a estar desactivadas, una alarma que sigue aplicándose vuelve a iniciarse con su retraso. Mientras dura la pausa, el interruptor <i>Pausar alarmas</i> está activado y el sensor de estado muestra <code>paused</code>.",
       "<b>Registrar un cambio</b> de cánula, sensor o reservorio con los botones <i>Cánula cambiada</i>, <i>Sensor cambiado</i> o <i>Reservorio cambiado</i> o con la acción <code>blood_glucose_monitor.record_change</code> (opcionalmente con una hora en el pasado)."
     ]
   },
@@ -230,7 +230,8 @@
       "home": "Con <i>Solo cuando la persona está en casa</i> en {menu}: la persona está en casa cuando la alarma se iniciaría. Una alarma en curso continúa cuando la persona se va.",
       "not_acknowledged": "La alarma no está confirmada: tras una confirmación permanece en silencio durante el tiempo de silencio y después se comprueba de nuevo.",
       "not_superseded": "{urgent} no está en curso (pendiente, activa o silenciada): mientras lo está, esta alarma no se inicia ni se repite. Después de confirmar {urgent}, esta alarma permanece en silencio hasta que termina el tiempo de silencio de {urgent} (no el suyo propio) y después se comprueba de nuevo.",
-      "pause_off": "El interruptor <i>{pause}</i> está desactivado.",
+      "pause_off": "Las alarmas no están en pausa: el interruptor <i>{pause}</i> está desactivado (también está activado mientras una de las entidades de pausa de {menu} está activada). Cuando todas las entidades de pausa vuelven a estar desactivadas, la alarma vuelve a iniciarse con su retraso.",
+      "paused": "Empieza una pausa (el interruptor <i>{pause}</i> o una de las entidades de pausa de {menu}): una alarma en curso se confirma (fase <code>acknowledged</code>).",
       "pause_never": "La pausa no se aplica a esta alarma.",
       "repeats": "Repeticiones: el evento se vuelve a disparar en cada intervalo de repetición mientras la alarma está activa (intervalo de repetición 0 = solo una vez).",
       "acknowledged": "La alarma se confirma: con el botón <i>Confirmar …</i>, la acción <code>blood_glucose_monitor.acknowledge</code> o la acción de notificación <code>ack_action</code>.",

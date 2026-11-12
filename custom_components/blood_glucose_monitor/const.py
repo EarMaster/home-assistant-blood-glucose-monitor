@@ -188,6 +188,9 @@ REPORT_ICON: Final = "mdi:clipboard-text-clock"
 # Pause of the pausable alarms, options dict under this key.
 CONF_PAUSE: Final = "pause"
 CONF_DURATION: Final = "duration"
+# While one of these entities (schedule, input boolean, binary sensor) is on,
+# the pausable alarms are paused as well.
+CONF_PAUSE_ENTITIES: Final = "pause_entities"
 
 # Defaults in minutes. Only suggestions, every value can be changed.
 ALARM_DEFAULTS: Final[dict[str, dict[str, int | str]]] = {

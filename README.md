@@ -141,8 +141,16 @@ entities.
   Acknowledging low does not hold urgent low: if glucose falls further,
   urgent low still starts. The same applies to urgent high and high.
 - **Pause:** the *Pause alarms* switch silences all alarms except urgent low
-  for the configured duration and turns off by itself. Urgent low is never
-  paused.
+  for the configured duration and turns off by itself; when it ends, the
+  alarms are checked again at once. In addition, optional *Pause entities*
+  (schedules, input booleans or binary sensors) pause the same alarms while
+  any of them is on, for example during the blocks of a schedule for nursery
+  or school; an unknown or unavailable entity counts as off. When all pause
+  entities are off again, an alarm whose condition still applies starts
+  again with its delay. A pause acknowledges running alarms (their `…_ended` event fires
+  with phase `acknowledged`), and no new ones start. The switch shows on
+  while either pauses (its `until` attribute only for its own pause), the
+  status sensor shows `paused`. Urgent low is never paused.
 - **Only when the person is at home:** new alarms only start while the
   selected person is at home; a running alarm continues.
 - **Stale data:** readings older than the maximum data age neither start nor

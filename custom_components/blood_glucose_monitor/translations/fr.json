@@ -382,9 +382,14 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "L'interrupteur de pause rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant cette durée. L'alarme d'urgence glucose bas n'est jamais mise en pause. À la fin de la pause, les alarmes sont immédiatement vérifiées à nouveau.",
+        "description": "La pause rend silencieuses toutes les alarmes, sauf l'urgence glucose bas. L'alarme d'urgence glucose bas n'est jamais mise en pause. L'interrupteur de pause met les alarmes en pause pendant la durée de la pause ; à sa fin, les alarmes sont immédiatement vérifiées à nouveau. De plus, les alarmes sont en pause tant que l'une des entités de pause est activée, par exemple pendant les plages d'une planification (crèche, école).",
         "data": {
-          "duration": "Durée de la pause"
+          "duration": "Durée de la pause",
+          "pause_entities": "Entités de pause"
+        },
+        "data_description": {
+          "duration": "Durée pendant laquelle l'interrupteur de pause met les alarmes en pause.",
+          "pause_entities": "Planifications, entrées booléennes ou capteurs binaires. Tant que l'une d'elles est activée, les alarmes sont en pause ; les alarmes en cours sont acquittées. Lorsque toutes sont de nouveau désactivées, une alarme redémarre avec son délai si le glucose est toujours dans sa plage. Laissez vide pour ne pas utiliser d'entité de pause."
         }
       }
     },

@@ -382,9 +382,14 @@
       },
       "pause": {
         "title": "Pause",
-        "description": "Der Pause-Schalter schaltet alle Alarme außer dringend niedrig für diese Dauer stumm. Der Alarm dringend niedrig wird nie pausiert. Endet die Pause, werden die Alarme sofort neu geprüft.",
+        "description": "Die Pause schaltet alle Alarme außer dringend niedrig stumm. Der Alarm dringend niedrig wird nie pausiert. Der Pause-Schalter pausiert für die Dauer der Pause; endet sie, werden die Alarme sofort neu geprüft. Zusätzlich sind die Alarme pausiert, solange eine der Pause-Entitäten an ist, zum Beispiel während der Blöcke eines Zeitplans (Kita, Schule).",
         "data": {
-          "duration": "Dauer der Pause"
+          "duration": "Dauer der Pause",
+          "pause_entities": "Pause-Entitäten"
+        },
+        "data_description": {
+          "duration": "Wie lange der Pause-Schalter die Alarme pausiert.",
+          "pause_entities": "Zeitpläne, Schalter-Helfer oder Binärsensoren. Solange eine davon an ist, sind die Alarme pausiert; laufende Alarme werden bestätigt. Sind alle wieder aus, startet ein Alarm wieder mit seiner Verzögerung, wenn die Glukose noch im Alarmbereich ist. Leer lassen für keine Pause-Entität."
         }
       }
     },

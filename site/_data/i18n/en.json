@@ -86,7 +86,7 @@
       ],
       [
         "<i>Pause alarms</i> switch",
-        "Silences all alarms except urgent low for the configured time."
+        "Silences all alarms except urgent low for the configured time. Also on while a pause entity pauses the alarms."
       ],
       [
         "<i>… change due</i> sensor, <i>… changed</i> button",
@@ -196,7 +196,7 @@
     "ack_title": "Acknowledge and pause",
     "ack_points": [
       "<b>Acknowledge</b> silences an alarm for its snooze time; then it is checked again and starts at once if it still applies. Acknowledging urgent low also silences low for that time (urgent high also high); acknowledging low does not silence urgent low. Ways: the <i>Acknowledge …</i> button, the action <code>blood_glucose_monitor.acknowledge</code> or a notification action with the id from <code>ack_action</code>.",
-      "<b>Pause alarms</b> silences all alarms except urgent low for the configured duration and turns off by itself.",
+      "<b>Pause alarms</b> silences all alarms except urgent low for the configured duration and turns off by itself; then the alarms are checked again at once. The optional <b>pause entities</b> under <b>Configure → Pause</b>, schedules, input booleans or binary sensors, pause the same alarms while any of them is on, for example during nursery or school. An unknown or unavailable entity counts as off. When all are off again, an alarm that still applies starts again with its delay. The switch <i>Pause alarms</i> shows on and the status sensor <code>paused</code> while it pauses.",
       "<b>Record a change</b> of cannula, sensor or reservoir with the <i>… changed</i> button or the action <code>blood_glucose_monitor.record_change</code> (optionally with a time in the past)."
     ]
   },
@@ -230,7 +230,8 @@
       "home": "With <i>Only when the person is at home</i> in {menu}: the person is at home when the alarm would start. A running alarm continues when the person leaves.",
       "not_acknowledged": "The alarm is not acknowledged: after an acknowledgement it stays silent for the snooze time and is then checked again.",
       "not_superseded": "{urgent} is not running (pending, active or snoozed): while it runs, this alarm neither starts nor repeats. After {urgent} is acknowledged, this alarm stays silent until the snooze time of {urgent} ends (not its own) and is then checked again.",
-      "pause_off": "The switch <i>{pause}</i> is off.",
+      "pause_off": "The alarms are not paused: the switch <i>{pause}</i> is off (it is also on while one of the pause entities of {menu} is on). When all pause entities are off again, the alarm starts again with its delay.",
+      "paused": "A pause starts (the switch <i>{pause}</i> or one of the pause entities of {menu}): a running alarm is acknowledged (phase <code>acknowledged</code>).",
       "pause_never": "The pause does not apply to this alarm.",
       "repeats": "Repeats: the event fires again in the repeat interval while the alarm is active (repeat interval 0 = only once).",
       "acknowledged": "The alarm is acknowledged: the <i>Acknowledge …</i> button, the action <code>blood_glucose_monitor.acknowledge</code> or the notification action <code>ack_action</code>.",

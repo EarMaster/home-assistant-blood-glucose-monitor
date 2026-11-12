@@ -86,7 +86,7 @@
       ],
       [
         "Schakelaar <i>Alarmen pauzeren</i>",
-        "Dempt alle alarmen behalve urgent laag gedurende de ingestelde tijd."
+        "Dempt alle alarmen behalve urgent laag gedurende de ingestelde tijd. Staat ook aan zolang een pauze-entiteit de alarmen pauzeert."
       ],
       [
         "Sensor <i>… nodig</i>, knop <i>… gewisseld</i>",
@@ -196,7 +196,7 @@
     "ack_title": "Bevestigen en pauzeren",
     "ack_points": [
       "<b>Bevestigen</b> dempt een alarm voor de duur van het sluimeren; daarna wordt het opnieuw gecontroleerd en start het meteen als het nog van toepassing is. Wie urgent laag bevestigt, dempt voor die tijd ook laag (urgent hoog ook hoog); wie laag bevestigt, dempt urgent laag niet. Manieren: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of een meldingsactie met de ID uit <code>ack_action</code>.",
-      "<b>Alarmen pauzeren</b> dempt alle alarmen behalve urgent laag gedurende de ingestelde duur en schakelt daarna vanzelf uit.",
+      "<b>Alarmen pauzeren</b> dempt alle alarmen behalve urgent laag gedurende de ingestelde duur en schakelt daarna vanzelf uit; dan worden de alarmen meteen opnieuw gecontroleerd. De optionele <b>pauze-entiteiten</b> onder <b>Configureren → Pauze</b>, schema's, boolean invoer of binaire sensoren, pauzeren dezelfde alarmen zolang een ervan aan staat, bijvoorbeeld tijdens de kinderopvang of school. Een onbekende of niet-beschikbare entiteit telt als uit. Wanneer alle weer uit staan, start een alarm dat nog van toepassing is opnieuw met zijn vertraging. Zolang er gepauzeerd wordt, staat de schakelaar <i>Alarmen pauzeren</i> aan en toont de statussensor <code>paused</code>.",
       "<b>Wissel registreren</b> van canule, sensor of reservoir met de knop <i>… gewisseld</i> of de actie <code>blood_glucose_monitor.record_change</code> (optioneel met een tijdstip in het verleden)."
     ]
   },
@@ -230,7 +230,8 @@
       "home": "Met <i>Alleen als de persoon thuis is</i> in {menu}: de persoon is thuis wanneer het alarm zou starten. Een lopend alarm gaat door als de persoon vertrekt.",
       "not_acknowledged": "Het alarm is niet bevestigd: na een bevestiging blijft het stil voor de duur van het sluimeren en wordt het daarna opnieuw gecontroleerd.",
       "not_superseded": "{urgent} loopt niet (in afwachting, actief of sluimerend): zolang het loopt, start dit alarm niet en herhaalt het zich niet. Nadat {urgent} is bevestigd, blijft dit alarm stil tot de sluimertijd van {urgent} afloopt (niet de eigen) en wordt het daarna opnieuw gecontroleerd.",
-      "pause_off": "De schakelaar <i>{pause}</i> staat uit.",
+      "pause_off": "De alarmen zijn niet gepauzeerd: de schakelaar <i>{pause}</i> staat uit (deze staat ook aan zolang een van de pauze-entiteiten in {menu} aan staat). Wanneer alle pauze-entiteiten weer uit staan, start het alarm opnieuw met zijn vertraging.",
+      "paused": "Een pauze begint (de schakelaar <i>{pause}</i> of een van de pauze-entiteiten in {menu}): een lopend alarm wordt bevestigd (fase <code>acknowledged</code>).",
       "pause_never": "De pauze geldt niet voor dit alarm.",
       "repeats": "Herhalingen: de gebeurtenis wordt opnieuw geactiveerd na het herhaalinterval zolang het alarm actief is (herhaalinterval 0 = slechts één keer).",
       "acknowledged": "Het alarm wordt bevestigd: de knop <i>… bevestigen</i>, de actie <code>blood_glucose_monitor.acknowledge</code> of de meldingsactie <code>ack_action</code>.",

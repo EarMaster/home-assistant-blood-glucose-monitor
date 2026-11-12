@@ -68,6 +68,7 @@ from .const import (
     CONF_NAME,
     CONF_ONLY_WHEN_HOME,
     CONF_PAUSE,
+    CONF_PAUSE_ENTITIES,
     CONF_PERIOD,
     CONF_PERIOD_ENTITY,
     CONF_PERSON_ENTITY,
@@ -157,6 +158,15 @@ ALREADY_MONITORED_SCHEMA = vol.Schema({})
 MENU_SCHEMA = vol.Schema({})
 
 
+def _is_on_off(hass: HomeAssistant, entity_id: str | None) -> bool:
+    """Return False if the entity has a state other than on or off."""
+    return not entity_id or state_value(hass.states.get(entity_id)) in (
+        None,
+        STATE_ON,
+        STATE_OFF,
+    )
+
+
 def _minutes(minimum: int = 0) -> NumberSelector:
     """Return a selector for a duration in minutes."""
     return NumberSelector(
@@ -198,12 +208,23 @@ DATA_LOSS_SCHEMA = vol.Schema(
         vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
     }
 )
-PAUSE_SCHEMA = vol.Schema({vol.Required(CONF_DURATION): _minutes(1)})
+# Entities whose on/off state marks periods (reports, pause).
+PERIOD_SELECTOR = EntitySelector(
+    EntitySelectorConfig(domain=["schedule", "input_boolean", "binary_sensor"])
+)
+PAUSE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_DURATION): _minutes(1),
+        vol.Optional(CONF_PAUSE_ENTITIES): EntitySelector(
+            EntitySelectorConfig(
+                domain=["schedule", "input_boolean", "binary_sensor"], multiple=True
+            )
+        ),
+    }
+)
 REPORT_SCHEMA = vol.Schema(
     {
-        vol.Optional(CONF_REPORT_ENTITY): EntitySelector(
-            EntitySelectorConfig(domain=["schedule", "input_boolean", "binary_sensor"])
-        ),
+        vol.Optional(CONF_REPORT_ENTITY): PERIOD_SELECTOR,
         vol.Required(CONF_COOLDOWN, default=DEFAULT_COOLDOWN): _minutes(),
         vol.Required(CONF_ONLY_WHEN_HOME, default=False): BooleanSelector(),
     }
@@ -735,9 +756,7 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         """Configure the reports."""
         errors: dict[str, str] = {}
         if user_input is not None:
-            if (entity_id := user_input.get(CONF_REPORT_ENTITY)) and state_value(
-                self.hass.states.get(entity_id)
-            ) not in (None, STATE_ON, STATE_OFF):
+            if not _is_on_off(self.hass, user_input.get(CONF_REPORT_ENTITY)):
                 errors[CONF_REPORT_ENTITY] = "not_on_off"
             if user_input.get(
                 CONF_ONLY_WHEN_HOME
@@ -772,15 +791,23 @@ class OptionsFlowHandler(OptionsFlowWithReload):
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Configure the pause (all alarms except urgent low)."""
+        errors: dict[str, str] = {}
         if user_input is not None:
-            return self._async_save(CONF_PAUSE, user_input)
-        current = {
+            if not all(
+                _is_on_off(self.hass, entity_id)
+                for entity_id in user_input.get(CONF_PAUSE_ENTITIES, [])
+            ):
+                errors[CONF_PAUSE_ENTITIES] = "not_on_off"
+            else:
+                return self._async_save(CONF_PAUSE, user_input)
+        current = user_input or {
             CONF_DURATION: DEFAULT_PAUSE_DURATION,
             **self.config_entry.options.get(CONF_PAUSE, {}),
         }
         return self.async_show_form(
             step_id=CONF_PAUSE,
             data_schema=self.add_suggested_values_to_schema(PAUSE_SCHEMA, current),
+            errors=errors,
         )
 
     async def _async_alarm_step(

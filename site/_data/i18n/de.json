@@ -86,7 +86,7 @@
       ],
       [
         "Schalter <i>Alarme pausieren</i>",
-        "Schaltet alle Alarme außer dringend niedrig für die eingestellte Zeit stumm."
+        "Schaltet alle Alarme außer dringend niedrig für die eingestellte Zeit stumm. Auch an, solange eine Pause-Entität die Alarme pausiert."
       ],
       [
         "Sensor <i>… fällig</i>, Button <i>… gewechselt</i>",
@@ -196,7 +196,7 @@
     "ack_title": "Bestätigen und pausieren",
     "ack_points": [
       "<b>Bestätigen</b> schaltet einen Alarm für seine Schlummerzeit stumm; danach wird er erneut geprüft und startet sofort, wenn er noch zutrifft. Wer dringend niedrig bestätigt, schaltet für diese Zeit auch niedrig stumm (dringend hoch auch hoch); wer niedrig bestätigt, schaltet dringend niedrig nicht stumm. Wege: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder eine Benachrichtigungsaktion mit der ID aus <code>ack_action</code>.",
-      "<b>Alarme pausieren</b> schaltet alle Alarme außer dringend niedrig für die eingestellte Dauer stumm und schaltet sich selbst wieder aus.",
+      "<b>Alarme pausieren</b> schaltet alle Alarme außer dringend niedrig für die eingestellte Dauer stumm und schaltet sich selbst wieder aus; dann werden die Alarme sofort neu geprüft. Die optionalen <b>Pause-Entitäten</b> unter <b>Konfigurieren → Pause</b>, Zeitpläne, Schalter-Helfer oder Binärsensoren, pausieren dieselben Alarme, solange eine davon an ist, zum Beispiel während Kita oder Schule. Eine unbekannte oder nicht verfügbare Entität gilt als aus. Sind alle wieder aus, startet ein Alarm, der noch zutrifft, wieder mit seiner Verzögerung. Solange pausiert ist, ist der Schalter <i>Alarme pausieren</i> an und der Status-Sensor zeigt <code>paused</code>.",
       "<b>Wechsel erfassen</b> für Kanüle, Sensor oder Reservoir mit dem Button <i>… gewechselt</i> oder der Aktion <code>blood_glucose_monitor.record_change</code> (optional mit einem Zeitpunkt in der Vergangenheit)."
     ]
   },
@@ -230,7 +230,8 @@
       "home": "Mit <i>Nur wenn die Person zu Hause ist</i> in {menu}: Die Person ist zu Hause, wenn der Alarm starten würde. Ein laufender Alarm läuft weiter, wenn die Person geht.",
       "not_acknowledged": "Der Alarm ist nicht bestätigt: Nach einer Bestätigung bleibt er für die Schlummerzeit still und wird dann erneut geprüft.",
       "not_superseded": "{urgent} läuft nicht (ausstehend, aktiv oder geschlummert): Solange er läuft, startet dieser Alarm nicht und wiederholt sich nicht. Nachdem {urgent} bestätigt wurde, bleibt dieser Alarm still, bis die Schlummerzeit von {urgent} endet (nicht die eigene), und wird dann erneut geprüft.",
-      "pause_off": "Der Schalter <i>{pause}</i> ist aus.",
+      "pause_off": "Die Alarme sind nicht pausiert: Der Schalter <i>{pause}</i> ist aus (er ist auch an, solange eine der Pause-Entitäten in {menu} an ist). Sind alle Pause-Entitäten wieder aus, startet der Alarm wieder mit seiner Verzögerung.",
+      "paused": "Eine Pause beginnt (der Schalter <i>{pause}</i> oder eine der Pause-Entitäten in {menu}): Ein laufender Alarm wird bestätigt (Phase <code>acknowledged</code>).",
       "pause_never": "Die Pause gilt für diesen Alarm nicht.",
       "repeats": "Wiederholungen: Das Ereignis löst im Wiederholungsintervall erneut aus, solange der Alarm aktiv ist (Intervall 0 = nur einmal).",
       "acknowledged": "Der Alarm wird bestätigt: der Button <i>… bestätigen</i>, die Aktion <code>blood_glucose_monitor.acknowledge</code> oder die Benachrichtigungsaktion <code>ack_action</code>.",

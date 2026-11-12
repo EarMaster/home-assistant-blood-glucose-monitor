@@ -86,7 +86,7 @@
       ],
       [
         "Interrupteur <i>Mettre les alarmes en pause</i>",
-        "Rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée."
+        "Rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée. Également activé tant qu'une entité de pause met les alarmes en pause."
       ],
       [
         "Capteur <i>Échéance du changement de …</i>, bouton <i>… changé(e)</i>",
@@ -196,7 +196,7 @@
     "ack_title": "Acquitter et mettre en pause",
     "ack_points": [
       "<b>Acquitter</b> rend une alarme silencieuse pendant sa durée de mise en sourdine ; ensuite, elle est vérifiée à nouveau et se déclenche immédiatement si elle s'applique toujours. Acquitter l'urgence glucose bas rend aussi silencieuse l'alarme glucose bas pendant cette durée (l'urgence glucose élevé aussi l'alarme glucose élevé) ; acquitter l'alarme glucose bas ne rend pas silencieuse l'urgence glucose bas. Moyens : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou une action de notification avec l'identifiant de <code>ack_action</code>.",
-      "<b>Mettre les alarmes en pause</b> rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée et se désactive tout seul.",
+      "<b>Mettre les alarmes en pause</b> rend silencieuses toutes les alarmes, sauf l'urgence glucose bas, pendant la durée configurée et se désactive tout seul ; les alarmes sont alors immédiatement vérifiées à nouveau. Les <b>entités de pause</b> facultatives sous <b>Configurer → Pause</b>, des planifications, entrées booléennes ou capteurs binaires, mettent les mêmes alarmes en pause tant que l'une d'elles est activée, par exemple pendant la crèche ou l'école. Une entité inconnue ou indisponible est considérée comme désactivée. Lorsque toutes sont de nouveau désactivées, une alarme toujours valable redémarre avec son délai. Tant que la pause dure, l'interrupteur <i>Mettre les alarmes en pause</i> est activé et le capteur d'état indique <code>paused</code>.",
       "<b>Enregistrer un changement</b> de canule, de capteur ou de réservoir avec le bouton <i>… changé(e)</i> ou l'action <code>blood_glucose_monitor.record_change</code> (éventuellement avec une heure dans le passé)."
     ]
   },
@@ -230,7 +230,8 @@
       "home": "Avec <i>Uniquement lorsque la personne est à la maison</i> dans {menu} : la personne est à la maison au moment où l'alarme se déclencherait. Une alarme en cours continue lorsque la personne part.",
       "not_acknowledged": "L'alarme n'est pas acquittée : après un acquittement, elle reste silencieuse pendant la durée de mise en sourdine, puis elle est vérifiée à nouveau.",
       "not_superseded": "{urgent} n'est pas en cours (en attente, active ou en sourdine) : tant qu'elle est en cours, cette alarme ne se déclenche pas et ne se répète pas. Après l'acquittement de {urgent}, cette alarme reste silencieuse jusqu'à la fin de la mise en sourdine de {urgent} (et non de la sienne), puis elle est vérifiée à nouveau.",
-      "pause_off": "L'interrupteur <i>{pause}</i> est désactivé.",
+      "pause_off": "Les alarmes ne sont pas en pause : l'interrupteur <i>{pause}</i> est désactivé (il est aussi activé tant que l'une des entités de pause de {menu} est activée). Lorsque toutes les entités de pause sont de nouveau désactivées, l'alarme redémarre avec son délai.",
+      "paused": "Une pause commence (l'interrupteur <i>{pause}</i> ou l'une des entités de pause de {menu}) : une alarme en cours est acquittée (phase <code>acknowledged</code>).",
       "pause_never": "La pause ne s'applique pas à cette alarme.",
       "repeats": "Répétitions : l'événement se déclenche à nouveau selon l'intervalle de répétition tant que l'alarme est active (intervalle de répétition 0 = une seule fois).",
       "acknowledged": "L'alarme est acquittée : le bouton <i>Acquitter …</i>, l'action <code>blood_glucose_monitor.acknowledge</code> ou l'action de notification <code>ack_action</code>.",
